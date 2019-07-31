@@ -1,7 +1,7 @@
 let botDomain = $("#slackBotDomain").val();
 let mentorMaxStudents = $("#mentorMaxStudents").val();
 const maxStudents = mentorMaxStudents * mentors.length;
-let mentorsMap = new Map();
+let mentorsMap = new Map(Object.entries(JSON.parse(mentorsFromBotJson)));
 let studentCounter = 0;
 let learningStudents = 0;
 let trialStudents = 0;
@@ -11,81 +11,74 @@ let undefinedMentorsEmails = [];
 let undefinedStudentsEmails = [];
 
 $(document).ready(function () {
+    const start = new Date().getTime();
+
     $("#mentors-row").children().remove();
     $('<div></div>', {
         class: 'row',
         id: 'mentors-row'
     }).appendTo('#mentors-column');
-    $.ajaxSetup({async: false});
-    let url = "http://" + botDomain + "/mentor/all/students";
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: mentors,
-        dataType: 'json',
-        complete: function (mentorsMap) {
-            console.log("good");
-        },
-        error: function (e) {
-            console.log("Фига");
 
+    mentorsMap.forEach(function (value, key) {
+        if (value.mentorMissed) {
+            // let x = value.getKey();
+            mentorsMap.delete(key);
+            undefinedMentorsEmails.push(value.email);
         }
 
-    });
-    $.each(mentors, function (i, mentor) {
-        $.get("http://" + botDomain + "/mentor/students?email=" + mentor.email)
-            .done(function (response) {
-                mentorsMap.set(mentor.id, response);
-            })
-            .fail(function () {
-                undefinedMentorsEmails.push(mentor.email)
-            })
 
     });
+
+    const end = new Date().getTime();
+    console.log('SecondWay:' + (end - start) + 'ms');
     drawMentorTable();
+    const ends = new Date().getTime();
+    console.log('SecondWay:' + (ends - start) + 'ms');
 });
 
 function drawMentorTable() {
     let mentorsWithClientsMap = new Map();
-    for (const mentor of mentorsMap.entries()) {
+    mentorsMap.forEach(function (mentorValue, mentorKey) {
         let mentorWithClientsMap = new Map();
         $('<div></div>', {
             class: 'text-center',
-            id: 'mentor' + mentor[0],
-            text: mentor[1].mentorName,
+            id: 'mentor' + mentorKey,
+            text: mentorValue.mentorName,
             style: "font-size: 120%"
         }).appendTo('#mentors-row');
         $('<div></div>', {
             class: 'text-center col-md-auto',
-            id: 'mentor-column' + mentor[0],
+            id: 'mentor-column' + mentorKey,
         }).appendTo('#mentors-row');
         $('<div></div>', {
             class: 'row center-block',
-            id: 'mentor-row' + mentor[0],
+            id: 'mentor-row' + mentorKey,
             style: "display: flex; justify-content: center; flex-flow:row wrap;"
-        }).appendTo('#mentor-column' + mentor[0]);
-        $.each(mentor[1], function (key, obj) {
+        }).appendTo('#mentor-column' + mentorKey);
+        $.each(mentorValue, function (key, obj) {
             if (key.includes('emails')) {
                 let studentsInStatusList = [];
                 $('<div></div>', {
                     class: 'column ui-sortable',
-                    id: 'column-' + mentor[0] + "-" + key,
+                    id: 'column-' + mentorKey + "-" + key,
                     text: renameColumn(key)
-                }).appendTo('#mentor-row' + mentor[0]);
-                $.each(obj, function (i, email) {
-                    $.get("/rest/client?email=" + email)
-                        .done(function (client) {
-                            studentsInStatusList.push(client);
-                        })
-                        .fail(function () {
+                }).appendTo('#mentor-row' + mentorKey);
+                let emailStudentsMap = new Map(Object.entries(studentsDto));
+                if (obj.length !== 0) {
+                    obj.forEach(function (email) {
+                        let student = emailStudentsMap.get(email);
+                        if (student != null) {
+                            studentsInStatusList.push(student);
+                        } else {
                             undefinedStudentsEmails.push(email);
-                        })
-                });
+                        }
+                    });
+                }
                 mentorWithClientsMap.set(key, studentsInStatusList);
             }
         });
-        mentorsWithClientsMap.set(mentor[0], mentorWithClientsMap);
-    }
+        mentorsWithClientsMap.set(mentorKey, mentorWithClientsMap);
+    });
     drawClientsPortlet(mentorsWithClientsMap);
     drawInfoBlock();
     if (undefinedStudentsEmails.length > 0 || undefinedMentorsEmails.length > 0) {
