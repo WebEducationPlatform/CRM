@@ -1,7 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 

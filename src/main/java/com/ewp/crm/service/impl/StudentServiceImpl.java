@@ -6,7 +6,6 @@ import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
-import com.ewp.crm.repository.interfaces.StudentStatusRepository;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StudentService;
 import org.slf4j.Logger;
