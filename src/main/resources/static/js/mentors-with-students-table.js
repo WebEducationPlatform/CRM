@@ -11,8 +11,6 @@ let undefinedMentorsEmails = [];
 let undefinedStudentsEmails = [];
 
 $(document).ready(function () {
-    const start = new Date().getTime();
-
     $("#mentors-row").children().remove();
     $('<div></div>', {
         class: 'row',
@@ -28,12 +26,7 @@ $(document).ready(function () {
 
 
     });
-
-    const end = new Date().getTime();
-    console.log('SecondWay:' + (end - start) + 'ms');
     drawMentorTable();
-    const ends = new Date().getTime();
-    console.log('SecondWay:' + (ends - start) + 'ms');
 });
 
 function drawMentorTable() {
@@ -66,7 +59,7 @@ function drawMentorTable() {
                 let emailStudentsMap = new Map(Object.entries(studentsDto));
                 if (obj.length !== 0) {
                     obj.forEach(function (email) {
-                        let student = emailStudentsMap.get(email);
+                        let student = emailStudentsMap.get(email.toLowerCase());
                         if (student != null) {
                             studentsInStatusList.push(student);
                         } else {

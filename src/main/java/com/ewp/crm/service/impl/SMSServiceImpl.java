@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -185,13 +186,18 @@ public class SMSServiceImpl implements SMSService {
 			smsRequest.put("smscId", smsId);
 			JSONArray jsonArray = new JSONArray();
 			jsonArray.put(smsRequest);
-			request.put("messages", jsonArray);
-			HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
-			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+			try {
+				request.put("messages", jsonArray);
+				HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+				ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 
-			JSONObject body = new JSONObject(response.getBody());
-			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
-			return Optional.ofNullable(message.getString("status"));
+				JSONObject body = new JSONObject(response.getBody());
+				JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
+
+				return Optional.ofNullable(message.getString("status"));
+			} catch (HttpClientErrorException e){
+				logger.error("org.springframework.web.client.HttpClientErrorException: 401 Unauthorized", e);
+			}
 		} catch (JSONException e) {
 			logger.error("Can`t take sms status, JSON parse error ", e);
 		}

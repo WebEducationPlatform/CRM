@@ -53,8 +53,9 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
     @Query(nativeQuery = true,
             value = "SELECT c.client_id, c.first_name, c.last_name, ce.client_email " +
                     "FROM client c " +
-                    "LEFT JOIN client_emails ce ON c.client_id = ce.client_id " +
-                    "WHERE ce.client_email IN :emails " +
-                    "OR c.email IN :emails")
+                    "JOIN client_emails ce ON c.client_id = ce.client_id " +
+                    "WHERE LOWER(ce.client_email) IN :emails " /*+
+                    "OR LOWER(c.email) IN :emails"*/
+    )
     List<ClientDto.ClientTransformer> getClientsDtoByEmails(@Param("emails") List<String> emails);
 }

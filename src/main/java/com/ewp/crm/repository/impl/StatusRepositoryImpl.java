@@ -72,6 +72,11 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
             String sortingType = (String) tuple.get("sorting_type");
 
+            List<Role> statusRoles = entityManager.createQuery(
+                    "SELECT s.role FROM Status s WHERE s.id = :statusId")
+                    .setParameter("statusId", statusId)
+                    .getResultList();
+
             // Задаем значения для сортировки клиентов внутри статусов
             String sortDirection = " ORDER BY c.date DESC ";
             String historyJoin = "";
@@ -160,7 +165,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 clients.add(newClientDto);
             }
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, roles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, statusRoles, trialOffset, nextPaymentOffset));
 
         }
 
@@ -194,11 +199,31 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int trialOffset = (int) tuple.get("trial_offset");
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, roles, trialOffset, nextPaymentOffset));
+            List<Role> statusRoles = entityManager.createQuery(
+                    "SELECT s.role FROM Status s WHERE s.id = :statusId")
+                    .setParameter("statusId", statusId)
+                    .getResultList();
+
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, statusRoles, trialOffset, nextPaymentOffset));
         }
 
         logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);
         return result;
     }
 
+    /**
+     * Метод передает клиентов из одного статуса в другой путем изменения id статусов у клиентов.
+     * @param statusFrom id статуса, из которого передаются клиенты
+     * @param statusTo id статуса, куда передаются клиенты
+     */
+    @Override
+    public void transferClientsBetweenStatuses(Long statusFrom, Long statusTo) {
+        entityManager.createNativeQuery("UPDATE status_clients SET status_id = :statusTo WHERE status_id = :statusFrom")
+                .setParameter("statusTo", statusTo)
+                .setParameter("statusFrom", statusFrom)
+                .executeUpdate();
+
+        logger.info("Clients transferred from status id {} to status id {}", statusFrom, statusTo);
+
+    }
 }
