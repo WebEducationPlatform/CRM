@@ -2,8 +2,8 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.dto.ClientDto;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +89,7 @@ public interface ClientService extends CommonService<Client> {
 
   List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
 
-	List<Client> getClientsByEmails(List<String> emails);
+	Optional<List<Client>> getClientsByEmails(List<String> emails);
 
+    List<ClientDto.ClientTransformer> getClientsDtoByEmails(List<String> emails);
 }

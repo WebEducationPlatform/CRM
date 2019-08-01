@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.NotificationRepository;
@@ -700,8 +701,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getClientsByEmails(List<String> emails){
-        return clientRepository.getClientsOfEmails(emails);
+    public Optional<List<Client>> getClientsByEmails(List<String> emails){
+        return Optional.ofNullable(clientRepository.getClientsOfEmails(emails));
+    }
+
+    @Override
+    public List<ClientDto.ClientTransformer> getClientsDtoByEmails(List<String> emails){
+        return clientRepository.getClientsDtoByEmails(emails);
     }
 }
 

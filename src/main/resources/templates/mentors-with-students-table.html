@@ -27,6 +27,8 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     var mentors = /*[[${mentors}]]*/ 'default';
+    var mentorsFromBotJson = /*[[${mentorsFromBotJson}]]*/ 'default';
+    var studentsDto = /*[[${studentsDto}]]*/ 'default';
     /*]]>*/
 </script>
 <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
