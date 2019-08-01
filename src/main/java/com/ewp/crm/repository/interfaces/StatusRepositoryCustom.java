@@ -9,6 +9,7 @@ import java.util.List;
 public interface StatusRepositoryCustom {
 
     List<StatusDtoForBoard> getStatusesForBoard(long userId, List<Role> roles, long roleId);
+    void transferClientsBetweenStatuses(Long statusFrom, Long statusTo);
 
     List<StatusDtoForMailing> getStatusesForMailing();
 }

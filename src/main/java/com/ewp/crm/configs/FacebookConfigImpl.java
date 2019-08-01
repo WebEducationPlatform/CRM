@@ -8,6 +8,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @PropertySource("file:./facebook.properties")
 public class FacebookConfigImpl implements FacebookConfig {
@@ -36,6 +38,12 @@ public class FacebookConfigImpl implements FacebookConfig {
 		return true;
 	}
 
+    @PostConstruct
+    private void checkInitializeProperties() {
+        if (version.equals("*") || pageToken.equals("*")) {
+            logger.error("Facebook configs have not initialized. Check facebook.properties file");
+        }
+    }
 
     public String getVersion() {
         return version;

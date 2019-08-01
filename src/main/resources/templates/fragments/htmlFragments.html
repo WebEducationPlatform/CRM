@@ -32,14 +32,21 @@
                     <li><a href="/client">Доска</a></li>
                     <li><a href="/client/allClients">Все клиенты</a></li>
                     <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
-                    <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR','MENTOR')">Пропавшие студенты</a></li>
-                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы обучения</a></li>
-                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Рассылка</a></li>
-                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')">Шаблоны</a></li>
-                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>
-                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
+                    <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR','MENTOR')">Пропавшие
+                        студенты</a></li>
+                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы
+                        обучения</a></li>
+                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Рассылка</a>
+                    </li>
+                    <li><a href="/template/all"
+                           sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')">Шаблоны</a></li>
+                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a>
+                    </li>
+                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a>
+                    </li>
                     <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Менторы</a></li>
                     <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Координаторы</a></li>
+                    <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
@@ -52,17 +59,20 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="nav-item dropdown">
-                        <a class="chat-notifications" id="chatNavbarDropdown" href="#" role="button" data-toggle="dropdown" style="color: red;display: none;">Новые сообщения</a>
+                        <a class="chat-notifications" id="chatNavbarDropdown" href="#" role="button"
+                           data-toggle="dropdown" style="color: red;display: none;">Новые сообщения</a>
                         <div class="dropdown-menu" aria-labelledby="chatNavbarDropdown" id="chatNewMessageMenu">
                             <!--<a class="dropdown-item vk-items" th:id="chatNotifyItem" onclick="showModal(1)">Action</a>-->
 
                         </div>
                     </li>
 
-                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}"
+                        sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <a class="glyphicon glyphicon-bell redBell"
-                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown" id="bell"></a>
-                        <ul class="dropdown-menu notification-dropdown" id = "Notify">
+                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"
+                           id="bell"></a>
+                        <ul class="dropdown-menu notification-dropdown" id="Notify">
                             <th:block th:if="${notifications.size() > 0}">
                                 <th:block>
                                     <li>
@@ -183,12 +193,12 @@
     <!--card from 'Форма: Java Test' doesn't appear on a board with it-->
     <style th:inline="text">
         body {
-            background-color: [[${#authentication.getPrincipal().colorBackground}]];
+            background-color: [ [${#authentication.getPrincipal().colorBackground}] ];
         }
 
         .navbar-fixed-top {
-            background-image: -webkit-gradient(linear, left top, left bottom, from([[${#authentication.getPrincipal().colorBackground}]]), to([[${#authentication.getPrincipal().colorBackground}]]));
-            border-color: [[${#authentication.getPrincipal().colorBackground}]];
+            background-image: -webkit-gradient(linear, left top, left bottom, from([ [${#authentication.getPrincipal().colorBackground}] ]), to([ [${#authentication.getPrincipal().colorBackground}] ]));
+            border-color: [ [${#authentication.getPrincipal().colorBackground}] ];
         }
     </style>
 </th:block>
@@ -200,13 +210,14 @@
                 <div class="modal-header">
                     <div class="col-sm">
                         <h4 class="col-sm-11">Ссылка:</h4>
-                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">&times;
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">
+                            &times;
                         </button>
                     </div>
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
-                        <div class="form-group" >
+                        <div class="form-group">
                             <div class="row">
                                 <div class="col-sm">
                                     <input class="form-control" type="text" id="slack-invite-link-text"/>
@@ -230,7 +241,7 @@
                     <span><h4>Комментарии:</h4></span>
                     <div class="form-group comment-div">
                         <textarea class="form-control textcomplete graur-class" th:id="'new-text-for-client'"
-                          placeholder="Напишите комментарий"></textarea>
+                                  placeholder="Напишите комментарий"></textarea>
                     </div>
                     <ul class="list-group main-modal-comment">
                     </ul>
@@ -239,7 +250,6 @@
         </div>
     </div>
 </th:block>
-
 
 
 <!--Отправка фиксированного сообщения во все сети.-->
@@ -311,17 +321,18 @@
                     <div class="container" id="radiobuttons">
                         <div class="container">
                             <label class="radio">
-                                <input type="radio" class="custom-control-input" checked="checked" value="txt" name="fileType" />TXT
+                                <input type="radio" class="custom-control-input" checked="checked" value="txt"
+                                       name="fileType"/>TXT
                             </label>
                         </div>
                         <div class="container">
                             <label class="radio">
-                                <input type="radio" class="custom-control-input" value="xlsx" name="fileType" />Excel
+                                <input type="radio" class="custom-control-input" value="xlsx" name="fileType"/>Excel
                             </label>
                         </div>
                         <div class="container">
                             <label class="radio">
-                                <input type="radio" class="custom-control-input" value="csv" name="fileType" />CSV
+                                <input type="radio" class="custom-control-input" value="csv" name="fileType"/>CSV
                             </label>
                         </div>
                     </div>
@@ -572,23 +583,29 @@
                                maxlength="30" th:value="${status.name}"/>
                         <table style="margin: 2%">
                             <tr>
-                                <td><label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом статусе</label></td>
-                                <td><input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/></td>
+                                <td><label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом
+                                    статусе</label></td>
+                                <td><input th:id="'trial_offset_' + ${status.id}" type="number"
+                                           th:value="${status.trialOffset}"/></td>
                             </tr>
                             <tr>
-                                <td><label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного интервала в днях</label></td>
+                                <td><label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного
+                                    интервала в днях</label></td>
                                 <td><input th:id="'next_payment_offset_' + ${status.id}" type="number"
                                            th:value="${status.nextPaymentOffset} - ${status.trialOffset}"/></td>
                             </tr>
                         </table>
-                        <div class="form-group" th:id ="'checkbox_status_roles_' + ${status.id} " sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <div class="form-group" th:id="'checkbox_status_roles_' + ${status.id} "
+                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                             <label th:for="'checkbox_status_roles_' + ${status.id} ">Роли</label>
                             <div th:id="'current_status_roles_' + ${status.id} ">
                                 <span th:each="role : ${status.role}" th:value="${role.id}"></span>
                             </div>
                             <div class="checkbox" th:each="role : ${roles}">
-                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}" th:value="${role.id}"/>
-                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}" th:text="${role.roleName}"></label>
+                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}"
+                                       th:value="${role.id}"/>
+                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}"
+                                       th:text="${role.roleName}"></label>
                             </div>
                         </div>
                     </div>
@@ -843,10 +860,16 @@
                     <div class="panel-body">
                         <table class="table table-bordered history-line" th:id="'client-string-history'">
                             <thead>
-                                <tr class="head-table">
-                                    <th><button type="button" class="btn btn-secondary">Подробности</button></th>
-                                    <th><button id="date" onclick="resortClientHistory(this)" type="button" class="btn btn-default btn-secondary">Дата<i class="fa fa-fw fa-sort-down"></i></button></th>
-                                </tr>
+                            <tr class="head-table">
+                                <th>
+                                    <button type="button" class="btn btn-secondary">Подробности</button>
+                                </th>
+                                <th>
+                                    <button id="date" onclick="resortClientHistory(this)" type="button"
+                                            class="btn btn-default btn-secondary">Дата<i
+                                            class="fa fa-fw fa-sort-down"></i></button>
+                                </th>
+                            </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -864,7 +887,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#actionCallsModal" class="upload-calls-history collapsed">Действия</a>
+                        <a data-toggle="collapse" data-parent="#actionCallsModal"
+                           class="upload-calls-history collapsed">Действия</a>
                     </h4>
                 </div>
                 <div th:id="'calls-collapse'" class="all-calls panel-collapse collapse">
@@ -872,7 +896,9 @@
                         <table class="table table-bordered calls-history-line" th:id="'calls-history-all-client'">
                             <tbody></tbody>
                         </table>
-                        <button type="button" data-page="1" class="btn upload-more-calls-history" style="width: 100%">Загрузить ещё</button>
+                        <button type="button" data-page="1" class="btn upload-more-calls-history" style="width: 100%">
+                            Загрузить ещё
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1136,18 +1162,16 @@
             </div>
 
         </div>
-        <!--<div class="client-description" th:text="${client.clientDescriptionComment}"></div>-->
 
         <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'"
              th:text="${client.name} + ' ' + ${client.lastName}"
              th:attr="client-id=${client.id} "
-             th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
-
+             th:onclick="'showActiveClientDetails('+ ${client.id}+');changeUrl(\'/client\', '+ ${client.id} +');'">
         </div>
 
         <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
              th:attr="client-id=${client.id} "
-             th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
+             th:onclick="'showActiveClientDetails('+ ${client.id}+');'">
 
             <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
@@ -1155,10 +1179,30 @@
             </div>
 
         </div>
-        <!--<div class="portlet-content"></div>-->
     </div>
+
+
+
     <script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
 </th:block>
+
+<th:block th:fragment="modalsForStatus">
+    <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
+    <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
+    <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
+    <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
+    <div th:replace="fragments/other-information-link::otherInformationLink"></div>
+    <div th:replace="fragments/other-information-value::otherInformationValue"></div>
+    <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+    <div th:replace="fragments/conversations::conversationsModal"></div>
+    <div th:replace="fragments/htmlFragments::client_description_modal"
+         sec:authorize="hasAnyAuthority('HR','MENTOR','USER')"></div>
+    <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+        <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+        <div th:replace="fragments/htmlFragments::client_description_modal"></div>
+    </div>
+</th:block>
+
 
 </body>
 </html>

@@ -279,42 +279,27 @@
     <a href="/vk/campaigns/all">Продвижение</a>
 </div>
 
-<div th:replace="fragments/htmlFragments::client_description_modal"
-     sec:authorize="hasAnyAuthority('HR','MENTOR','USER')"></div>
-
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
-<div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
-<div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
-<div th:replace="fragments/htmlFragments::reAvailableUser"></div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
-<div th:replace="fragments/htmlFragments::sms_error_modal"></div>
-<div th:replace="fragments/conversations::conversationsModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
-<div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
-<div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
-<div th:replace="fragments/other-information-link::otherInformationLink"></div>
-<div th:replace="fragments/other-information-value::otherInformationValue"></div>
 
 <div sec:authorize="hasAnyAuthority('HR')">
     <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 </div>
 
 <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
-    <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
-    <div th:replace="fragments/htmlFragments::client_description_modal"></div>
-    <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
-    <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
     <div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
+    <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
     <div th:replace="fragments/message-history::messageHistory"></div>
-
+    <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
+    <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
+    <div th:replace="fragments/htmlFragments::modalsForStatus"></div>
     <script th:inline="javascript">
         /*<![CDATA[*/
-
-        var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
-
+            const slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
         /*]]>*/
     </script>
 </div>

@@ -3,7 +3,6 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusDtoForMailing;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
-import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/status")
@@ -64,7 +66,7 @@ public class StatusRestController {
 
     @RequestMapping(value = "lost", method = {RequestMethod.POST}, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Client>> getLostStudentByStatus(@RequestBody List<String> emails) {
-        List<Client> clientsToEmails = clientService.getClientsByEmails(emails);
+        List<Client> clientsToEmails = clientService.getClientsByEmails(emails).orElse(Collections.emptyList());
         return ResponseEntity.ok(clientsToEmails);
     }
 

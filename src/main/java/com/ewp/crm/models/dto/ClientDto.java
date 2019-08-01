@@ -62,4 +62,14 @@ public class ClientDto {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public static interface ClientTransformer {
+        long getClient_id();
+
+        String getFirst_name();
+
+        String getLast_name();
+
+        String getClient_email();
+    }
 }
