@@ -1181,26 +1181,24 @@
 
         </div>
     </div>
+</th:block>
 
-    <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
-    <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
-
-    <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
-    <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
-    <div th:replace="fragments/other-information-link::otherInformationLink"></div>
-    <div th:replace="fragments/other-information-value::otherInformationValue"></div>
-    <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
-    <div th:replace="fragments/conversations::conversationsModal"></div>
-
-    <div th:replace="fragments/htmlFragments::client_description_modal"
-         sec:authorize="hasAnyAuthority('HR','MENTOR','USER')"></div>
-
-    <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
-        <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
-        <div th:replace="fragments/htmlFragments::client_description_modal"></div>
-    </div>
-
-    <script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
+<th:block th:fragment="modalsForStatus">
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
+<div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
+<div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
+<div th:replace="fragments/other-information-link::otherInformationLink"></div>
+<div th:replace="fragments/other-information-value::otherInformationValue"></div>
+<div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+<div th:replace="fragments/conversations::conversationsModal"></div>
+<div th:replace="fragments/htmlFragments::client_description_modal"
+     sec:authorize="hasAnyAuthority('HR','MENTOR','USER')"></div>
+<div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+    <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+    <div th:replace="fragments/htmlFragments::client_description_modal"></div>
+</div>
+<script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
 </th:block>
 
 </body>
