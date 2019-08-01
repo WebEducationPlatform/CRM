@@ -73,7 +73,7 @@ public class MentorsController {
 
         ModelAndView modelAndView = new ModelAndView("mentors-with-students-table");
         modelAndView.addObject("studentsDto", studentsDto);
-        modelAndView.addObject("mentorsFromBotJson", mentorsFromBotJson);
+        modelAndView.addObject("mentorsFromBotJson", Objects.requireNonNull(mentorsFromBotJson));
         modelAndView.addObject("slackBotDomain", slackBotDomain);
         modelAndView.addObject("maxStudents", maxStudents);
         modelAndView.addObject("mentors", mentorDtos);
@@ -91,16 +91,16 @@ public class MentorsController {
             Iterator<JsonNode> mentorsWithTheirStudentsJsonNodeIterable = new ObjectMapper().readTree(mentorsFromBotJson).elements();
             mentorsWithTheirStudentsJsonNodeIterable.forEachRemaining(mentorIdStudentsEmails -> {
                         mentorIdStudentsEmails.get("emailsStudents").elements().forEachRemaining(email -> {
-                            clientsEmails.add(email.asText());
+                            clientsEmails.add(email.asText().toLowerCase());
                         });
                         mentorIdStudentsEmails.get("emailsTrialStudents").elements().forEachRemaining(email -> {
-                            clientsEmails.add(email.asText());
+                            clientsEmails.add(email.asText().toLowerCase());
                         });
                         mentorIdStudentsEmails.get("emailsLostStudents").elements().forEachRemaining(email -> {
-                            clientsEmails.add(email.asText());
+                            clientsEmails.add(email.asText().toLowerCase());
                         });
                         mentorIdStudentsEmails.get("emailsLostTrialStudents").elements().forEachRemaining(email -> {
-                            clientsEmails.add(email.asText());
+                            clientsEmails.add(email.asText().toLowerCase());
                         });
                     }
             );

@@ -40,6 +40,7 @@ public class ClientController {
     private final StudentStatusService studentStatus;
     private final ListMailingTypeService listMailingTypeService;
     private final SlackService slackService;
+    private final StatusController statusController;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -56,7 +57,7 @@ public class ClientController {
                             MailingMessageRepository messageService,
                             StudentStatusService studentStatus,
                             ListMailingTypeService listMailingTypeService,
-                            SlackService slackService) {
+                            SlackService slackService, StatusController statusController) {
         this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
@@ -69,6 +70,7 @@ public class ClientController {
         this.messageService = messageService;
         this.studentStatus = studentStatus;
         this.listMailingTypeService = listMailingTypeService;
+        this.statusController = statusController;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -103,6 +105,7 @@ public class ClientController {
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
 
         ModelAndView modelAndView = new ModelAndView("main-client-table");
+
         modelAndView.addObject("user", userFromSession);
 
         List<Role> sessionRoles = userFromSession.getRole();
@@ -120,30 +123,24 @@ public class ClientController {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
         List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
-//        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
         modelAndView.addObject("statuses", statuses);
 
         modelAndView.addObject("counter", new AtomicInteger(0));
+
+        List<User> userList = userService.getAll();
+        modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+        modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
 
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         modelAndView.addObject("roles", roles);
 
-        List<User> userList = userService.getAll();
-        modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
-        modelAndView.addObject("users_without_mentors", userList.stream().filter(x -> !x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
-        modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
-        modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
-
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
 
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
-
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-        modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
-        modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
-        modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-        modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+
+        statusController.prepareCachedStatusModelAttributes(userFromSession);
 
         return modelAndView;
     }
