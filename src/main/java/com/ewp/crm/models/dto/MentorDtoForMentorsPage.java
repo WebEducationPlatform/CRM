@@ -1,29 +1,29 @@
 package com.ewp.crm.models.dto;
 
-import com.ewp.crm.models.User;
 
-public class MentorDtoForMentorsPage {
-    private Long id;
-    private String email;
+public interface MentorDtoForMentorsPage {
 
-    public MentorDtoForMentorsPage(User user) {
-        this.id = user.getId();
-        this.email = user.getEmail();
-    }
+    long getUser_Id();
 
-    public Long getId() {
-        return id;
-    }
+    String getEmail();
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    class MentorDto{
+        private long id;
+        private String email;
 
-    public String getEmail() {
-        return email;
-    }
+        public MentorDto(long id, String email) {
+            this.id = id;
+            this.email = email;
+        }
 
-    public void setEmail(String email) {
-        this.email = email;
+        public long getId() {
+            return id;
+        }
+
+        public String getEmail() {
+            return email;
+        }
     }
 }
+
+
