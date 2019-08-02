@@ -5,6 +5,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
+import com.ewp.crm.models.dto.StatusDtoForMailing;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -54,4 +55,6 @@ public interface StatusService {
     Optional<SortingType> findOrderForChosenStatusForCurrentUser(Long statusId, User userFromSession);
 
     List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role);
+
+    List<StatusDtoForMailing> getStatusesForMailing();
 }

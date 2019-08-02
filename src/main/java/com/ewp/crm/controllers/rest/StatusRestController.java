@@ -1,11 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.ClientStatusChangingHistory;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.StatusDtoForMailing;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -68,6 +64,11 @@ public class StatusRestController {
     @GetMapping
     public ResponseEntity<List<Status>> getAllClientStatuses() {
         return ResponseEntity.ok(statusService.getAll());
+    }
+
+    @GetMapping(value="/dto/for-mailing", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<StatusDtoForMailing>> getAllStatusDtoForMailing() {
+        return ResponseEntity.ok(statusService.getStatusesForMailing());
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

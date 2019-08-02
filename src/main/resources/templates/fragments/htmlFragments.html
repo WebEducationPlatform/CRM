@@ -152,13 +152,13 @@
                                 th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a href="/user/customize">Настройки</a></li>
+                            <li><a href="/user/customize" class="glyphicon glyphicon-cog">&nbsp;Настройки</a></li>
 
                             <li sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')"><a
-                                    th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a>
+                                    th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}" class="glyphicon glyphicon-user">&nbsp;Профиль</a>
                             </li>
                             <li>
-                                <a href="javascript:;" onclick="document.getElementById('logout').submit();">Выход</a>
+                                <a href="javascript:;" onclick="document.getElementById('logout').submit();" class="glyphicon glyphicon-log-out">&nbsp;Выход</a>
                                 <form action="/logout" id="logout" method="post">
                                     <input type="hidden"
                                            th:name="${_csrf.parameterName}"
@@ -177,7 +177,7 @@
 </th:block>
 
 <th:block th:fragment="header">
-    <link rel="icon" type="image/png" th:href="@{/images/favico.png}"/>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}"/>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -185,7 +185,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
           integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
           crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
     <script th:src="@{/js/jquery-3.2.0.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.min.js}" type="text/javascript"></script>
     <script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
