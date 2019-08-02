@@ -1,6 +1,6 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.AssignSkypeCall;
+import com.ewp.crm.models.dto.AssignSkypeCallsDto;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
@@ -35,31 +35,9 @@ public class FirstCallController {
         return new ModelAndView("first-call-table");
     }
     
-    private class AssignSkypeCallsWrapper {
-        private List<AssignSkypeCall> calls;
-        private boolean needActions;
-        private Long userId;
-        
-        public AssignSkypeCallsWrapper(List<AssignSkypeCall> calls, boolean needActions, Long userId) {
-            this.calls = calls;
-            this.needActions = needActions;
-            this.userId = userId;
-        }
-    
-        public List<AssignSkypeCall> getCalls() {
-            return calls;
-        }
-        public boolean getNeedActions() {
-            return needActions;
-        }
-        public Long getUserId() {
-            return userId;
-        }
-    }
-    
     // Контроллер который корректирует неправильные данные (дубли)
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AssignSkypeCallsWrapper> getAllFirstCallClients(@AuthenticationPrincipal User userFromSession) {
+    public ResponseEntity<AssignSkypeCallsDto> getAllFirstCallClients(@AuthenticationPrincipal User userFromSession) {
         try {
             boolean isMentor = false;
             List<Role> roles = userFromSession.getRole();
@@ -69,9 +47,9 @@ public class FirstCallController {
                     break;
                 }
             }
-            
-            AssignSkypeCallsWrapper calls =
-                    new AssignSkypeCallsWrapper(assignSkypeCallService.getAssignSkypeCallClientsWithoutMentors(),
+    
+            AssignSkypeCallsDto calls =
+                    new AssignSkypeCallsDto(assignSkypeCallService.getAssignSkypeCallClientsWithoutMentors(),
                             isMentor, userFromSession.getId());
             
             if (calls.getCalls().isEmpty()) return ResponseEntity.notFound().build();
