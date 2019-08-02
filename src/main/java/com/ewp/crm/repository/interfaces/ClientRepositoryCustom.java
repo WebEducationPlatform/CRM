@@ -69,13 +69,13 @@ public interface ClientRepositoryCustom {
 
 	List<Client> getClientsBySearchPhrase(String search);
 
-	List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order, boolean isAdmin, User user);
+	List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order);
 
 	boolean isTelegramClientPresent(Integer id);
 
 	Client getClientBySocialProfile(String id, String socialProfileType);
 
-	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user);
+	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order);
 
 	void transferClientsBetweenOwners(User sender, User receiver);
 }

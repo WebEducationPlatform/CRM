@@ -1,16 +1,8 @@
 package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.MessageTemplate;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
@@ -62,6 +54,7 @@ public class GoogleEmailConfig {
     private final MailSendService prepareAndSend;
     private final ProjectPropertiesService projectPropertiesService;
     private final SendNotificationService sendNotificationService;
+    private final UserService userService;
     
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
     private final Environment env;
@@ -71,13 +64,15 @@ public class GoogleEmailConfig {
                              ClientService clientService, StatusService statusService,
                              IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService,
                              ProjectPropertiesService projectPropertiesService,
-                             SendNotificationService sendNotificationService, Environment env) {
+                             SendNotificationService sendNotificationService, Environment env,
+                             UserService userService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
         this.incomeStringToClient = incomeStringToClient;
         this.prepareAndSend = prepareAndSend;
         this.sendNotificationService = sendNotificationService;
+        this.userService = userService;
 
         login = mailConfig.getLogin();
         password = mailConfig.getPassword();
@@ -182,6 +177,7 @@ public class GoogleEmailConfig {
                             }
                         }
                         if (addClient) {
+                            userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
                             clientService.addClient(client, null);
                             sendNotificationService.sendNewClientNotification(client, "gmail");
                             if (sendAutoAnswer && template != null) {

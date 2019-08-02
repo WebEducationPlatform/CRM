@@ -590,7 +590,7 @@ $(function () {
                     url: '/client/history/rest/getHistory/' + client.id,
                     data: {
                         page: 0,
-                        isAsc: true
+                        isAsc: false
                     },
                     success: function (history) {
                         let history_table = $('#client-' + client.id + 'history').find("tbody");
@@ -602,7 +602,7 @@ $(function () {
                             upload_more_btn.show();
                         }
                         //reset arrow
-                        $('#date').find('i').removeClass('fa-sort-down').addClass('fa-sort-up');
+                        $('#date').find('i').removeClass('fa-sort-up').addClass('fa-sort-down');
                         //draw client history
                         drawClientHistory(history, history_table);
                     }
@@ -1064,7 +1064,7 @@ function hideClient(clientId) {
 }
 
 $(function () {
-    $('.custom-modal').on('hide.bs.modal', function () {
+    $('body').on('hide.bs.modal', '.custom-modal', function () {
         var currentForm = $(this).find('.send-custom-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
@@ -1074,7 +1074,7 @@ $(function () {
 
 //Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
-    $('.send-all-custom-message').on('click', function (event) {
+    $('body').on('click', '.send-all-custom-message', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var current = $(this);
@@ -1137,7 +1137,7 @@ $(function () {
 
 //Установка идентификаторов в модальное окно отправки сообщений с кастомным текстом.
 $(function () {
-    $('.portlet-custom-btn').on('click', function () {
+    $('body').on('click', '.portlet-custom-btn', function () {
         var portlet = $(this).closest('.common-modal');
         var clientId = portlet.data('cardId');
         var templateId = $(this).data('templateId');
@@ -1149,7 +1149,7 @@ $(function () {
 });
 
 $(function () {
-    $('.test-custom-btn').on('click', function () {
+    $('body').on('click', '.test-custom-btn', function () {
         var portlet = $(this).closest('#main-modal-window');
         var clientId = portlet.data('clientId');
         var templateId = $(this).data('templateId');
@@ -1161,7 +1161,7 @@ $(function () {
 });
 
 $(function () {
-    $('.fix-modal').on('hidden.bs.modal', function () {
+    $('body').on('hidden.bs.modal', '.fix-modal', function () {
         $('#main-modal-window').css('overflow-y', 'auto');
         var currentForm = $(this).find('.send-fixed-template');
         currentForm.empty();
@@ -1173,7 +1173,7 @@ $(function () {
 
 //Отправка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
 $(function () {
-    $('.send-all-message').on('click', function (event) {
+    $('body').on('click', '.send-all-message', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var current = $(this);
@@ -1237,7 +1237,7 @@ $(function () {
 
 //Установка идентификаторов в модальное окно отправки сообщений с фиксированным текстом.
 $(function () {
-    $('.portlet-send-btn').on('click', function () {
+    $('body').on('click', '.portlet-send-btn', function () {
         var clientId = $(this).closest('.common-modal').data('cardId');
         var templateId = $(this).data('templateId');
         var currentModal = $('#sendTemplateModal');
@@ -1248,7 +1248,7 @@ $(function () {
 });
 
 $(function () {
-    $('.test-fix-btn').on('click', function () {
+    $('body').on('click', '.test-fix-btn', function () {
         var portlet = $(this).closest('#main-modal-window');
         var clientId = portlet.data('clientId');
         var templateId = $(this).data('templateId');
@@ -1537,7 +1537,7 @@ function get_us() {
 }
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
-$('.select_all').click(function () {
+$('body').on('click', '.select_all', function () {
     var currentForm = $(this).parents('.box-modal');
     currentForm.find('.my-checkbox-soc').prop('checked', true);
 });
@@ -1548,19 +1548,19 @@ $('.confirm-skype-interceptor').on('click', '.select_all_skype_boxes', function 
 });
 
 
-$('.deselect_all').click(function () {
+$('body').on('click', '.deselect_all', function () {
     var currentForm = $(this).parents('.box-modal');
     currentForm.find('.my-checkbox-soc').prop('checked', false);
 });
 
 
-$('.fix-modal').on('show.bs.modal', function () {
+$('body').on('show.bs.modal', '.fix-modal', function () {
     var currentForm = $(this).find('.box-modal');
     var clientId = $(this).find('.send-all-message').data('clientId');
     drawCheckbox(currentForm, clientId);
 });
 
-$('.custom-modal').on('show.bs.modal', function () {
+$('body').on('show.bs.modal', '.custom-modal', function () {
     var currentForm = $(this).find('.box-modal');
     var clientId = $(this).find('.send-all-custom-message').data('clientId');
     drawCheckbox(currentForm, clientId);

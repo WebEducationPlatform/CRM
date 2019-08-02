@@ -245,6 +245,12 @@
                          style="overflow-y: scroll;">
                         <table class="table table-bordered" id="table-of-history"
                                th:id="'client-'+${client.id}+'history'">
+                            <thead>
+                                <tr class="head-table">
+                                    <th><button type="button" class="btn btn-secondary">Подробности</button></th>
+                                    <th><button id="date" onclick="resortClientHistory(this)" type="button" class="btn btn-default btn-secondary">Дата<i class="fa fa-fw fa-sort-down"></i></button></th>
+                                </tr>
+                            </thead>
                             <tbody>
                             </tbody>
                         </table>

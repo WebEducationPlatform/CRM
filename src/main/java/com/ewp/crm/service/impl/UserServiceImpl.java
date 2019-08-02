@@ -5,7 +5,9 @@ import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.repository.interfaces.UserDAO;
+import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.slf4j.Logger;
@@ -16,13 +18,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,17 +40,20 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private final PhoneValidator phoneValidator;
     private Environment env;
     private final EntityManager entityManager;
+    private final RoleService roleService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator, Environment env,  EntityManager entityManager) {
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator,
+                           Environment env,  EntityManager entityManager, RoleService roleService) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
         this.env = env;
         this.entityManager = entityManager;
+        this.roleService = roleService;
     }
 
     @Override
@@ -143,5 +151,29 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     @Override
     public List<User> getUserByVkToken(long id) {
         return userDAO.getUserByVkToken(id);
+    }
+
+    @Override
+    @Transactional
+    public Optional<User> getUserToOwnCard() {
+        User userToOwnClient = null;
+        long roleId = roleService.getRoleByName("HR").getId();
+            Query query = entityManager.createNativeQuery("SELECT * FROM  user, permissions WHERE" +
+                    "    user.user_id = permissions.user_id AND role_id = :roleId ORDER BY user.last_client_date  LIMIT 1;", User.class)
+                    .setParameter("roleId", roleId);
+            if (query.getResultList().size() != 0) {
+                userToOwnClient = (User) query.getSingleResult();
+                logger.info("Coordinator for new client card to own found: " + userToOwnClient.getFullName());
+                userToOwnClient.setLastClientDate(Instant.now());
+                update(userToOwnClient);
+            } else {
+                logger.warn("Can't find coordinator for new client card to own");
+            }
+            return Optional.ofNullable(userToOwnClient);
+    }
+
+    @Override
+    public List<MentorDtoForMentorsPage> getAllMentors() {
+        return userDAO.getAllMentors();
     }
 }

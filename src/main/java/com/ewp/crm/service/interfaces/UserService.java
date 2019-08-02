@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -29,4 +30,8 @@ public interface UserService extends CommonService<User> {
 	void setColorBackground(String color, User user);
 
 	List<User> getUserByVkToken(long id);
+
+	Optional<User> getUserToOwnCard();
+
+	List<MentorDtoForMentorsPage> getAllMentors();
 }
