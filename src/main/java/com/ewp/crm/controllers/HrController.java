@@ -85,5 +85,4 @@ public class HrController {
 
         return modelAndView;
     }
-
 }

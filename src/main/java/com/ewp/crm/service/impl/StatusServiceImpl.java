@@ -1,13 +1,23 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientStatusChangingHistory;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +27,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -103,6 +117,9 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Optional<Status> get(Long id) {
+		if (id == null) {
+			return Optional.empty();
+		}
 		return statusDAO.findById(id);
 	}
 

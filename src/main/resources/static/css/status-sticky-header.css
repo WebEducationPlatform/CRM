@@ -3,6 +3,7 @@
     width: 240px;
     z-index: 99;
     background-color: linen;
+    transform: translateZ(0);
 }
 .fix-status-header .column {
     margin-top: 0;
