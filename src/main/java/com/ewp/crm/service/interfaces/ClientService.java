@@ -64,7 +64,11 @@ public interface ClientService extends CommonService<Client> {
 
 	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
 
+	Optional<List<String>> getClientsEmailsByStatusesIds(List<Long> statusesIds);
+
 	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	Optional<List<String>> getClientsPhoneNumbersByStatusesIds(List<Long> statusesIds);
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 

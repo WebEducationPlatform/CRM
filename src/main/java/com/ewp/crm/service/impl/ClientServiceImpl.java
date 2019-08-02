@@ -500,8 +500,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public Optional<List<String>> getClientsEmailsByStatusesIds(List<Long> statusesIds) {
+        return Optional.ofNullable(clientRepository.getClientsEmailsByStatusesIds(statusesIds));
+    }
+
+    @Override
     public List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition) {
         return clientRepository.getFilteredClientsPhoneNumber(filteringCondition);
+    }
+
+    @Override
+    public Optional<List<String>> getClientsPhoneNumbersByStatusesIds(List<Long> statusesIds) {
+        return Optional.ofNullable(clientRepository.getClientsPhoneNumbersByStatusesIds(statusesIds));
     }
 
     @Override
