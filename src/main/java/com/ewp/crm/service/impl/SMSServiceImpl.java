@@ -1,22 +1,43 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.inteface.SMSConfig;
-import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientData;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Message;
+import com.ewp.crm.models.SMSInfo;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MessageService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.SMSInfoService;
+import com.ewp.crm.service.interfaces.SMSService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class SMSServiceImpl implements SMSService {

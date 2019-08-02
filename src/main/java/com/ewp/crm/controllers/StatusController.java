@@ -1,8 +1,16 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.models.Notification;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.ewp.crm.util.Constants.*;
+import static com.ewp.crm.util.Constants.ROLE_NAME_ADMIN;
+import static com.ewp.crm.util.Constants.ROLE_NAME_HR;
+import static com.ewp.crm.util.Constants.ROLE_NAME_MENTOR;
+import static com.ewp.crm.util.Constants.ROLE_NAME_OWNER;
+import static com.ewp.crm.util.Constants.ROLE_NAME_USER;
 
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'HR', 'MENTOR')")
