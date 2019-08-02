@@ -47,7 +47,11 @@ public interface ClientRepositoryCustom {
 
 	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
 
+    List<String> getClientsEmailsByStatusesIds(List<Long> statusesIds);
+
 	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	List<String> getClientsPhoneNumbersByStatusesIds(List<Long> statusesIds);
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
