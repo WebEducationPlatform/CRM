@@ -1,6 +1,9 @@
 package com.ewp.crm.models.dto;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
+
+import java.time.LocalDate;
 
 public class HrDtoForBoard {
 
@@ -15,6 +18,7 @@ public class HrDtoForBoard {
     private Long numberOfCards;
     private Long numberOfCalls;
     private Long avgCallsPerDay;
+    private Long averageMinutes;
 
     public HrDtoForBoard() {
     }
@@ -33,6 +37,15 @@ public class HrDtoForBoard {
         this.numberOfCalls = callRecords;
         long numberOfDays = user.getCallRecords().stream().map(c -> c.getDate().toLocalDate()).distinct().count();
         this.avgCallsPerDay = numberOfDays == 0L ? 0L : callRecords / numberOfDays;
+        long countOfClients = user.getClients().stream().filter(client ->
+                client.getDateOfRegistration().toLocalDate().isAfter(LocalDate.of(2019, 7, 8)))
+                .count() == 0 ? 1 : user.getClients().stream().filter(client ->
+                client.getDateOfRegistration().toLocalDate().isAfter(LocalDate.of(2019, 7, 8)))
+                .count();
+        this.averageMinutes = user.getClients().stream().filter(client -> (client.getMinutesToFirstCallWithHr() != null)
+                && client.getDateOfRegistration().toLocalDate().isAfter(LocalDate.of(2019, 7, 8)))
+                .mapToInt(Client::getMinutesToFirstCallWithHr).sum() /  countOfClients;
+
     }
 
     public Long getId() {
@@ -123,4 +136,11 @@ public class HrDtoForBoard {
         this.avgCallsPerDay = avgCallsPerDay;
     }
 
+    public Long getAverageMinutes() {
+        return averageMinutes;
+    }
+
+    public void setAverageMinutes(Long averageMinutes) {
+        this.averageMinutes = averageMinutes;
+    }
 }
