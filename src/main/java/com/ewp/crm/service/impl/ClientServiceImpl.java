@@ -681,6 +681,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setCanCall(old.isCanCall());
         client.setCallRecords(old.getCallRecords());
         client.setClientDescriptionComment(old.getClientDescriptionComment());
+        client.setStudent(old.getStudent());
         client.setLiveSkypeCall(old.isLiveSkypeCall());
         client.setSlackInviteLink(old.getSlackInviteLink());
         return client;
