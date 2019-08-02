@@ -1,14 +1,38 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientExistsException;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.ClientStatusChangingHistory;
+import com.ewp.crm.models.Comment;
+import com.ewp.crm.models.ContractDataForm;
+import com.ewp.crm.models.ContractLinkData;
+import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.OtherInformationLinkData;
+import com.ewp.crm.models.Passport;
+import com.ewp.crm.models.SlackInviteLink;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.Student;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.NotificationRepository;
 import com.ewp.crm.repository.interfaces.StudentRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
+import com.ewp.crm.service.interfaces.PassportService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,7 +45,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
