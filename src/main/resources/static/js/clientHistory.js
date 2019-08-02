@@ -12,7 +12,7 @@ $(document).ready(function () {
 
         //Set sorting order and arrow direction.
         let arrow = $('#date').find('i');
-        let isAsc = true;
+        let isAsc = false;
         if (arrow.hasClass('fa-sort-up')) {
             isAsc = true;
         } else if (arrow.hasClass('fa-sort-down')) {
@@ -45,8 +45,10 @@ $(document).ready(function () {
         let collapse = $(this);
         let client_id = collapse.attr("data-clientid");
         let url = '/client/history/rest/getHistory/' + client_id;
+        let isAsc = false;
         let data = {
-            page: 0
+            page: 0,
+            isAsc: isAsc
         };
         $.get(url, data, function (history) {
             let tbody = collapse.find('tbody');
@@ -63,6 +65,8 @@ $(document).ready(function () {
 
     collapseObject.on("hidden.bs.collapse", function () {
         $(this).find("tbody").empty();
+        //reset arrow
+        $(this).find('i').removeClass('fa-sort-up').addClass('fa-sort-down');
         $(this).find("button.upload-more-history").attr("data-page", 1);
     })
 });

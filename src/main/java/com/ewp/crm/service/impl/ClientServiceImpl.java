@@ -3,9 +3,11 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.NotificationRepository;
+import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +44,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private Environment env;
     private final UserService userService;
+    private final StudentRepository studentRepository;
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
@@ -49,7 +52,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
                              NotificationRepository notificationRepository, @Lazy SlackService slackService, Environment env,
-                             ClientStatusChangingHistoryService clientStatusChangingHistoryService, UserService userService) {
+                             ClientStatusChangingHistoryService clientStatusChangingHistoryService, UserService userService, StudentRepository studentRepository) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -64,6 +67,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.env = env;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.userService = userService;
+        this.studentRepository = studentRepository;
     }
 
     @Override
@@ -442,6 +446,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                     //TODO исправить ситуацию, когда не можем получить ID пользователя по ссылке vk
                 }
             }
+            if ("facebook".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("facebook")) {
+                String currentSocialId = socialProfile.getSocialId();
+                String newSocialId = currentSocialId.substring(currentSocialId.lastIndexOf("/") + 1);
+                socialProfile.setSocialId(newSocialId);
+            }
         }
     }
 
@@ -498,6 +507,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     @Transactional
     public void updateClient(Client client) {
+
+
         clientFieldsTrimmer(client);
         if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
             Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());
@@ -521,7 +532,16 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
+
+
         //checkSocialLinks(client);
+
+        //Решение проблемы с удалением студента
+        if (client.getStudent() == null){
+            Student student = studentRepository.getStudentByClientId(client.getId());
+            client.setStudent(student);
+        }
+
         clientRepository.saveAndFlush(client);
     }
 
@@ -541,17 +561,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
+    public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
         List<Client> orderedClients;
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
-                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
-                user.getRole().contains(roleService.getRoleByName("HR"));
         if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
             return orderedClients;
         }
         if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
             return orderedClients;
         }
         logger.error("Error with sorting clients");
@@ -677,8 +694,34 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public List<Client> getSortedClientsByStatus(Status status, SortingType order) {
+        List<Client> orderedClients = Collections.emptyList();
+
+        if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
+        }
+
+        if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
+        }
+
+        return orderedClients;
+    }
+
+    @Override
     public void delete(Long id) {
         notificationRepository.deleteNotificationsByClient(clientRepository.getClientById(id));
         super.delete(id);
     }
+
+    @Override
+    public Optional<List<Client>> getClientsByEmails(List<String> emails){
+        return Optional.ofNullable(clientRepository.getClientsOfEmails(emails));
+    }
+
+    @Override
+    public List<ClientDto.ClientTransformer> getClientsDtoByEmails(List<String> emails){
+        return clientRepository.getClientsDtoByEmails(emails);
+    }
 }
+

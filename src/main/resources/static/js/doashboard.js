@@ -261,7 +261,7 @@ function changeStatusName(id) {
     $sel.each(function (index, sel) {
         var obj = {};
         obj["id"] = sel.value;
-        obj["roleName"] = sel.innerText;
+        obj["roleName"] = $(sel).next().text();
         stRoles.push(obj);
     });
     if (!validate_status_input(trial_offset, next_payment_offset)) {

@@ -1,11 +1,17 @@
 package com.ewp.crm.models.dto;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.User;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.ewp.crm.util.Constants.EMPTY_STRING;
 
 public class ClientDtoForBoard {
+
     private Long id;
     private String name;
     private String lastName;
@@ -142,6 +148,35 @@ public class ClientDtoForBoard {
 
     public void setSocialProfiles(List<SocialProfile> socialProfiles) {
         this.socialProfiles = socialProfiles;
+    }
+
+    private static ClientDtoForBoard getDtoClient(Client client) {
+
+        final ClientDtoForBoard clientDtoForBoard = new ClientDtoForBoard();
+        clientDtoForBoard.id = client.getId();
+        clientDtoForBoard.name = client.getName();
+        clientDtoForBoard.lastName = client.getLastName();
+        clientDtoForBoard.ownerUser = client.getOwnerUser();
+        clientDtoForBoard.isHideCard = client.isHideCard();
+
+        final Optional<String> emailOptional = client.getEmail();
+        clientDtoForBoard.email = emailOptional.orElse(EMPTY_STRING);
+        final Optional<String> phoneNumberOptional = client.getPhoneNumber();
+        clientDtoForBoard.phoneNumber = phoneNumberOptional.orElse(EMPTY_STRING);
+
+        clientDtoForBoard.skype = client.getSkype();
+        clientDtoForBoard.city = client.getCity();
+        clientDtoForBoard.country = client.getCountry();
+        clientDtoForBoard.socialProfiles = client.getSocialProfiles();
+        clientDtoForBoard.ownerMentor = client.getOwnerMentor();
+
+        return clientDtoForBoard;
+    }
+
+    public static List<ClientDtoForBoard> getListDtoClients(List<Client> clients) {
+        return clients.stream()
+                .map(ClientDtoForBoard::getDtoClient)
+                .collect(Collectors.toList());
     }
 
 }
