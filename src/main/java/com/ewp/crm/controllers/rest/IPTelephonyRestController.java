@@ -1,15 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.CallRecord;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.CallRecordService;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.DownloadCallRecordService;
-import com.ewp.crm.service.interfaces.IPService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +42,7 @@ public class IPTelephonyRestController {
 	private final DownloadCallRecordService downloadCallRecordService;
 	private final String voximplantHash;
 	private final UserService userService;
+	private final RoleService roleService;
 
 	@Value("${project.pagination.page-size.client-history}")
 	private int pageSize;
@@ -59,7 +52,9 @@ public class IPTelephonyRestController {
 									 ClientService clientService,
 									 ClientHistoryService clientHistoryService,
 									 CallRecordService callRecordService,
-									 DownloadCallRecordService downloadCallRecordService, UserService userService) {
+									 DownloadCallRecordService downloadCallRecordService,
+									 UserService userService,
+									 RoleService roleService) {
 		this.ipService = ipService;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
@@ -70,6 +65,7 @@ public class IPTelephonyRestController {
 		String userLogin = ipService.getVoximplantUserLogin(loginForWebCall).isPresent() ? ipService.getVoximplantUserLogin(loginForWebCall).get() : "";
 		String pass = ipService.getVoximplantPasswordForWebCall().isPresent() ? ipService.getVoximplantPasswordForWebCall().get() : "";
 		this.voximplantHash = DigestUtils.md5DigestAsHex((userLogin + ":voximplant.com:" + pass).getBytes());
+		this.roleService = roleService;
 	}
 
 	//Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
@@ -185,6 +181,7 @@ public class IPTelephonyRestController {
 	public void voximplantCall(@RequestParam String from,
 							   @RequestParam String to,
 							   @AuthenticationPrincipal User userFromSession) {
+		ZonedDateTime timeWhichHrCallToClient;
 		Optional<Client> client = clientService.getClientByPhoneNumber(to);
 		if (client.isPresent() && client.get().isCanCall() && userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
@@ -196,6 +193,16 @@ public class IPTelephonyRestController {
 					callRecord.setClientHistory(historyFromDB.get());
 					Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord);
 					if (callRecordFromDB.isPresent()) {
+						if	(userFromSession.getRole().contains(roleService.getRoleByName("HR")) && client.get().getMinutesToFirstCallWithHr() != null){
+							timeWhichHrCallToClient = ZonedDateTime.now(ZoneId.systemDefault());
+							ZonedDateTime dateOfRegistration = client.get().getDateOfRegistration();
+							int minutesOfDateRegistration = dateOfRegistration.getDayOfYear() * 24 * 60 +
+									dateOfRegistration.getHour() * 60 + dateOfRegistration.getMinute();
+							int minutesTimeWhichHrCallToClient = timeWhichHrCallToClient.getDayOfYear() * 24 * 601 +
+									timeWhichHrCallToClient.getHour() * 60 + timeWhichHrCallToClient.getMinute();
+							int minutesToFirstCall = minutesOfDateRegistration - minutesTimeWhichHrCallToClient;
+							client.get().setMinutesToFirstCallWithHr(minutesToFirstCall);
+						}
 						client.get().addCallRecord(callRecordFromDB.get());
 						clientService.updateClient(client.get());
 						callRecordFromDB.get().setClient(client.get());
@@ -218,6 +225,7 @@ public class IPTelephonyRestController {
 	}
 
 	private ResponseEntity<CallRecord> addCallRecordToClient(CallRecord callRecord, Client client, User userFromSession) {
+		ZonedDateTime timeWhichHrCallToClient;
 		Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, INIT_RECORD_LINK);
 		if (clientHistory.isPresent()) {
 			Optional<ClientHistory> historyFromDB = clientHistoryService.addHistory(clientHistory.get());
@@ -227,6 +235,16 @@ public class IPTelephonyRestController {
 				callRecord.setCallingUser(userFromSession);
 				Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord);
 				if (callRecordFromDB.isPresent()) {
+					if	(userFromSession.getRole().contains(roleService.getRoleByName("HR")) && client.getMinutesToFirstCallWithHr() != null){
+						timeWhichHrCallToClient = ZonedDateTime.now(ZoneId.systemDefault());
+						ZonedDateTime dateOfRegistration = client.getDateOfRegistration();
+						int minutesOfDateRegistration = dateOfRegistration.getDayOfYear() * 24 * 60 +
+								dateOfRegistration.getHour() * 60 + dateOfRegistration.getMinute();
+						int minutesTimeWhichHrCallToClient = timeWhichHrCallToClient.getDayOfYear() * 24 * 601 +
+								timeWhichHrCallToClient.getHour() * 60 + timeWhichHrCallToClient.getMinute();
+						int minutesToFirstCall = minutesOfDateRegistration - minutesTimeWhichHrCallToClient;
+						client.setMinutesToFirstCallWithHr(minutesToFirstCall);
+					}
 					client.addCallRecord(callRecordFromDB.get());
 					clientService.updateClient(client);
 					callRecordFromDB.get().setClient(client);
