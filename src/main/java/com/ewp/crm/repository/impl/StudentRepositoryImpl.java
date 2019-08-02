@@ -1,6 +1,5 @@
 package com.ewp.crm.repository.impl;
 
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
@@ -45,23 +44,41 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
 
     @Override
     public long countActiveByDate(ZonedDateTime day) {
-        String query = "SELECT COUNT(c) FROM Client AS c " +
-                "WHERE c.id IN (" +
-                "SELECT DISTINCT c.id FROM Client AS c " +
-                "JOIN c.history AS h " +
-                "WHERE h.date <= :day " +
-                "AND h.type = :created " +
-                ") AND c.id NOT IN (" +
-                "SELECT DISTINCT c.id FROM Client AS c " +
-                "JOIN c.history AS h " +
-                "WHERE h.date <= :day " +
-                "AND h.type = :deleted " +
-                ")";
-        return ((Number) entityManager.createQuery(query)
+        String query = "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
+                "WHERE c.`is_fake` IS FALSE " +
+                "AND c.`client_id` IN (" +
+                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
+                "LEFT JOIN status AS ns ON c.`new_status_id` = ns.`status_id` " +
+                "WHERE c.date <= :day " +
+                "AND ns.`status_name` = 'Учатся'" +
+                ") " +
+                "AND c.`client_id` NOT IN (" +
+                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
+                "LEFT JOIN status AS ss ON c.`source_status_id` = ss.`status_id` " +
+                "WHERE c.date <= :day " +
+                "AND ss.`status_name` = 'Учатся'" +
+                ") " +
+                "UNION " +
+                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
+                "WHERE c.`is_fake` IS FALSE " +
+                "AND c.`client_id` IN (" +
+                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
+                "JOIN status AS ns ON c.`new_status_id` = ns.`status_id` " +
+                "WHERE c.date <= :day " +
+                "AND ns.`status_name` = 'На пробных'" +
+                ") " +
+                "AND c.`client_id` NOT IN (" +
+                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
+                "JOIN status AS ss ON c.`source_status_id` = ss.`status_id` " +
+                "JOIN status AS ns ON c.`new_status_id` = ns.`status_id` " +
+                "WHERE c.date <= :day " +
+                "AND ss.`status_name` = 'На пробных' " +
+                "AND ns.`status_name` <> 'Учатся'" +
+                ");"
+                ;
+        return entityManager.createNativeQuery(query)
                 .setParameter("day", day)
-                .setParameter("created", ClientHistory.Type.ADD_STUDENT)
-                .setParameter("deleted", ClientHistory.Type.DELETE_STUDENT)
-                .getSingleResult()).longValue();
+                .getResultList().size();
     }
 
     @Override

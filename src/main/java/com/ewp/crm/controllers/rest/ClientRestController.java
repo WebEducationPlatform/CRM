@@ -601,5 +601,24 @@ public class ClientRestController {
         return result;
     }
 
+    @PostMapping("/emails/statuses")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public ResponseEntity<List<String>> getClientsEmailsByStatuses(@RequestParam(name="statuses") List<Long> statuses) {
+        if (clientService.getClientsEmailsByStatusesIds(statuses).isPresent()) {
+            return new ResponseEntity<>(clientService.getClientsEmailsByStatusesIds(statuses).get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/phones/statuses")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public ResponseEntity<List<String>> getClientsPhoneNumbersByStatuses(@RequestParam(name="statuses") List<Long> statuses) {
+        if (clientService.getClientsPhoneNumbersByStatusesIds(statuses).isPresent()) {
+            return new ResponseEntity<>(clientService.getClientsPhoneNumbersByStatusesIds(statuses).get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+    }
 
 }
