@@ -699,6 +699,8 @@ $(document).on('click','.confirm-skype-btn', function (e) {
         startDate: Date.UTC(skypeCallDateOld.getFullYear(), skypeCallDateOld.getMonth(), skypeCallDateOld.getDate(), skypeCallDateOld.getHours(), skypeCallDateOld.getMinutes(), 0, 0),
         clientId: clientId
     };
+
+    this.setAttribute("disabled", "true");
     $.ajax({
         type: 'POST',
         url: '/rest/skype/addSkypeCallAndNotification',
@@ -718,6 +720,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 '</div>' +
                 '<div class="skype-notification" style="color:#229922">Время беседы назначено.</div>' +
                 '</div>');
+            this.setAttribute("disabled", "false");
         },
         error: function (error) {
             console.log(error);
