@@ -6,6 +6,7 @@ import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientDtoForBoard;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
+import com.ewp.crm.models.dto.StatusDtoForMailing;
 import com.ewp.crm.repository.interfaces.StatusRepositoryCustom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -208,6 +209,29 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
         }
 
         logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);
+        return result;
+    }
+
+    /**
+     *  Метод получает из базы все статусы и формирует список DTO данных статусов.
+     *
+     * @return список DTO статусов для страницы "Рассылка"
+     */
+    @Override
+    public List<StatusDtoForMailing> getStatusesForMailing() {
+        List<StatusDtoForMailing> result = new ArrayList<>();
+
+        // Получаем все статусы, отсортированные по id
+        List<Tuple> tupleStatuses = entityManager.createNativeQuery(
+                "SELECT DISTINCT s.status_id AS id, s.status_name AS name" +
+                        "   FROM status s " +
+                        "   ORDER BY s.status_id ASC;", Tuple.class)
+                .getResultList();
+        for (Tuple tuple : tupleStatuses) {
+            long statusId = ((BigInteger) tuple.get("id")).longValue();
+            String statusName = tuple.get("name") == null ? "" : (String) tuple.get("name");
+            result.add(new StatusDtoForMailing(statusId, statusName));
+        }
         return result;
     }
 

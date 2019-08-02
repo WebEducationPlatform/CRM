@@ -7,7 +7,6 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangeipicker/2/daterangepicker.css" />
     <div th:replace="fragments/htmlFragments::custom-style"></div>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" type="text/css" href="/css/mailing.css"/>
@@ -34,7 +33,7 @@
             <div class="col-sm-3">
                 <div class="row-sm-6">
                     <div class="col-sm-4" >
-                        <span class="input-group-text text-light bg-info" id="date-addon">время рассылки:</span>
+                        <span class="input-group-text text-light bg-info" id="date-addon">Время рассылки:</span>
                     </div>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="messageSendingTime"/>
@@ -48,23 +47,19 @@
             <div class = "col-sm-3">
                 <div class="row">
                     <div class="col-8">
-                <div class="form-group">
-                <select class="form-control" id = "listMailingSelect">
-                    <option value="null">Выберите список рассылки</option>
-                    <option th:each="listMailing : ${listMailing}"
-                            th:value="${listMailing.id}"
-                            th:utext="${listMailing.listName}"> </option>
-                </select>
-                </div>
-            </div>
-                <div id ="loadList" class="col-4">
+                        <div class="form-group">
+                        <!-- Список подгружается ajax-запросом на клиенте-->
+                        <select class="form-control" id = "listMailingSelect"></select>
+                        </div>
+                    </div>
+                    <div id ="loadList" class="col-4">
                         <button class="btn btn-danger" onclick="showListMailing()">
-                             Загрузить список
+                            Загрузить список
                         </button>
-                        <button class="btn btn-success" id="editListMailing" data-toggle="modal" data-target="#editListMailingModal" onclick="openEditShowListMailing()">
-                             Редактировать список
+                        <button class="btn btn-success" id="editListMailing" onclick="openEditShowListMailing()">
+                            Редактировать / удалить
                         </button>
-                </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,25 +91,20 @@
         <div class="row">
             <div class="col-xs-9 col-sm-12 col-md-12 col-lg-12 col-xl-8">
 
-
                 <div class="row">
                     <div class="col-sm-2">
                         <div class="form-group">
-                            <!--<label for="exampleFormControlSelect1">Example select</label>-->
-
                             <select class="form-control" id = "vkTokenSelect">
-                                <option  value="null"> Выбрать пользователя</option>
-                                <option  value="managerPage"> Страница Java Mentor</option>
+                                <option value="null"> Выбрать пользователя</option>
+                                <option value="managerPage"> Страница Java Mentor</option>
                             </select>
-                    </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-sm-2">
                         <div class="form-group">
-                            <!--<label for="exampleFormControlSelect1">Example select</label>-->
-
                             <select class="form-control" id="selectAppToken">
                                 <option value="1">Герман</option>
                                 <option value="2">Юля</option>
@@ -122,8 +112,9 @@
                         </div>
                     </div>
                 </div>
-                <p><label id = "message" ></label></p>
-                <button id = "noSendButton" data-toggle='modal' data-target='#noSendModal' class='btn btn-success'>Недоставлено</button>
+
+                <p><label id="message"></label></p>
+                <button id="noSendButton" data-toggle='modal' data-target='#noSendModal' class='btn btn-success'>Недоставлено</button>
                 <textarea id="editor" name="editor">
                     Заполните текст сообщения
                 </textarea>
@@ -132,8 +123,7 @@
                 <!--Блок адресов-->
                 <div class="form-group">
                     <label for="addresses-area" id="addresses-label">Укажите список email получателей (каждый с новой строки):</label>
-                    <textarea class="form-control text-lowercase" id="addresses-area" rows="12"
-                              style="font-size: 10pt"></textarea>
+                    <textarea class="form-control text-lowercase" id="addresses-area" rows="12"></textarea>
                     <span class="badge badge-success" id="file-info"></span>
                 </div>
             </div>
@@ -161,32 +151,30 @@
                             <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="historyToTime"/>
                         </div>
                         <div class="col-sm-3">
-                    <select class="form-control" id = "managerSelect">
-                        <option value="">Выбрать пользователя</option>
-                        <option th:each="chooseUser : ${chooseUser}"
-                                th:value="${chooseUser.id}"
-                                th:utext="${chooseUser.firstName}"/>
-                    </select>
+                            <select class="form-control" id = "managerSelect">
+                                <option value="">Выбрать пользователя</option>
+                                <option th:each="chooseUser : ${chooseUser}"
+                                        th:value="${chooseUser.id}"
+                                        th:utext="${chooseUser.firstName}"/>
+                            </select>
                         </div>
                         <div class="col-sm-3">
-                            <button class="btn btn-default" onclick="showManagerHistory()">
-                                Выбрать
-                            </button>
+                            <button class="btn btn-default" onclick="showManagerHistory()">Выбрать</button>
                         </div>
                     </div>
                 </div>
+
                 <table class="table table-striped" id="historyMailingTable">
                     <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Дата</th>
-                        <th scope="col">Текст</th>
-                        <th scope="col">Тип</th>
-                        <th scope="col">Действия</th>
-                    </tr>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Дата</th>
+                            <th scope="col">Текст</th>
+                            <th scope="col">Тип</th>
+                            <th scope="col">Действия</th>
+                        </tr>
                     </thead>
                     <tbody id="historyBodyMailing">
-
                     </tbody>
                 </table>
             </div>
@@ -208,19 +196,23 @@
                 <div id="addListName" class="form-group">
                     <label for="listName">Название списка: </label>
                     <input id="listName" class="form-control" type="text" />
-                    <div id="errorListName">
-
-                    </div>
+                    <div id="errorListName"></div>
                 </div>
 
                 <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label for="listRecipients">Укажите список получателей (каждый с новой строки):</label>
+                    <div class="row" id="textaria-for-add-modal">
+                        <div class="col">
+                            <label for="listRecipients">Укажите список получателей (каждый с новой строки):</label>
                             <textarea class="form-control text-lowercase" id="listRecipients" rows="20"
-                                style="font-size: 8pt"></textarea>
+                                      style="font-size: 8pt">
+                            </textarea>
+                        </div>
+                        <div class="clear-list-recipients">
+                            <button class="btn btn-primary btn-xs" onclick="clearListRecipients('listRecipients')">
+                                Очистить
+                            </button>
+                        </div>
                     </div>
-                </div>
                 </div>
 
                 <div class="form-group">
@@ -237,15 +229,19 @@
                         </label>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" id="slackIdAllImportButton">
+                        <button class="btn btn-primary" id="slackIdAllImportButton" style="display: none;">
                             Все id из Slack
                         </button>
-                        <button class="btn btn-primary" id="slackIdStudentsImportButton">
+                        <button class="btn btn-primary" id="slackIdStudentsImportButton" style="display: none;">
                             Только id студентов из Slack
                         </button>
                         <button class="btn btn-primary" id="slackImportButton">
                             Все e-mail из Slack
-                        </button><br /><br />
+                        </button>
+                        <br /><br />
+                        <button class="btn btn-primary" id="fromStatusesImportButton">
+                            Заполнить из статусов
+                        </button>
                         <button class="btn btn-success" onclick="addToListMailing()">
                             Создать
                         </button>
@@ -261,7 +257,7 @@
         <div class="modal-content">
             <div class="modal-header" id="editListMailingModalHeader">
                 <h4 class="modal-title" id="editListMailingModalLabel">Редактирование списка рассылок</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="turnDisable()">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     x
                 </button>
             </div>
@@ -274,7 +270,7 @@
                             <input id="editListName" class="form-control" type="text" />
                         </div>
                         <div class = "col-sm-5">
-                            <button type="button" id="deleteListMaling" class="btn btn-danger" onclick="deleteListMailing()" disabled="disabled">
+                            <button type="button" id="deleteListMaling" class="btn btn-danger" onclick="deleteListMailing()">
                                 Удалить рассылку
                             </button>
                         </div>
@@ -282,11 +278,15 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="row">
+                    <div class="row" id="textaria-for-edit-modal">
                         <div class="col">
                             <label for="editListRecipients">Укажите список получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListRecipients" rows="20"
-                                      style="font-size: 8pt"></textarea>
+                            <textarea class="form-control text-lowercase" id="editListRecipients" rows="20"></textarea>
+                        </div>
+                        <div class="clear-list-recipients">
+                            <button class="btn btn-primary btn-xs" onclick="clearListRecipients('editListRecipients')">
+                                Очистить
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -294,27 +294,33 @@
                 <div class="form-group">
                     <label for="edit-mailing-list-type">Тип списка:</label>
                     <select id="edit-mailing-list-type" class="form-control">
-                        <option th:each="listType:${listMailingTypes}" th:value="${listType.id}" th:text="${listType.name}">Тип рассылки</option>
+                        <option th:each="listType:${listMailingTypes}" th:value="${listType.id}"
+                                th:text="${listType.name}">Тип рассылки
+                        </option>
                     </select>
                 </div>
 
                 <div class="modal-footer">
                     <div class="form-group" id="update-list-statuses">
                         <label class="checkbox-inline">
-                            <input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_1" value="1"/> Статус 1
+                            <input class="update-status-checkboxes" type="checkbox"
+                                   id="update_status_checkbox_1" value="1"/> Статус 1
                         </label>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" id="slackUpdateIdAllImportButton">
+                        <button class="btn btn-primary" id="slackUpdateIdAllImportButton" style="display: none;">
                             Все id из Slack
                         </button>
-                        <button class="btn btn-primary" id="slackUpdateIdStudentsImportButton">
+                        <button class="btn btn-primary" id="slackUpdateIdStudentsImportButton" style="display: none;">
                             Только id студентов из Slack
                         </button>
                         <button class="btn btn-primary" id="slackUpdateImportButton">
                             Все e-mail из Slack
                         </button><br /><br />
-                        <button id= "editButton" class="btn btn-success" onclick="editListMailing()" disabled="disabled">
+                        <button class="btn btn-primary" id="updateFromStatusesImportButton">
+                            Заполнить из статусов
+                        </button>
+                        <button id= "editButton" class="btn btn-success" onclick="editListMailing()">
                             Редактировать
                         </button>
                     </div>
@@ -337,13 +343,11 @@
             <div class="modal-body" id="recipientModalBody">
                 <table class="table table-striped" id="recepientMailingTable">
                     <thead>
-                    <tr>
-                        <th scope="col">Получатели:</th>
-                    </tr>
+                        <tr>
+                            <th scope="col">Получатели:</th>
+                        </tr>
                     </thead>
-                    <tbody id="recipientBodyMailing">
-
-                    </tbody>
+                    <tbody id="recipientBodyMailing"></tbody>
                 </table>
             </div>
         </div>
@@ -360,23 +364,16 @@
                 </button>
             </div>
             <div class="modal-body" id="noSendModalBody">
-                <textarea class="form-control text-lowercase" id="noSend-area" rows="12"
-                          style="font-size: 10pt"></textarea>
+                <textarea class="form-control text-lowercase" id="noSend-area" rows="12"></textarea>
             </div>
         </div>
     </div>
 </div>
 
 <footer>
-    <div class="container-fluid" id="footer">
-    </div>
+    <div class="container-fluid" id="footer"></div>
 </footer>
 
-<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
-<!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
-<!--crossorigin="anonymous"/>-->
-<!--<script th:src="@{/webjars/bootstrap/4.1.2/js/bootstrap.bundle.js}"></script>-->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
 <!--из локальной коппии, так как конфигурация редактора кастомная-->
 <script th:src="@{/ckeditor/ckeditor.js}"/>
 <script type="text/javascript" src="https://cdn.rawgit.com/JDMcKinstry/jQuery-Date/master/jQuery.date.min.js"/>
