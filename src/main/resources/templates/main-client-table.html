@@ -24,7 +24,7 @@
              class="column" th:each="status : ${statuses}"
              th:value="${status.id}"
              th:if="${!status.invisible}">
-            <div id="column-header">
+            <div id="column-header" class="column-header">
                 <div th:id="'column-number'+${counter.incrementAndGet()}"
                      th:value="${status.id}">
                 </div>
