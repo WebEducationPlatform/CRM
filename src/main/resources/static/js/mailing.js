@@ -5,6 +5,8 @@ const BADGE_SUCCESS_CLASS = "badge-success";
 const BADGE_WARNING_CLASS = "badge-warning";
 const EDITOR = "editor";
 const URL_POST_DATA = "/client/mailing/send";
+const URL_EMAILS_FROM_STATUSES = "/rest/client/emails/statuses";
+const URL_PHONES_FROM_STATUSES = "/rest/client/phones/statuses";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
 const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (не более 20 человек в день, которые не в друзьях и каждый с новой строки):";
@@ -88,15 +90,19 @@ function fillStatuses() {
     let updateSelector = $('#update-list-statuses');
     let createSelector = $('#list-statuses');
     $.ajax({
-        url: '/rest/status',
+        url: '/rest/status/dto/for-mailing',
         type: 'GET',
         async: true,
         success: function (data) {
             updateSelector.empty();
             createSelector.empty();
             for (var i = 0; i < data.length; i++) {
-                createSelector.append('<label class="checkbox-inline"><input class="status-checkboxes" type="checkbox" id="status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
-                updateSelector.append('<label class="checkbox-inline"><input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
+                createSelector.append('<label class="checkbox-inline"><input class="status-checkboxes" ' +
+                    'type="checkbox" id="status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' +
+                    data[i].name + '</label>');
+                updateSelector.append('<label class="checkbox-inline"><input class="update-status-checkboxes" ' +
+                    'type="checkbox" id="update_status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' +
+                    data[i].name + '</label>');
             }
         }
     });
@@ -105,7 +111,7 @@ function fillStatuses() {
 /**
  * Функция, переключающая состояние кнопок режима рассылки и перенастраивающая интерфейс редактора.
  * Для функции отправки сообщений посредством СМС, в CKEditor отключаются все плагины форматирования
- * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
+ * текста, так же, как и для отправки сообщений в ВК или Slack. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
     fillStatuses();
@@ -125,15 +131,27 @@ $(document).ready(function () {
         switch (messageType) {
             case 'sms':
                 $("#addresses-label").text(SEND_SMSS);
+                $("#mailing-list-type > option[value='4']").prop('selected', true);
+                showHideButtonsOnAddMailingList(messageType);
+                showHideButtonsOnEditMailingList(messageType);
                 break;
             case 'vk':
                 $("#addresses-label").text(SEND_TO_VK);
+                $("#mailing-list-type > option[value='2']").prop('selected', true);
+                showHideButtonsOnAddMailingList(messageType);
+                showHideButtonsOnEditMailingList(messageType);
                 break;
             case 'slack':
                 $("#addresses-label").text(SEND_TO_SLACK);
+                $("#mailing-list-type > option[value='3']").prop('selected', true);
+                showHideButtonsOnAddMailingList(messageType);
+                showHideButtonsOnEditMailingList(messageType);
                 break;
             case 'email':
                 $("#addresses-label").text(SEND_EMAILS);
+                $("#mailing-list-type > option[value='1']").prop('selected', true);
+                showHideButtonsOnAddMailingList(messageType);
+                showHideButtonsOnEditMailingList(messageType);
                 break;
         }
 
@@ -209,6 +227,29 @@ $(document).ready(function () {
         };
     })( jQuery );
 
+    (function( $ ){
+        $.fn.fillRecipientListFromStatuses = function(selector, url) {
+            var field = this;
+            let selectedStatuses = [];
+            $('.' + selector + ':checked').each(function(){
+                selectedStatuses.push($(this).val());
+            });
+            let wrap = {
+                'statuses' : selectedStatuses
+            };
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: wrap,
+                traditional: true,
+                async: true,
+                success: function (data) {
+                    field.val(data.join('\n'));
+                }
+            });
+        };
+    })( jQuery );
+
     $("#slackImportButton").click(function () {
         $("#listRecipients").fillWithEmails();
     });
@@ -231,6 +272,38 @@ $(document).ready(function () {
 
     $("#slackUpdateIdStudentsImportButton").click(function () {
         $("#editListRecipients").fillWithStudentsIds('update-status-checkboxes');
+    });
+
+    $("#fromStatusesImportButton").click(function () {
+        let messageType = $("#mailing-list-type option:selected").text();
+        switch (messageType) {
+            case 'sms':
+                $("#listRecipients").fillRecipientListFromStatuses('status-checkboxes', URL_PHONES_FROM_STATUSES);
+                break;
+            case 'vk':
+                break;
+            case 'slack':
+                break;
+            case 'email':
+                $("#listRecipients").fillRecipientListFromStatuses('status-checkboxes', URL_EMAILS_FROM_STATUSES);
+                break;
+        }
+    });
+
+    $("#updateFromStatusesImportButton").click(function () {
+        let messageType = $("#edit-mailing-list-type option:selected").text();
+        switch (messageType) {
+            case 'sms':
+                $("#editListRecipients").fillRecipientListFromStatuses('update-status-checkboxes', URL_PHONES_FROM_STATUSES);
+                break;
+            case 'vk':
+                break;
+            case 'slack':
+                break;
+            case 'email':
+                $("#editListRecipients").fillRecipientListFromStatuses('update-status-checkboxes', URL_EMAILS_FROM_STATUSES);
+                break;
+        }
     });
 
     $.ajax({
@@ -371,7 +444,7 @@ $(document).ready(function () {
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js',
-        filebrowserImageUploadUrl: '/image/upload',
+        filebrowserImageUploadUrl: '/image/upload'
 
     });
     CKEDITOR.config.extraPlugins = 'uploadimage';
@@ -650,7 +723,13 @@ function addToListMailing() {
             url: '/list-mailing',
             data: wrap,
             success: function () {
-                location.reload();
+                setMailingLists();
+                $("#listMailingModal").modal('hide');
+                $('#listRecipients').val("");
+                $('#listName').val("");
+                $('#list-statuses .status-checkboxes:checked').each(function(){
+                    $(this).prop('checked', false);
+                });
             }
         });
     } else {
@@ -725,12 +804,17 @@ function showManagerHistory() {
 
 }
 function showListMailing() {
-    if (messageType !== "email") {
+    // Странный кусок кода - предназначение не понятно!
+    /*if (messageType !== "email") {
         x = CKEDITOR.instances.editor.document.getBody().getText();
     } else {
         x = "";
-    }
-    listGroupName = $('#listMailingSelect').val()
+    }*/
+    let listGroupName = $('#listMailingSelect').val();
+    if(listGroupName === "null") {
+        alert("Выберите список рассылки!");
+        return;
+    } else {
         $.ajax({
             url: '/get/listMailing',
             type: 'POST',
@@ -738,40 +822,49 @@ function showListMailing() {
                 listGroupId: listGroupName
             },
             success: function (data) {
-                for(var i = 0; i < data.recipients.length; i++) {
-                    $("#addresses-area").each(function() {
+                for (var i = 0; i < data.recipients.length; i++) {
+                    $("#addresses-area").each(function () {
                         $(this).val(data.recipients.join("\n"));
                     });
                 }
             }
         });
+    }
 }
 
+function clearListRecipients(selector) {
+    $("#" + selector).val('');
+}
+
+function fillListRecipients(selector) {
+
+}
 
 function openEditShowListMailing() {
 
     listGroupName = $('#listMailingSelect').val();
 
-    if(listGroupName !== "null") {
-        $("#deleteListMaling").removeAttr("disabled");
-        $("#editButton").removeAttr("disabled");
+    if(listGroupName === "null") {
+        alert("Выберите список рассылки!");
+        return;
+    } else {
+        $.ajax({
+            url: '/get/listMailing',
+            type: 'POST',
+            data: {
+                listGroupId: listGroupName
+            },
+            success: function (data) {
+                $("#editListName").val(data.listName);
+                $("#editListRecipients").each(function () {
+                    $(this).val(data.recipients.join("\n"));
+                });
+                $("#edit-mailing-list-type").val(data.type.id);
+            }
+        });
+        $("#editListMailingModal").modal('show');
     }
-
-    $.ajax({
-        url: '/get/listMailing',
-        type: 'POST',
-        data: { listGroupId: listGroupName
-        },
-        success: function (data) {
-            $("#editListName").val(data.listName);
-            $("#editListRecipients").each(function () {
-                $(this).val(data.recipients.join("\n"));
-            });
-            $("#edit-mailing-list-type").val(data.type.id);
-        }
-    });
 }
-
 
 function editListMailing() {
     let listName = $("#listMailingSelect").val();
@@ -788,8 +881,9 @@ function editListMailing() {
             typeId: editTypeId
         },
         success: function () {
-            location.reload();
-        }
+            setMailingLists();
+            $("#editListMailingModal").modal('hide');
+    }
     });
 }
 
@@ -804,15 +898,11 @@ function deleteListMailing() {
             listId: listName
         },
         success: function () {
-            location.reload();
+            setMailingLists();
+            $("#editListMailingModal").modal('hide');
         }
     });
 
-}
-
-function turnDisable() {
-    $("#deleteListMaling").attr("disabled", "disabled");
-    $("#editButton").attr("disabled", "disabled");
 }
 
 function removeRecipient() {
@@ -824,4 +914,71 @@ function hideNoSend() {
     $("#noSend-area").val("");
 }
 
+$("#mailing-list-type").on("change", function () {
+    let messageType = $("#mailing-list-type option:selected").text();
+    showHideButtonsOnAddMailingList(messageType);
+});
 
+$("#edit-mailing-list-type").on("change", function () {
+    let messageType = $("#edit-mailing-list-type option:selected").text();
+    showHideButtonsOnEditMailingList(messageType);
+});
+
+// Фукнкции показывают / скрывают кнопки в модальном окне согласно типу списка рассылки
+function showHideButtonsOnAddMailingList(messageType) {
+    switch (messageType) {
+        case 'sms':
+            $("#slackImportButton").hide();
+            $("#slackIdAllImportButton").hide();
+            $("#slackIdStudentsImportButton").hide();
+            $("#fromStatusesImportButton").show();
+            break;
+        case 'vk':
+            $("#slackImportButton").hide();
+            $("#slackIdAllImportButton").hide();
+            $("#slackIdStudentsImportButton").hide();
+            $("#fromStatusesImportButton").show();
+            break;
+        case 'slack':
+            $("#slackImportButton").hide();
+            $("#slackIdAllImportButton").show();
+            $("#slackIdStudentsImportButton").show();
+            $("#fromStatusesImportButton").hide();
+            break;
+        case 'email':
+            $("#slackImportButton").show();
+            $("#slackIdAllImportButton").hide();
+            $("#slackIdStudentsImportButton").hide();
+            $("#fromStatusesImportButton").show();
+            break;
+    }
+}
+
+function showHideButtonsOnEditMailingList(messageType) {
+    switch (messageType) {
+        case 'sms':
+            $("#slackUpdateImportButton").hide();
+            $("#slackUpdateIdAllImportButton").hide();
+            $("#slackUpdateIdStudentsImportButton").hide();
+            $("#updateFromStatusesImportButton").show();
+            break;
+        case 'vk':
+            $("#slackUpdateImportButton").hide();
+            $("#slackUpdateIdAllImportButton").hide();
+            $("#slackUpdateIdStudentsImportButton").hide();
+            $("#updateFromStatusesImportButton").show();
+            break;
+        case 'slack':
+            $("#slackUpdateImportButton").hide();
+            $("#slackUpdateIdAllImportButton").show();
+            $("#slackUpdateIdStudentsImportButton").show();
+            $("#updateFromStatusesImportButton").hide();
+            break;
+        case 'email':
+            $("#slackUpdateImportButton").show();
+            $("#slackUpdateIdAllImportButton").hide();
+            $("#slackUpdateIdStudentsImportButton").hide();
+            $("#updateFromStatusesImportButton").show();
+            break;
+    }
+}
