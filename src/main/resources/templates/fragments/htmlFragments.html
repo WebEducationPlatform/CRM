@@ -1006,34 +1006,34 @@
                           class="chat-notification glyphicon glyphicon-send pull-right"
                           style="color: darkblue;display: none;"></span>
 
-                    <th:block th:each="notification_comment:${notifications_type_comment}">
-                        <th:block th:if="${notification_comment.client == client}">
-                                   <span id="notification"
+<!--                    <th:block th:each="notification_comment:${notifications_type_comment}">-->
+<!--                        <th:block th:if="${notification_comment.client == client}">-->
+<!--                                   <span id="notification"-->
 
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                        </th:block>
+<!--                                         class="notification glyphicon glyphicon-bell"-->
+<!--                                         style="color: red"></span>-->
+<!--                        </th:block>-->
 
-                    </th:block>
+<!--                    </th:block>-->
 
-                    <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                        <th:block th:if="${notification_new_user.client == client}">
-                                   <span id="2у notification-new"
+<!--                    <th:block th:each="notification_new_user:${notifications_type_new_user}">-->
+<!--                        <th:block th:if="${notification_new_user.client == client}">-->
+<!--                                   <span id="2у notification-new"-->
 
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                        </th:block>
+<!--                                         class="notification glyphicon glyphicon-bell"-->
+<!--                                         style="color: red"></span>-->
+<!--                        </th:block>-->
 
-                    </th:block>
+<!--                    </th:block>-->
 
-                    <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                        <th:block th:if="${notification_postpone.client == client}">
-                                   <span th:id="'notification-postpone'+${client.id}"
-                                         class="glyphicon glyphicon-time"
-                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
-                        </th:block>
+<!--                    <th:block th:each="notification_postpone:${notifications_type_postpone}">-->
+<!--                        <th:block th:if="${notification_postpone.client == client}">-->
+<!--                                   <span th:id="'notification-postpone'+${client.id}"-->
+<!--                                         class="glyphicon glyphicon-time"-->
+<!--                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>-->
+<!--                        </th:block>-->
 
-                    </th:block>
+<!--                    </th:block>-->
                     <div sec:authorize="hasAnyAuthority('MENTOR')">
                                 <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
                                       th:text="${client.ownerMentor.id}"></span>
