@@ -7,6 +7,7 @@ import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.NotificationRepository;
+import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private Environment env;
     private final UserService userService;
+    private final StudentRepository studentRepository;
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
@@ -50,7 +52,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
                              NotificationRepository notificationRepository, @Lazy SlackService slackService, Environment env,
-                             ClientStatusChangingHistoryService clientStatusChangingHistoryService, UserService userService) {
+                             ClientStatusChangingHistoryService clientStatusChangingHistoryService, UserService userService, StudentRepository studentRepository) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -65,6 +67,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.env = env;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.userService = userService;
+        this.studentRepository = studentRepository;
     }
 
     @Override
@@ -504,6 +507,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     @Transactional
     public void updateClient(Client client) {
+
+
         clientFieldsTrimmer(client);
         if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
             Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());
@@ -527,7 +532,16 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
+
+
         //checkSocialLinks(client);
+
+        //Решение проблемы с удалением студента
+        if (client.getStudent() == null){
+            Student student = studentRepository.getStudentByClientId(client.getId());
+            client.setStudent(student);
+        }
+
         clientRepository.saveAndFlush(client);
     }
 
