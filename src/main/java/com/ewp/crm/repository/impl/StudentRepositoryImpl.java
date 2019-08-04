@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -44,41 +45,51 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
 
     @Override
     public long countActiveByDate(ZonedDateTime day) {
-        String query = "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
-                "WHERE c.`is_fake` IS FALSE " +
-                "AND c.`client_id` IN (" +
-                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
-                "LEFT JOIN status AS ns ON c.`new_status_id` = ns.`status_id` " +
-                "WHERE c.date <= :day " +
-                "AND ns.`status_name` = 'Учатся'" +
-                ") " +
-                "AND c.`client_id` NOT IN (" +
-                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
-                "LEFT JOIN status AS ss ON c.`source_status_id` = ss.`status_id` " +
-                "WHERE c.date <= :day " +
-                "AND ss.`status_name` = 'Учатся'" +
-                ") " +
-                "UNION " +
-                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
-                "WHERE c.`is_fake` IS FALSE " +
-                "AND c.`client_id` IN (" +
-                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
-                "JOIN status AS ns ON c.`new_status_id` = ns.`status_id` " +
-                "WHERE c.date <= :day " +
-                "AND ns.`status_name` = 'На пробных'" +
-                ") " +
-                "AND c.`client_id` NOT IN (" +
-                "SELECT DISTINCT c.`client_id` FROM client_status_changing_history AS c " +
-                "JOIN status AS ss ON c.`source_status_id` = ss.`status_id` " +
-                "JOIN status AS ns ON c.`new_status_id` = ns.`status_id` " +
-                "WHERE c.date <= :day " +
-                "AND ss.`status_name` = 'На пробных' " +
-                "AND ns.`status_name` <> 'Учатся'" +
-                ");"
-                ;
-        return entityManager.createNativeQuery(query)
-                .setParameter("day", day)
-                .getResultList().size();
+        String query = "SELECT COUNT(*) FROM (" +
+                "SELECT DISTINCT csch.client_id FROM client_status_changing_history csch" +
+                "   RIGHT JOIN status s " +
+                "       ON " +
+                "           s.status_id = csch.new_status_id AND " +
+                "           s.create_student IS TRUE" +
+                "       WHERE " +
+                "       s.create_student IS TRUE AND" +
+                "       csch.date <= :day AND" +
+                "           csch.client_id NOT IN (" +
+                "           SELECT csch.client_id FROM client_status_changing_history csch" +
+                "           RIGHT JOIN status s " +
+                "               ON " +
+                "                   s.status_id = csch.new_status_id AND " +
+                "                   s.create_student IS FALSE" +
+                "           LEFT JOIN (" +
+                "               SELECT csch.client_id, MAX(csch.date) AS date FROM client_status_changing_history csch" +
+                "               RIGHT JOIN status s " +
+                "                   ON " +
+                "                       s.status_id = csch.new_status_id AND " +
+                "                       s.create_student IS TRUE" +
+                "               WHERE " +
+                "                   s.create_student IS TRUE AND" +
+                "                   csch.date <= :day" +
+                "               GROUP BY csch.client_id" +
+                "               ORDER BY csch.date DESC" +
+                "               ) d ON d.client_id = csch.client_id" +
+                "           WHERE " +
+                "               s.create_student IS FALSE AND" +
+                "               csch.date <= :day AND" +
+                "               csch.date > d.date" +
+                "           GROUP BY csch.client_id" +
+                "           ORDER BY csch.date DESC" +
+                "           )" +
+                "   GROUP BY csch.client_id" +
+                "   ORDER BY csch.date DESC" +
+                ") x;";
+        try {
+            return ((BigInteger) entityManager.createNativeQuery(query)
+                    .setParameter("day", day)
+                    .getSingleResult()).longValue();
+        } catch (Exception ignore) {
+
+        }
+        return 0;
     }
 
     @Override
