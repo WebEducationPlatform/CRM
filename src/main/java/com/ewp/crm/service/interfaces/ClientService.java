@@ -1,7 +1,14 @@
 package com.ewp.crm.service.interfaces;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Comment;
+import com.ewp.crm.models.ContractDataForm;
+import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientDto;
 import org.springframework.data.domain.Pageable;
 
@@ -38,6 +45,8 @@ public interface ClientService extends CommonService<Client> {
 	Optional<Client> getClientBySocialProfile(SocialProfile socialProfile);
 
 	void addClient(Client client, User user);
+
+	void createClientStatusChangingHistory(Status lastStatus, Status newStatus, Client client, boolean clientCreation, User user);
 
 	void updateClient(Client client);
 

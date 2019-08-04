@@ -365,11 +365,11 @@ $(function () {
 
 
                 if (client.liveSkypeCall) {
-                    btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
+                    btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время созвона</button>\n' +
                         '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
                         '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
-                        '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
-                        '    <li><a href="#">Отмена</a></li>\n' +
+                        '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить созвон</a></li>\n' +
+                        // '    <li><a href="#">Отмена</a></li>\n' +
                         '    </ul>' +
                         '</div>' +
                         '<div class="skype-notification"></div>' +
@@ -377,7 +377,7 @@ $(function () {
                 } else {
                     btnBlock.after(
                         '<div class="remove-tag confirm-skype-interceptor">' +
-                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
+                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить первый созвон</button>' +
                         '<div class="skype-notification"></div>' +
                         '</div>')
                 }
@@ -389,7 +389,6 @@ $(function () {
                     if(userLoggedIn.role[i].roleName === 'ADMIN' || userLoggedIn.role[i].roleName === 'OWNER'){
                         currentUserRole = 'ADMIN'
                     }
-
                 }
 
                 if (currentUserRole !== undefined) {
@@ -700,6 +699,8 @@ $(document).on('click','.confirm-skype-btn', function (e) {
         startDate: Date.UTC(skypeCallDateOld.getFullYear(), skypeCallDateOld.getMonth(), skypeCallDateOld.getDate(), skypeCallDateOld.getHours(), skypeCallDateOld.getMinutes(), 0, 0),
         clientId: clientId
     };
+
+    this.setAttribute("disabled", "true");
     $.ajax({
         type: 'POST',
         url: '/rest/skype/addSkypeCallAndNotification',
@@ -719,6 +720,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 '</div>' +
                 '<div class="skype-notification" style="color:#229922">Время беседы назначено.</div>' +
                 '</div>');
+            this.setAttribute("disabled", "false");
         },
         error: function (error) {
             console.log(error);
@@ -854,7 +856,7 @@ function deleteCallDate(id) {
                     if (btnBlockShow.length > 0)
                     {
                         $('.confirm-skype-interceptor').remove();
-                        btnBlockShow.after('<div class="remove-tag confirm-skype-interceptor"><button id="assign-skype' + clientId + '" onclick="assignSkype(' + clientId + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>\n' +
+                        btnBlockShow.after('<div class="remove-tag confirm-skype-interceptor"><button id="assign-skype' + clientId + '" onclick="assignSkype(' + clientId + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить первый созвон</button>\n' +
                             '<div class="skype-notification"></div>' +
                             '</div>')
                     } else {
@@ -898,12 +900,12 @@ function assignSkype(id) {
         success: function (client) {
             btnBlockTask.attr('id', 'assign-skype' + clientId);
             var clientSkype = client.skype;
-            if(clientSkype === null || 0 === clientSkype.length) {
-                currentStatus.css('color', '#333');
-                currentStatus.text("Введите Skype пользователя");
-                currentStatus.after('<input class="enter-skype-login form-control"> </input>');
-                $('.enter-skype-login').after('<br/>' + '<button onclick="confirmSkype(' + id + ')" type="button" class="btn btn-primary btn-sm confirm-skype-login">Подтвердить</button>');
-            } else {
+            // if(clientSkype === null || 0 === clientSkype.length) {
+            //     currentStatus.css('color', '#333');
+            //     currentStatus.text("Введите Skype пользователя");
+            //     currentStatus.after('<input class="enter-skype-login form-control"> </input>');
+            //     $('.enter-skype-login').after('<br/>' + '<button onclick="confirmSkype(' + id + ')" type="button" class="btn btn-primary btn-sm confirm-skype-login">Подтвердить</button>');
+            // } else {
                 currentStatus.empty();
                 currentStatus.after('<button class="btn btn-info btn-sm confirm-skype-btn">Подтвердить</button>');
                 currentBtn.attr("disabled", "true");
@@ -924,7 +926,7 @@ function assignSkype(id) {
                     minDate: new Date(new Date(startDate).toLocaleString('en-US', { timeZone: 'Europe/Moscow' })),
                     startDate: new Date(new Date(startDate).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
                 });
-            }
+            // }
         },
         error: function (error) {
             console.log(error);

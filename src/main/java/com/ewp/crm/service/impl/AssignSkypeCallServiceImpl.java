@@ -60,7 +60,12 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 	public List<AssignSkypeCall> getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient() {
 		return assignSkypeCallRepository.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient();
 	}
-
+	
+	@Override
+	public List<AssignSkypeCall> getAssignSkypeCallClientsWithoutMentors() {
+		return assignSkypeCallRepository.getAssignSkypeCallClientsWithoutMentors();
+	}
+	
 	@Override
 	public void deleteByIdSkypeCall(Long id) {
         AssignSkypeCall assignSkypeCall = get(id);

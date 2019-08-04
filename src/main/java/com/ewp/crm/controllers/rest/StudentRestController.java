@@ -1,7 +1,19 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.ClientStatusChangingHistory;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.Student;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.StudentService;
+import com.ewp.crm.service.interfaces.StudentStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +21,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -157,6 +175,7 @@ public class StudentRestController {
         if (statusId != null) {
             Optional<Status> status = statusService.get(statusId);
             if (status.isPresent()) {
+                clientService.createClientStatusChangingHistory(client.getStatus(), status.get(), client, false, userFromSession);
                 client.setStatus(status.get());
                 clientService.updateClient(client);
                 return HttpStatus.OK;
