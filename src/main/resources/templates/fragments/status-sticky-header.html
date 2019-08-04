@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+</head>
+<body>
+
+<th:block th:fragment="sticky-style">
+    <link rel="stylesheet" th:href="@{/css/status-sticky-header.css}"/>
+</th:block>
+<th:block th:fragment="sticky-scripts">
+    <script th:src="@{/js/status-sticky-header.js}"></script>
+</th:block>
+</body>
+</html>
