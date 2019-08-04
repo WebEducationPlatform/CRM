@@ -46,6 +46,8 @@ public interface ClientService extends CommonService<Client> {
 
 	void addClient(Client client, User user);
 
+	void createClientStatusChangingHistory(Status lastStatus, Status newStatus, Client client, boolean clientCreation, User user);
+
 	void updateClient(Client client);
 
 	List<Client> filteringClient(FilteringCondition filteringCondition);

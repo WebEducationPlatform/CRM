@@ -545,6 +545,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public void createClientStatusChangingHistory(Status lastStatus, Status newStatus, Client client, boolean clientCreation, User user) {
+        ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
+                ZonedDateTime.now(),
+                lastStatus,
+                newStatus,
+                client,
+                user);
+        clientStatusChangingHistory.setClientCreation(clientCreation);
+        clientStatusChangingHistoryService.add(clientStatusChangingHistory);
+    }
+
+    @Override
     @Transactional
     public void updateClient(Client client) {
 
