@@ -1,8 +1,19 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.VKConfigImpl;
-import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.models.Notification;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.SMSService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

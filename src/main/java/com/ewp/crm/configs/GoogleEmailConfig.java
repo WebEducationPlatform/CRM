@@ -1,8 +1,17 @@
 package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;

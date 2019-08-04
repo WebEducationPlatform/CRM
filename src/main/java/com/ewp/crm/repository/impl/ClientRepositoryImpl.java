@@ -1,8 +1,13 @@
 package com.ewp.crm.repository.impl;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

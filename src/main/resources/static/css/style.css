@@ -181,11 +181,20 @@ ul.nav a:hover {
 	background-color: #ffead6 !important;
 }
 
+.nav__active-tab {
+	border-bottom: 2px solid #333;
+	color: #333!important;
+	background-color: transparent;
+}
+/*.nav__active-tab__text {*/
+
+/*}*/
+
 #new-status-form {
 	display: none;
 }
 
-#column-header {
+.column-header {
 	border-bottom: 5px solid #ff00001a;
 	margin-right: 5%;
 	position: relative;
@@ -289,7 +298,8 @@ ul.nav a:hover {
 	right: -350px;
 	margin: -40px 0 0 0;
 	overflow: hidden;
-	height: 90%
+	height: 90%;
+	z-index: 200;
 }
 
 #panel-content {
@@ -341,7 +351,7 @@ ul.nav a:hover {
 	background: gainsboro;
 }
 
-#column-header .btn-group{
+.column-header .btn-group{
 	position: absolute;
 	right: 0px;
 	margin-right: 15px;
