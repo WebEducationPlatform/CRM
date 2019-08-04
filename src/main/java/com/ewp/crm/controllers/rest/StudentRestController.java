@@ -175,6 +175,7 @@ public class StudentRestController {
         if (statusId != null) {
             Optional<Status> status = statusService.get(statusId);
             if (status.isPresent()) {
+                clientService.createClientStatusChangingHistory(client.getStatus(), status.get(), client, false, userFromSession);
                 client.setStatus(status.get());
                 clientService.updateClient(client);
                 return HttpStatus.OK;
