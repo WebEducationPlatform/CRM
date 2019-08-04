@@ -3,6 +3,8 @@ package com.ewp.crm.repository.impl;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Repository
 public class StudentRepositoryImpl implements StudentRepositoryCustom {
+
+    private static Logger logger = LoggerFactory.getLogger(StudentRepositoryImpl.class);
 
     private final EntityManager entityManager;
 
@@ -86,8 +90,8 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
             return ((BigInteger) entityManager.createNativeQuery(query)
                     .setParameter("day", day)
                     .getSingleResult()).longValue();
-        } catch (Exception ignore) {
-
+        } catch (Exception e) {
+            logger.error("Failed to count students by date {}", day, e);
         }
         return 0;
     }
