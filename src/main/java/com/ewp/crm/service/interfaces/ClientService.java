@@ -70,7 +70,7 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
 
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
-  
+
 	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
 
 	void setContractLink(Long clientId, String contractLink, String contractName);
@@ -87,8 +87,10 @@ public interface ClientService extends CommonService<Client> {
 
 	void setOtherInformationLink(Long clientId, String hash);
 
-  List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
+    List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
 
 	List<Client> getClientsByEmails(List<String> emails);
+
+	void transferClientsBetweenMentors(User sender, User receiver);
 
 }

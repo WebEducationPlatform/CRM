@@ -22,4 +22,6 @@ public interface NotificationRepository extends CommonGenericRepository<Notifica
 	@Query("SELECT notify.client FROM Notification notify")
 	List<Client> getClientWithNotification();
 
+	void deleteNotificationsByUserToNotify(User user);
+
 }

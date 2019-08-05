@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.User;
@@ -68,6 +69,14 @@ public class UserRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
 	public ResponseEntity getColor(@AuthenticationPrincipal User userFromSession) {
 		return ResponseEntity.ok(userFromSession.getColorBackground());
+	}
+
+	@GetMapping(value = "/rest/get-users-with-same-role", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
+	public ResponseEntity<List<User>> getByRole(@RequestParam(name = "id") long id) {
+    	List<Role> roles = userService.get(id).getRole();
+		roles.removeIf(r -> r.getRoleName().equals("USER"));
+		return ResponseEntity.ok(userService.getUsersByRoles(roles));
 	}
 
 }

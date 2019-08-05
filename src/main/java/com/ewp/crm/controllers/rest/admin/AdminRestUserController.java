@@ -2,10 +2,7 @@ package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.CommentService;
-import com.ewp.crm.service.interfaces.SMSInfoService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +31,19 @@ public class AdminRestUserController {
     private final ClientService clientService;
     private final SMSInfoService smsInfoService;
     private final CommentService commentService;
+    private final NotificationService notificationService;
 
     @Autowired
     public AdminRestUserController(UserService userService,
                                    ImageConfig imageConfig,
-                                   ClientService clientService, SMSInfoService smsInfoService, CommentService commentService) {
+                                   ClientService clientService, SMSInfoService smsInfoService,
+                                   CommentService commentService, NotificationService notificationService) {
         this.userService = userService;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
         this.smsInfoService = smsInfoService;
         this.commentService = commentService;
+        this.notificationService = notificationService;
     }
 
     @ResponseBody
@@ -110,20 +110,24 @@ public class AdminRestUserController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    // Delete user with clients transfer to receiver user
+    // Удаление пользователя с перемещением его студентов другому пользователю
     @RequestMapping(value = "/admin/rest/user/deleteWithTransfer", method = RequestMethod.POST)
-    public ResponseEntity deleteUserWithClientTransfer(@RequestParam Long deleteId,
-                                                       @RequestParam Long receiverId,
-                                                       @AuthenticationPrincipal User currentAdmin) {
-        User deletedUser = Optional.of(userService.get(deleteId))
-                                    .orElseThrow(() -> new IllegalArgumentException("Wrong delete user id!"));
-        User receiver = Optional.of(userService.get(receiverId))
-                                .orElseThrow(() -> new IllegalArgumentException("Wrong receiver user id!"));
-        clientService.transferClientsBetweenOwners(deletedUser, receiver);
-        commentService.deleteAllCommentsByUserId(deleteId);
-        smsInfoService.deleteAllSMSByUserId(deleteId);
-        userService.delete(deleteId);
-        logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), deletedUser.getId(), deletedUser.getEmail());
+    public ResponseEntity deleteUserWithClientTransfer(@RequestParam Long userIdToBeDeleted,
+                                                       @RequestParam Long receiverUserId,
+                                                       @AuthenticationPrincipal User currentUser) {
+        User deletedUser = Optional.of(userService.get(userIdToBeDeleted))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User to be deleted " +
+                        "with ID = %d not found!", userIdToBeDeleted)));
+        User receiverUser = Optional.of(userService.get(receiverUserId))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Destination user " +
+                        "with ID = %d not found!", receiverUserId)));
+        clientService.transferClientsBetweenOwners(deletedUser, receiverUser);
+        clientService.transferClientsBetweenMentors(deletedUser, receiverUser);
+        //notificationService.deleteNotificationsByUserToNotify(deletedUser);
+        commentService.deleteAllCommentsByUserId(userIdToBeDeleted);
+        smsInfoService.deleteAllSMSByUserId(userIdToBeDeleted);
+        userService.delete(userIdToBeDeleted);
+        logger.info("{} has deleted user: id {}, email {}", currentUser.getFullName(), deletedUser.getId(), deletedUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

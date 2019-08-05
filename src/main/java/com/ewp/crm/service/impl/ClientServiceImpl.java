@@ -664,7 +664,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public void transferClientsBetweenOwners(User sender, User receiver) {
         clientRepository.transferClientsBetweenOwners(sender, receiver);
-        logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+        logger.info("Clients has transferred from owner {} to owner {}", sender.getFullName(), receiver.getFullName());
     }
 
 
@@ -702,6 +702,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public List<Client> getClientsByEmails(List<String> emails){
         return clientRepository.getClientsOfEmails(emails);
+    }
+
+    @Override
+    public void transferClientsBetweenMentors(User sender, User receiver) {
+        clientRepository.transferClientsBetweenMentors(sender, receiver);
+        logger.info("Clients has transferred from mentor {} to mentor {}", sender.getFullName(), receiver.getFullName());
     }
 }
 

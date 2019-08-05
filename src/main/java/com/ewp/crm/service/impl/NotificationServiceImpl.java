@@ -52,5 +52,9 @@ public class NotificationServiceImpl extends CommonServiceImpl<Notification> imp
 		return notificationRepository.getClientWithNotification();
 	}
 
+	@Override
+	public void deleteNotificationsByUserToNotify(User user) {
+		notificationRepository.deleteNotificationsByUserToNotify(user);
+	}
 
 }

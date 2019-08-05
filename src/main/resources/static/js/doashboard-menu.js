@@ -1,19 +1,27 @@
-// Fill table with radiobuttons and show modal window
+// Заполняет форму пользователями с теми же ролями, что и у удаляемого пользователя.
 function fillUsersTableForDelete(button) {
-    deleted = $(button).data('id');
-    var url = '/rest/users';
+    const userIdToBeDeleted = $(button).data('id');
+    const url = '/rest/get-users-with-same-role';
     $.ajax({
-        type: 'get',
         url: url,
+        data: {
+            id: userIdToBeDeleted
+        },
         dataType: 'json',
         success: function (response) {
             console.log(response);
-            var trHTML = '';
-            for (var i = 0; i < response.length; i++) {
-                if (deleted == response[i].id) continue;
-                trHTML += '<tr><td>' + '<input type="radio" name="user" value="' + response[i].id + '">' +
-                    " " + response[i].firstName +
-                    " " + response[i].lastName + '</td></tr>';
+            let trHTML = '';
+            for (let i = 0; i < response.length; i++) {
+                if (userIdToBeDeleted === response[i].id) continue;
+                if (i === 0) {
+                    trHTML += '<tr><td>' + '<input type="radio" name="user" value="' + response[i].id + '" checked>' +
+                        " " + response[i].firstName +
+                        " " + response[i].lastName + '</td></tr>';
+                } else {
+                    trHTML += '<tr><td>' + '<input type="radio" name="user" value="' + response[i].id + '">' +
+                        " " + response[i].firstName +
+                        " " + response[i].lastName + '</td></tr>';
+                }
             }
             $('#usersTable tbody').append(trHTML);
             $('#deleteUserModal').modal('show');
@@ -23,16 +31,15 @@ function fillUsersTableForDelete(button) {
         }
     });
 
-    // Delete user form listener
+    // Обработчик формы переназначения студентов другому пользователю
     $("#deleteUserForm").submit(function (event) {
         event.preventDefault();
-        receiver = $("input[name='user']:checked").val();
-        var url = '/admin/rest/user/deleteWithTransfer';
-        var formData = {
-            deleteId: deleted,
-            receiverId: receiver
+        const receiverUserId = $("input[name='user']:checked").val();
+        const url = '/admin/rest/user/deleteWithTransfer';
+        const formData = {
+            userIdToBeDeleted: userIdToBeDeleted,
+            receiverUserId: receiverUserId
         };
-
         $.ajax({
             type: "POST",
             url: url,
@@ -48,7 +55,7 @@ function fillUsersTableForDelete(button) {
 }
 
 // Reload page after modal is hidden for not to add new radiobuttons
-$('#deleteUserModal').on('hide.bs.modal', function() {
+$('#deleteUserModal').on('hide.bs.modal', function () {
     console.log("hide modal");
     $('#usersTable tbody tr').remove();
 });
