@@ -1,7 +1,10 @@
 $(document).ready(function () {
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
-    $("#date-from-picker").datepicker();
-    $("#date-to-picker").datepicker();
+    $("#date-from-picker").datepicker().datepicker('setDate', '-1m');
+    $("#date-to-picker").datepicker().datepicker('setDate', 'today');
+    $('.status-checkbox').on('click', function () {
+        $('#show-btn').prop('disabled', $('.status-checkbox:checked:enabled').length < 1);
+    });
 });
 
 function renderAnalyticsChart() {
@@ -10,34 +13,48 @@ function renderAnalyticsChart() {
     dateComponents = $("#date-to-picker").val().split('.');
     const toDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
 
-    if (toDate.getTime() <= fromDate.getTime()){
+    if (toDate.getTime() <= fromDate.getTime()) {
         alert("Неверно заданы временные рамки");
         return;
     }
 
-    const labels = [];
-    const values = [];
-    const urls = [];
-    const dataUrl = "/rest/student/count?day=";
-    const numberOfSteps = 15;
+    const maxSteps = 15;
+    let labels = [];
+    let values = [];
+    let dates = [];
+    let statuses = [];
+    let daysSelected = (toDate.getTime() - fromDate.getTime()) / (60 * 60 * 24 * 1000);
+    let numberOfSteps = ((maxSteps < daysSelected) ? maxSteps : daysSelected);
     for (let i = 0; i <= numberOfSteps; i++) {
         const day = new Date();
         day.setTime(fromDate.getTime() + (toDate.getTime() - fromDate.getTime()) / numberOfSteps * i);
         const dayRuFormatted = formatRuDate(day);
-        labels.push(dayRuFormatted);
-        urls.push(dataUrl + dayRuFormatted);
+        dates.push(dayRuFormatted);
     }
 
-    let promise = $.when();
-    $.each(urls, function (index, url) {
-        promise = promise.then(function () {
-            return $.ajax(url);
-        }).then(function (value) {
-            values.push(value);
-        });
+    $.each($('.status-checkbox:checked:enabled'), function (k, v) {
+        statuses.push($(this).val());
     });
-    promise.then(function () {
-        showAnalyticsChart({labels: labels, values: values});
+
+    let wrap = {
+        dates: dates,
+        statuses: statuses
+    };
+
+    $.ajax({
+        url: '/rest/student/count',
+        method: 'get',
+        contentType: "text/plain;charset=UTF-8",
+        dataType: 'json',
+        traditional: true,
+        data: wrap,
+        success: function (data) {
+            $.each(data, function (date, count) {
+                labels.push(date);
+                values.push(count);
+            });
+            showAnalyticsChart({labels: labels, values: values});
+        }
     });
 
 }

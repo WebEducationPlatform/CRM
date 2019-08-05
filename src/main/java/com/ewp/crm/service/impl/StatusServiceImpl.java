@@ -9,7 +9,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
-import com.ewp.crm.models.dto.StatusDtoForMailing;
+import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -216,6 +217,14 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
+    public List<StatusDto> getAllStatusesIdsForStudents() {
+        return statusDAO.getAllStatusesIdsForStudents().stream()
+                .map(BigInteger::longValue)
+                .map(id -> new StatusDto(id, statusDAO.getStatusNameById(id)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser) {
         Optional<Status> optionalStatus = get(statusId);
@@ -308,7 +317,7 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public List<StatusDtoForMailing> getStatusesForMailing() {
+    public List<StatusDto> getStatusesForMailing() {
         return statusDAO.getStatusesForMailing();
     }
 }

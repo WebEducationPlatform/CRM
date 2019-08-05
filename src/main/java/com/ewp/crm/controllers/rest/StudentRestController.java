@@ -37,9 +37,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 @RestController
@@ -105,10 +103,16 @@ public class StudentRestController {
 
     @GetMapping("/count")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public ResponseEntity<Long> countActiveByDate(@RequestParam("day") String day) {
+    public ResponseEntity<Map<String, Long>> countActiveByDate(@RequestParam("dates") List<String> dates,
+                                                               @RequestParam(value = "statuses") List<Long> studentStatuses) {
+        Map<String, Long> result = new LinkedHashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
-        long numberOfStudents = studentService.countActiveByDate(ZonedDateTime.of(LocalDate.parse(day,formatter), LocalTime.MAX, ZoneId.systemDefault()));
-        return ResponseEntity.ok(numberOfStudents);
+        for (String date :dates) {
+            ZonedDateTime endOfDay = ZonedDateTime.of(LocalDate.parse(date,formatter), LocalTime.MAX, ZoneId.systemDefault());
+            long numberOfStudents = studentService.countActiveByDateAndStatuses(endOfDay, studentStatuses);
+            result.put(date, numberOfStudents);
+        }
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/update")

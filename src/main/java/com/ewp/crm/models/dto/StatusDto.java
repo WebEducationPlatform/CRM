@@ -5,15 +5,15 @@ import com.ewp.crm.models.Status;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class StatusDtoForMailing {
+public class StatusDto {
 
     private Long id;
     private String name;
 
-    public StatusDtoForMailing() {
+    public StatusDto() {
     }
 
-    public StatusDtoForMailing(Long id, String name) {
+    public StatusDto(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -35,20 +35,20 @@ public class StatusDtoForMailing {
     }
 
 
-    public static StatusDtoForMailing getStatusDto(Status status) {
+    public static StatusDto getStatusDto(Status status) {
 
-        StatusDtoForMailing statusDtoForMailing = new StatusDtoForMailing();
+        StatusDto statusDto = new StatusDto();
 
-        statusDtoForMailing.id = status.getId();
-        statusDtoForMailing.name = status.getName();
+        statusDto.id = status.getId();
+        statusDto.name = status.getName();
 
-        return statusDtoForMailing;
+        return statusDto;
     }
 
-    public static List<StatusDtoForMailing> getListDtoStatuses(List<Status> statuses) {
+    public static List<StatusDto> getListDtoStatuses(List<Status> statuses) {
         return statuses
                 .stream()
-                .map(StatusDtoForMailing::getStatusDto)
+                .map(StatusDto::getStatusDto)
                 .collect(Collectors.toList());
     }
 
