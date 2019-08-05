@@ -1,13 +1,24 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientStatusChangingHistory;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
+import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -63,10 +79,13 @@ public class StatusServiceImpl implements StatusService {
         return statusDAO.getAllByRole(role);
     }
 
-    @Override
-    public Optional<Status> get(Long id) {
-        return statusDAO.findById(id);
-    }
+	@Override
+	public Optional<Status> get(Long id) {
+		if (id == null) {
+			return Optional.empty();
+		}
+		return statusDAO.findById(id);
+	}
 
     @Override
     public Optional<Status> get(String name) {
@@ -198,6 +217,14 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
+    public List<StatusDto> getAllStatusesIdsForStudents() {
+        return statusDAO.getAllStatusesIdsForStudents().stream()
+                .map(BigInteger::longValue)
+                .map(id -> new StatusDto(id, statusDAO.getStatusNameById(id)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser) {
         Optional<Status> optionalStatus = get(statusId);
@@ -289,4 +316,8 @@ public class StatusServiceImpl implements StatusService {
         return statusDAO.getStatusesForBoard(userFromSession.getId(), userFromSession.getRole(), role.getId());
     }
 
+    @Override
+    public List<StatusDto> getStatusesForMailing() {
+        return statusDAO.getStatusesForMailing();
+    }
 }

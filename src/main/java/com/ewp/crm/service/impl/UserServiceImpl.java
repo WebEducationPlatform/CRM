@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
@@ -169,5 +170,10 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 logger.warn("Can't find coordinator for new client card to own");
             }
             return Optional.ofNullable(userToOwnClient);
+    }
+
+    @Override
+    public List<MentorDtoForMentorsPage> getAllMentors() {
+        return userDAO.getAllMentors();
     }
 }

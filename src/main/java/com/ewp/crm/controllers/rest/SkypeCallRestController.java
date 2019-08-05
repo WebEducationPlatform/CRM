@@ -1,7 +1,18 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.AssignSkypeCall;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.AssignSkypeCallService;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +22,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -82,7 +97,7 @@ public class SkypeCallRestController {
 				clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE).ifPresent(client::addHistory);
 				clientService.update(client);
 				logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
-				long firstSkypeCallAfterStatus = projectProperties.getFirstSkypeCallAfterStatus();
+				Long firstSkypeCallAfterStatus = projectProperties.getFirstSkypeCallAfterStatus();
 				if (statusService.get(firstSkypeCallAfterStatus).isPresent()) {
 					Status status = statusService.get(firstSkypeCallAfterStatus).get();
 					client.setStatus(status);

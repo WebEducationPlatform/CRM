@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css"
           href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
+    <div th:replace="fragments/status-sticky-header::sticky-style"></div>
 </head>
 
 <body>
@@ -23,7 +24,7 @@
              class="column" th:each="status : ${statuses}"
              th:value="${status.id}"
              th:if="${!status.invisible}">
-            <div id="column-header">
+            <div id="column-header" class="column-header">
                 <div th:id="'column-number'+${counter.incrementAndGet()}"
                      th:value="${status.id}">
                 </div>
@@ -297,7 +298,7 @@
     <div th:replace="fragments/message-history::messageHistory"></div>
     <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
     <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
-
+    <div th:replace="fragments/htmlFragments::modalsForStatus"></div>
     <script th:inline="javascript">
         /*<![CDATA[*/
             const slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
@@ -341,6 +342,8 @@
 <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
 </div>
+
+<div th:replace="fragments/status-sticky-header::sticky-scripts"></div>
 
 </body>
 </html>

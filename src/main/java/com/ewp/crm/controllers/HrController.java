@@ -59,7 +59,7 @@ public class HrController {
 
     @GetMapping("/students")
     public ModelAndView showAllStudents() {
-        ModelAndView modelAndView = new ModelAndView("main-client-table");
+        ModelAndView modelAndView = new ModelAndView("main-client-table-hr");
         SocialProfile socialProfile = new SocialProfile();
         modelAndView.addObject("allClients",
                 clientService.getAllClientsByPage(
@@ -85,5 +85,4 @@ public class HrController {
 
         return modelAndView;
     }
-
 }

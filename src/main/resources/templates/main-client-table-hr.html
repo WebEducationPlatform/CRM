@@ -3,7 +3,7 @@
 >
 <head>
     <head>
-        <title>Менторы</title>
+        <title>Клиенты для HR</title>
         <meta charset="UTF-8"/>
         <div th:replace="fragments/htmlFragments::header"></div>
         <link href="/css/bootstrap-social.css" rel="stylesheet"/>
@@ -15,22 +15,10 @@
 </head>
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-<div id="empty-container" class="container-fluid" style="height: 60px;"></div>
-<div id="page-container" class="container-fluid">
-    <div id="main-row" class="row">
-        <div id="mentors-column" class="col-lg-8"></div>
-        <div id="right-column" class="col-lg-4"></div>
-    </div>
-</div>
+<div id="status-columns" class="status-columns"></div>
+
 <input hidden="true" id="slackBotDomain" th:value="${slackBotDomain}"/>
-<input hidden="true" id="mentorMaxStudents" th:value="${maxStudents}"/>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    var mentors = /*[[${mentors}]]*/ 'default';
-    var mentorsFromBotJson = /*[[${mentorsFromBotJson}]]*/ 'default';
-    var studentsDto = /*[[${studentsDto}]]*/ 'default';
-    /*]]>*/
-</script>
+
 <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
@@ -47,26 +35,27 @@
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
 <div th:replace="fragments/other-information-link::otherInformationLink"></div>
 <div th:replace="fragments/other-information-value::otherInformationValue"></div>
-<script src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
-<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
-<script src="/js/moment-timezone.js"></script>
+<script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="/js/moment-timezone.js"></script>
 <link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<script th:src="@{/js/all-clients.js}"></script>
-<script th:src="@{/js/loading-animation.js}"></script>
-<script th:src="@{/js/main-modal.js}"></script>
-<script th:src="@{/js/main-modal-contract.js}"></script>
-<script th:src="@{/js/ip-telephony.js}"></script>
-<script th:src="@{/js/conversations.js}"></script>
-<script th:src="@{/js/comments.js}"></script>
-<script th:src="@{/js/notifications.js}"></script>
-<script th:src="@{/js/status.js}"></script>
-<script th:src="@{/js/clientHistory.js}"></script>
-<script th:src="@{/js/clientHistory.js}"></script>
-<script th:src="@{/js/mentors-with-students-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
+<script type="text/javascript" th:src="@{/js/loading-animation.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-modal.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
+<script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
+<script type="text/javascript" th:src="@{/js/conversations.js}"></script>
+<script type="text/javascript" th:src="@{/js/comments.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+<script type="text/javascript" th:src="@{/js/status.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-hr-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 </body>
 </html>

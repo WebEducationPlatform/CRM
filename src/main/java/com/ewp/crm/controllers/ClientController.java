@@ -1,9 +1,22 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ListMailingService;
+import com.ewp.crm.service.interfaces.ListMailingTypeService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +34,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.ewp.crm.util.Constants.*;
+import static com.ewp.crm.util.Constants.ROLE_NAME_ADMIN;
+import static com.ewp.crm.util.Constants.ROLE_NAME_HR;
+import static com.ewp.crm.util.Constants.ROLE_NAME_MENTOR;
+import static com.ewp.crm.util.Constants.ROLE_NAME_OWNER;
+import static com.ewp.crm.util.Constants.ROLE_NAME_USER;
 
 @Controller
 public class ClientController {
