@@ -48,7 +48,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     @Override
-    public long countActiveByDate(ZonedDateTime day) {
+    public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
         String query = "SELECT COUNT(*) FROM (" +
                 "SELECT DISTINCT csch.client_id FROM client_status_changing_history csch" +
                 "   RIGHT JOIN status s " +
@@ -57,6 +57,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
                 "           s.create_student IS TRUE" +
                 "       WHERE " +
                 "       s.create_student IS TRUE AND" +
+                "       csch.new_status_id IN (:statuses) AND" +
                 "       csch.date <= :day AND" +
                 "           csch.client_id NOT IN (" +
                 "           SELECT csch.client_id FROM client_status_changing_history csch" +
@@ -72,6 +73,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
                 "                       s.create_student IS TRUE" +
                 "               WHERE " +
                 "                   s.create_student IS TRUE AND" +
+                "                   csch.new_status_id IN (:statuses) AND" +
                 "                   csch.date <= :day" +
                 "               GROUP BY csch.client_id" +
                 "               ORDER BY csch.date DESC" +
@@ -89,6 +91,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         try {
             return ((BigInteger) entityManager.createNativeQuery(query)
                     .setParameter("day", day)
+                    .setParameter("statuses", studentStatuses)
                     .getSingleResult()).longValue();
         } catch (Exception e) {
             logger.error("Failed to count students by date {}", day, e);
