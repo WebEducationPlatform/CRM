@@ -1,7 +1,10 @@
 $(document).ready(function () {
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
-    $("#date-from-picker").datepicker();
-    $("#date-to-picker").datepicker();
+    $("#date-from-picker").datepicker().datepicker('setDate', '-1m');
+    $("#date-to-picker").datepicker().datepicker('setDate', 'today');
+    $('.status-checkbox').on('click', function () {
+        $('#show-btn').prop('disabled', $('.status-checkbox:checked:enabled').length < 1);
+    });
 });
 
 function renderAnalyticsChart() {
@@ -19,6 +22,7 @@ function renderAnalyticsChart() {
     let labels = [];
     let values = [];
     let dates = [];
+    let statuses = [];
     let daysSelected = (toDate.getTime() - fromDate.getTime()) / (60 * 60 * 24 * 1000);
     let numberOfSteps = ((maxSteps < daysSelected) ? maxSteps : daysSelected);
     for (let i = 0; i <= numberOfSteps; i++) {
@@ -28,8 +32,13 @@ function renderAnalyticsChart() {
         dates.push(dayRuFormatted);
     }
 
+    $.each($('.status-checkbox:checked:enabled'), function (k, v) {
+        statuses.push($(this).val());
+    });
+
     let wrap = {
-        dates: dates
+        dates: dates,
+        statuses: statuses
     };
 
     $.ajax({

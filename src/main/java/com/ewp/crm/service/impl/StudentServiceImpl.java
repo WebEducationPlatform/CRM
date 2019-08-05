@@ -80,8 +80,8 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     }
 
     @Override
-    public long countActiveByDate(ZonedDateTime day) {
-        return studentRepositoryCustom.countActiveByDate(day);
+    public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
+        return studentRepositoryCustom.countActiveByDateAndStatuses(day, studentStatuses);
     }
 
     @Override

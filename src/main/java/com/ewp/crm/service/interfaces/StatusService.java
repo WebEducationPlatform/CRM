@@ -5,7 +5,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
-import com.ewp.crm.models.dto.StatusDtoForMailing;
+import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -46,6 +46,8 @@ public interface StatusService {
 
     List<Status> getAllStatusesForStudents();
 
+    List<StatusDto> getAllStatusesIdsForStudents();
+
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
@@ -56,5 +58,5 @@ public interface StatusService {
 
     List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role);
 
-    List<StatusDtoForMailing> getStatusesForMailing();
+    List<StatusDto> getStatusesForMailing();
 }

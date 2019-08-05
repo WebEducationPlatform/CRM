@@ -103,11 +103,13 @@ public class StudentRestController {
 
     @GetMapping("/count")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Long>> countActiveByDate(@RequestParam("dates") List<String> dates) {
+    public ResponseEntity<Map<String, Long>> countActiveByDate(@RequestParam("dates") List<String> dates,
+                                                               @RequestParam(value = "statuses") List<Long> studentStatuses) {
         Map<String, Long> result = new LinkedHashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
         for (String date :dates) {
-            long numberOfStudents = studentService.countActiveByDate(ZonedDateTime.of(LocalDate.parse(date,formatter), LocalTime.MAX, ZoneId.systemDefault()));
+            ZonedDateTime endOfDay = ZonedDateTime.of(LocalDate.parse(date,formatter), LocalTime.MAX, ZoneId.systemDefault());
+            long numberOfStudents = studentService.countActiveByDateAndStatuses(endOfDay, studentStatuses);
             result.put(date, numberOfStudents);
         }
         return ResponseEntity.ok(result);
