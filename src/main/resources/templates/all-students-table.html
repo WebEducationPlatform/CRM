@@ -28,69 +28,37 @@
         <div id="filter" class="collapse filter">
             <div class="row">
                 <div class="col-xs-1" th:each="status : ${statuses}">
-                    <label class="control-label" th:for="${status.name}" th:text="${status.name}"></label>
                     <input th:id="${status.name}" class="checkbox" type="checkbox" th:checked="${#strings.contains(filters,status.name)}"/>
+                    <label class="control-label" th:for="${status.name}" th:text="${status.name}"></label>
                 </div>
             </div>
             <br />
             <div class="row">
                 <div class="col-xs-1">
-                    <label class="control-label" for="filter-has-no-slack">Без Slack</label>
                     <input id="filter-has-no-slack" class="checkbox" type="checkbox"/>
+                    <label class="control-label" for="filter-has-no-slack">Без Slack</label>
                 </div>
                 <div class="col-xs-1">
-                    <label class="control-label" for="filter-has-no-vk">Без VK</label>
                     <input id="filter-has-no-vk" class="checkbox" type="checkbox"/>
+                    <label class="control-label" for="filter-has-no-vk">Без VK</label>
                 </div>
                 <div class="col-xs-1">
-                    <label class="control-label" for="filter-has-no-email">Без E-mail</label>
                     <input id="filter-has-no-email" class="checkbox" type="checkbox"/>
+                    <label class="control-label" for="filter-has-no-email">Без E-mail</label>
                 </div>
                 <div class="col-xs-1">
-                    <label class="control-label" for="filter-has-no-phone">Без телефона</label>
                     <input id="filter-has-no-phone" class="checkbox" type="checkbox"/>
+                    <label class="control-label" for="filter-has-no-phone">Без телефона</label>
                 </div>
             </div>
         </div>
         <br />
 
-        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" class="row">
-            <div class="col-md-12">
-                <button id="show-additional-info-button" type="button" class="btn btn-info">Показать данные</button>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <br/>
-                </div>
-            </div>
+        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" id="additional-data">
+            <strong>Всего студентов: </strong><strong id="students-count">0</strong><br/>
+            <strong>Сумма оплаты: </strong><strong id="students-price-info">0.00</strong>
         </div>
 
-        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" id="additional-data" class="row justify-content-md-start hidden">
-            <div class="col-md-2 well">
-                <div class="row justify-content-md-start">
-                    <div class="col-md-6">
-                        <strong>Всего студентов</strong>
-                    </div>
-                    <div class="col-md-6">
-                        <strong id="students-count">0</strong>
-                    </div>
-                </div>
-                <div class="row justify-content-md-start">
-                    <div class="col-md-6">
-                        <strong>Сумма оплаты</strong>
-                    </div>
-                    <div class="col-md-6">
-                        <strong id="students-price-info">0.00</strong>
-                    </div>
-                </div>
-                <div class="row justify-content-md-start">
-                    <div id="additional-data-clickable-zone" class="col-md-12">
-                        <u><small>Скрыть</small></u>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-10"></div>
-        </div>
         <div class="col-xs-offset-4">
             <div id="sortingNotification" class="alert alert-info col-xs-4" align="center" role="alert" style="display: none">
                 <h5></h5>
