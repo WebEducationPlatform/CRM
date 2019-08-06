@@ -78,6 +78,7 @@
 
 .head-padding {
 	padding-top: 15px;
+    font-size: 20px;
 }
 
 
@@ -957,6 +958,10 @@ li.dropdown:hover .dropdown-menu {
 	width: 1%;
 }
 
+.fit button {
+	margin: 0 2px 0 2px;
+}
+
 /*Clearable search style*/
 .clearable{
 	background: #fff url(http://i.stack.imgur.com/mJotv.gif) no-repeat right -10px center;
@@ -1004,4 +1009,9 @@ textarea[class*="feedback-video-url"] {
 #divToFiltration {
     text-align: center;
     display: none;
+}
+
+#template-create-modal-err {
+	color: red;
+	text-align: center;
 }

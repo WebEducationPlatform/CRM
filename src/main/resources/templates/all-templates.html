@@ -20,34 +20,23 @@
             <div class="col-md-4">
                 <button id="button_create_template" type="button" class="btn btn-info">Создать</button>
             </div>
+            <!--TODO: Поиск на этой странице не реализован!-->
             <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск шаблона..."/></div>
         </div>
         <br />
-        <th:block th:if="${emailTmpl.size()!=0}">
             <table class="table table-hover table-fixed">
-                <thead id="thead-table-students-status">
+                <thead>
                 <tr class="head-table">
                     <th class="col-md-1 fit">#</th>
                     <th class="col-md-9">Шаблон</th>
                     <th class="col-md-3"></th>
                 </tr>
                 </thead>
-                <tbody id="table-body">
-                <tr th:each="template : ${emailTmpl}">
-                    <td th:text="${template.id}"></td>
-                    <td th:text="${template.name}"></td>
-                    <td class="fit" align='right'>
-                        <button class="btn btn-primary glyphicon glyphicon-font" th:data="${template.id}" th:value="${template.name}" onclick="renameTemplate(this)" title="Переименовать шаблон"></button>
-                        <button class="btn btn-primary glyphicon glyphicon-font glyphicon-text-size" th:data="${template.id}" th:value="${template.theme}" onclick="renameTemplateTheme(this)" title="Переименовать тему шаблона"></button>
-                        <button class="button_edit_template btn btn-info glyphicon glyphicon-pencil" th:value="${template.id}" title="Изменить шаблон"></button>
-                        <button class="button_delete_template btn btn-danger glyphicon glyphicon-remove" th:value="${template.id}" title="Удалить шаблон"></button>
-                    </td>
-                </tr>
-                </tbody>
+                <!--Вывод содержимого таблицы шаблонов через ajax-запрос на клиенте-->
+                <tbody id="table-body"></tbody>
                 <tfoot>
                 </tfoot>
             </table>
-        </th:block>
     </div>
 
     <!--Modal window for rename template-->
@@ -99,9 +88,9 @@
         </div>
     </div>
     <!--End of modal window for rename theme template-->
+
     <div th:replace="fragments/add-template-modal::templateCreateModal"></div>
     <script type="text/javascript" th:src="@{/js/all-templates.js}"></script>
-    <script type="text/javascript" th:src="@{/js/all-students.js}"></script>
 </div>
 </body>
 </html>

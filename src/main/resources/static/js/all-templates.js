@@ -1,4 +1,49 @@
-//Open creaate new template modal
+$(document).ready(RenderTableOfTemplates());
+
+function RenderTableOfTemplates() {
+    var trHTML = '';
+    let element = $('#table-body');
+    $.ajax({
+        url: '/rest/message-template/',
+        type: 'GET',
+        async: true,
+        success: function (data) {
+            for (let i = 0; i < data.length; i++) {
+                trHTML += "<tr>" +
+                    "<td>" + data[i].id + "</td>" +
+                    "<td>" + data[i].name + "</td>" +
+                    "<td class='fit' align='right'>" +
+                        "<button class='btn btn-primary glyphicon glyphicon-font' data='" + data[i].id + "' value='" + data[i].name +
+                            "' onclick='renameTemplate(this)' title='Переименовать шаблон'></button>" +
+                        "<button class='btn btn-primary glyphicon glyphicon-font glyphicon-text-size' data='" + data[i].id +
+                            "' value='" + data[i].theme + "' onclick='renameTemplateTheme(this)' " +
+                            "title='Переименовать тему шаблона'></button>" +
+                        "<button class='button_edit_template btn btn-info glyphicon glyphicon-pencil' value='" + data[i].id +
+                            "' title='Изменить шаблон'></button>" +
+                        "<button class='button_delete_template btn btn-danger glyphicon glyphicon-remove' value='" + data[i].id +
+                            "' title='Удалить шаблон'></button>" +
+                    "</td>" +
+                    "</tr>";
+            }
+            element.empty();
+            element.append(trHTML);
+        },
+        error: function (jqXHR) {
+            if (jqXHR.status == "404") {
+                trHTML +=
+                    "<tr>" +
+                        "<td></td>" +
+                        "<td>В базе нет ни одного шаблона!</td>" +
+                        "<td class='fit' align='right'></td>" +
+                    "</tr>";
+                element.empty;
+                element.append(trHTML);
+            }
+        }
+    });
+}
+
+//Open create-new-template modal
 $("#button_create_template").click(function () {
     $('#template-create-modal').modal('show');
 });
@@ -27,13 +72,13 @@ $("#create_template").click(function () {
 });
 
 //Edit template page redirect
-$(".button_edit_template").click( function () {
+$("#table-body").on('click', '.button_edit_template', function () {
     let id = this.value;
     window.location = "/template/edit/" + id;
 });
 
 //Delete template modal button
-$(".button_delete_template").click( function () {
+$("#table-body").on('click', '.button_delete_template', function () {
     if(!confirm("Вы уверены, что хотите удалить запись?")) {return}
     let id = this.value;
     $.ajax({
@@ -44,7 +89,7 @@ $(".button_delete_template").click( function () {
             if (response === "CONFLICT") {
                 alert("Шаблон используется для оповещения!");
             } else {
-                location.reload();
+                RenderTableOfTemplates();
             }
         }
     });
@@ -53,6 +98,21 @@ $(".button_delete_template").click( function () {
 //Clearing text inside #template-create-modal-err after closing modal
 $('#template-create-modal').on('hidden.bs.modal', function () {
     $("#template-create-modal-err").empty();
+});
+
+//Clearing text inside #template-create-modal-err on input
+$('#template-name').on('input', function () {
+    $("#template-create-modal-err").empty();
+});
+
+//Clearing text inside #rename-template-modal-err on input
+$('#template-rename').on('input', function () {
+    $("#rename-template-modal-err").empty();
+});
+
+//Clearing text inside #rename-theme-template-modal-err on input
+$('#template-theme-rename').on('input', function () {
+    $("#rename-theme-template-modal-err").empty();
 });
 
 //Rename template
@@ -88,7 +148,8 @@ function renameTemplate(button) {
                     if (response === "BAD_REQUEST") {
                         alert("Такое имя уже используется!");
                     } else {
-                        location.reload();
+                        RenderTableOfTemplates();
+                        $('#rename-template-modal').modal('hide');
                     }
                 }
             });
@@ -98,7 +159,7 @@ function renameTemplate(button) {
     });
 };
 
-//Rename template
+//Rename template theme
 function renameTemplateTheme(button) {
     //Get id and name
     var id = button.getAttribute('data');
@@ -131,12 +192,13 @@ function renameTemplateTheme(button) {
                     if (response === "BAD_REQUEST") {
                         alert("Такая тема уже используется!");
                     } else {
-                        location.reload();
+                        RenderTableOfTemplates();
+                        $('#rename-theme-template-modal').modal('hide');
                     }
                 }
             });
         } else {
-            $("#rename-theme-template-modal-err").html("Тема шаблона не может быть пустым!");
+            $("#rename-theme-template-modal-err").html("Тема шаблона не может быть пустой!");
         }
     });
 };
