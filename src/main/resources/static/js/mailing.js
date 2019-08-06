@@ -290,6 +290,13 @@ $(document).ready(function () {
         }
     });
 
+    $("#fromFiltersImportButton").click(function () {
+        statusId = 34;
+        const url = "/status/" + statusId;
+        $("#filtersInsertInto").load(url);
+        $("#filtersInsertInto").attr('display','block');
+    });
+
     $("#updateFromStatusesImportButton").click(function () {
         let messageType = $("#edit-mailing-list-type option:selected").text();
         switch (messageType) {
