@@ -292,9 +292,11 @@ $(document).ready(function () {
 
     $("#fromFiltersImportButton").click(function () {
         statusId = 34;
+
         const url = "/status/" + statusId;
-        $("#filtersInsertInto").load(url);
-        $("#filtersInsertInto").attr('display','block');
+        $("#filterinsertinto").attr('style','display:block');
+        $("#filterinsertinto").load(url);
+
     });
 
     $("#updateFromStatusesImportButton").click(function () {

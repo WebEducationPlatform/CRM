@@ -58,4 +58,12 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
                     "OR LOWER(c.email) IN :emails"*/
     )
     List<ClientDto.ClientTransformer> getClientsDtoByEmails(@Param("emails") List<String> emails);
+
+    @Query(nativeQuery = true,
+            value = "SELECT city FROM client GROUP BY city ORDER BY city")
+    List<String> getClientsCities();
+
+    @Query(nativeQuery = true,
+            value = "SELECT country FROM client GROUP BY country ORDER BY country")
+    List<String> getClientsCountries();
 }
