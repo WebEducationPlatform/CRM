@@ -158,18 +158,26 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     public Optional<User> getUserToOwnCard() {
         User userToOwnClient = null;
         long roleId = roleService.getRoleByName("HR").getId();
-            Query query = entityManager.createNativeQuery("SELECT * FROM  user, permissions WHERE" +
-                    "    user.user_id = permissions.user_id AND role_id = :roleId ORDER BY user.last_client_date  LIMIT 1;", User.class)
-                    .setParameter("roleId", roleId);
-            if (query.getResultList().size() != 0) {
-                userToOwnClient = (User) query.getSingleResult();
+        try {
+            String query =
+                    "SELECT u.*, p.*, 1 AS clazz_, FALSE AS mentor_show_only_my_clients " +
+                            "   FROM  user u " +
+                            "       LEFT JOIN permissions p ON u.user_id = p.user_id " +
+                            "   WHERE " +
+                            "       u.user_id = p.user_id AND " +
+                            "       p.role_id = :roleId " +
+                            "   ORDER BY u.last_client_date " +
+                            "   LIMIT 1;";
+                userToOwnClient = (User) entityManager.createNativeQuery(query, User.class)
+                        .setParameter("roleId", roleId)
+                        .getSingleResult();
                 logger.info("Coordinator for new client card to own found: " + userToOwnClient.getFullName());
                 userToOwnClient.setLastClientDate(Instant.now());
                 update(userToOwnClient);
-            } else {
-                logger.warn("Can't find coordinator for new client card to own");
-            }
-            return Optional.ofNullable(userToOwnClient);
+        } catch (Exception e) {
+            logger.error("Can't find coordinator for new client card to own roleId = {}", roleId, e);
+        }
+        return Optional.ofNullable(userToOwnClient);
     }
 
     @Override
