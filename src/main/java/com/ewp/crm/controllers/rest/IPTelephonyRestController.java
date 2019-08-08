@@ -43,6 +43,8 @@ public class IPTelephonyRestController {
 	private final String voximplantHash;
 	private final UserService userService;
 	private final RoleService roleService;
+	private final NotificationService notificationService;
+	private final StatusService statusService;
 
 	@Value("${project.pagination.page-size.client-history}")
 	private int pageSize;
@@ -54,7 +56,9 @@ public class IPTelephonyRestController {
 									 CallRecordService callRecordService,
 									 DownloadCallRecordService downloadCallRecordService,
 									 UserService userService,
-									 RoleService roleService) {
+									 RoleService roleService,
+									 NotificationService notificationService,
+									 StatusService statusService) {
 		this.ipService = ipService;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
@@ -66,6 +70,8 @@ public class IPTelephonyRestController {
 		String pass = ipService.getVoximplantPasswordForWebCall().isPresent() ? ipService.getVoximplantPasswordForWebCall().get() : "";
 		this.voximplantHash = DigestUtils.md5DigestAsHex((userLogin + ":voximplant.com:" + pass).getBytes());
 		this.roleService = roleService;
+		this.notificationService = notificationService;
+		this.statusService = statusService;
 	}
 
 	//Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
@@ -279,5 +285,39 @@ public class IPTelephonyRestController {
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());
+	}
+
+	@RequestMapping(value = "/clientPhoneNumber/{phoneNumber}")
+	public ResponseEntity findClientNumberAndAddNotificationOrCreateNewClient(@PathVariable(value = "phoneNumber") String phoneNumber) {
+		Optional<Client> client = clientService.getClientByPhoneNumber(phoneNumber);
+		List<User> allUsers = userService.getAll();
+
+		if (client.isPresent()) {
+			client.get().setClientDescriptionComment("Клиент звонил в часы когда вызов не доступен, необхожимо ему позвонить");
+			clientHistoryService.createHistory(userService.get(1L), client.get(), ClientHistory.Type.UPDATE).ifPresent(client.get()::addHistory);
+			for (User user : allUsers) {
+				Notification notification = new Notification(
+						"Клиент позвонил в часы когда телефонный разговор недоступен, необходимо ему перезвонить",
+						client.get(), user, Notification.Type.COMMENT);
+				notificationService.add(notification);
+			}
+		} else {
+			Optional<Status> statusNew = statusService.get("New clients");
+			client = Optional.of(new Client());
+			statusNew.ifPresent(client.get()::setStatus);
+			client.get().setPhoneNumber(phoneNumber);
+			client.get().setClientDescriptionComment("Client call in wrong time. Need to call him later.");
+			client.get().setName(phoneNumber.trim());
+			client.get().setLastName("");
+			clientService.add(client.get());
+			clientHistoryService.createHistory("voximplant").ifPresent(client.get()::addHistory);
+			for (User user : allUsers) {
+				Notification notification = new Notification(
+						"Клиент позвонил в часы когда телефонный разговор недоступен, необходимо ему перезвонить",
+						client.get(), user, Notification.Type.NEW_USER);
+				notificationService.add(notification);
+			}
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
 	}
 }
