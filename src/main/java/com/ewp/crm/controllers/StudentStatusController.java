@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/student-status")
-@PreAuthorize("hasAnyAuthority('OWNER', 'HR','MENTOR')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'HR', 'MENTOR')")
 public class StudentStatusController {
 
     private static Logger logger = LoggerFactory.getLogger(StudentStatusController.class);
@@ -27,7 +27,6 @@ public class StudentStatusController {
     @GetMapping(value = "/all")
     public ModelAndView showAllStudents() {
         ModelAndView modelAndView = new ModelAndView("all-students-status-table");
-        modelAndView.addObject("statuses", studentStatusService.getAll());
         return modelAndView;
     }
 

@@ -5,6 +5,30 @@
 </head>
 <body>
 
+<th:block th:fragment="studentStatusCreateModal">
+    <div th:id="student-status-create-modal" class="modal fade main-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 id="modal-header" class="modal-title">Создание нового статуса</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <label for="status-name">Введите имя статуса</label>
+                            <input id="status-name" class="form-control" type="text"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="create_student_status" type="button" class="btn btn-default">Создать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="studentStatusEditModal">
     <div th:id="student-status-edit-modal" class="modal fade main-modal" role="dialog" data-keyboard="false">
         <div class="modal-dialog modal-md">
@@ -27,11 +51,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="edit_student_status" type="button" class="btn btn-default" data-dismiss="modal">Применить</button>
+                    <button id="edit_student_status" type="button" class="btn btn-default">Применить</button>
                 </div>
             </div>
         </div>
     </div>
 </th:block>
+
 </body>
 </html>
