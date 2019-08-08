@@ -15,7 +15,6 @@
 
 <div style="margin: 4%">
     <div class="container-fluid" id="header">
-        <!--Панель навигации. Убрана, тк не работает, нет нужных полей у некоторых объектов, что обрушивает Thymeleaf-->
         <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     </div>
     <div class="container-fluid" id="menu-block">
@@ -374,7 +373,7 @@
     <div class="container-fluid" id="footer"></div>
 </footer>
 
-<!--из локальной коппии, так как конфигурация редактора кастомная-->
+<!--из локальной копии, так как конфигурация редактора кастомная-->
 <script th:src="@{/ckeditor/ckeditor.js}"/>
 <script type="text/javascript" src="https://cdn.rawgit.com/JDMcKinstry/jQuery-Date/master/jQuery.date.min.js"/>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"/>
