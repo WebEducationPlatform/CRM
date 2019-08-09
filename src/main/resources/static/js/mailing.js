@@ -291,12 +291,37 @@ $(document).ready(function () {
     });
 
     $("#fromFiltersImportButton").click(function () {
-        statusId = 34;
+        let country = $("#filter-mailing-list-countries").val();
+        let city = $("#filter-mailing-list-cities").val();
+        let age_min = $("#filter-mailing-list-age-min").val();
+        let age_max = $("filter-mailing-list-age-max").val();
+        let sex = 'ANY';
+        if ($("#filter-mailing-list-male").is(':checked') ^ $("#filter-mailing-list-female").is(':checked')) {
+            if ($("#filter-mailing-list-male").is(':checked')) {
+                sex = 'MALE';git
+            } else {
+                sex = 'FEMALE';
+            }
+        }
 
-        const url = "/status/" + statusId;
-        $("#filterinsertinto").attr('style','display:block');
-        $("#filterinsertinto").load(url);
-
+        var request = $.ajax({
+            url: "/getFilteredEmails",
+            type: "POST",
+            data: {
+                country: country,
+                city: city,
+                age_min: age_min,
+                age_max: age_max,
+                sex: sex
+            },
+            dataType: "html"
+        });
+        request.done(function (msg) {
+            alert("Request OK: " + msg);
+        });
+        request.fail(function (jqXHR, textStatus) {
+            alert("Request failed: " + textStatus);
+        });
     });
 
     $("#updateFromStatusesImportButton").click(function () {
