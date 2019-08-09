@@ -3,29 +3,56 @@
     <meta charset="utf-8"/>
     <title>Дополнительные вопросы</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
+    <style>
+        body {
+            font-family: 'Roboto', -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
 <input type="hidden" id="hiddenHash" th:value="${hash}" />
-<div class="d-flex align-items-center flex-column h-100 row">
-    <form class="col-sm-5" id="other-information-form">
-        <div th:each="question : ${data}">
-            <div class="col-sm form-group col-form-label" th:if="${question.typeField == 'CHECKBOX'}">
-                <label th:for="${question.nameField}" th:text="${question.nameField}"></label>
-                <input class="col-xs-12" type="checkbox" th:id="${question.nameField}"/>
-            </div>
-            <div class="form-group" th:unless="${question.typeField == 'CHECKBOX'}">
-                <label th:for="${question.nameField}" class="col-sm col-form-label"
-                       th:text="${question.nameField}"></label>
-                <div class="col-sm">
-                    <input type="text" class="form-control" th:id="${question.nameField}"/>
+<div class="container-fluid">
+    <div class="d-flex row">
+        <div class="col-sm-4">
+        </div>
+        <div class="col-sm-4 bg-light my-3">
+            <p class="h3 text-center pt-2">Анкета студента</p>
+            <form id="other-information-form" class="pt-5">
+                <div th:each="question : ${data}">
+                    <div class="custom-control custom-checkbox col-sm form-group col-form-label ml-3" th:if="${question.typeField == 'CHECKBOX'}">
+                        <input class="custom-control-input col-xs-12 onecheckbox" type="checkbox" th:id="${question.nameField}"/>
+                        <label class="custom-control-label font-weight-bold" th:for="${question.nameField}" th:text="${question.nameField}"></label>
+                    </div>
+                    <div class="col-sm form-group col-form-label multi" th:if="${question.typeField == 'CHECKBOXES'}">
+                        <input type="hidden" class="form-control" th:id="${question.nameField}"/>
+                        <label class="font-weight-bold" th:for="${question.oimc}" th:text="${question.nameField}"></label>
+                        <div class="custom-control custom-checkbox variant" th:each="variant : ${question.oimc}">
+                            <input class="col-xs-12 custom-control-input oimc" type="checkbox" th:id="${variant.nameField}"/>
+                            <label class="custom-control-label" th:for="${variant.nameField}" th:text="${variant.nameField}"></label>
+                        </div>
+                    </div>
+                    <div class="form-group textquestionall" th:if="${question.typeField == 'TEXT'}">
+                        <label th:for="${question.nameField}" class="col-sm col-form-label font-weight-bold"
+                               th:text="${question.nameField}"></label>
+                        <div class="col-sm">
+                            <input type="text" class="form-control textquestion" th:id="${question.nameField}"/>
+                        </div>
+                        <div class="col-sm">
+                            <input type="hidden" class="form-control cardfield" th:id="${question.cardField}"/>
+                        </div>
+                    </div>
                 </div>
+            </form>
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-primary" onclick="createListOtherInformation()">Отправить анкету
+                </button>
             </div>
         </div>
-    </form>
-    <button type="button" class="btn btn-primary btn-lg" onclick="createListOtherInformation()">Сохранить
-    </button>
+        <div class="col-sm-4">
+        </div>
+    </div>
 </div>
-
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 </body>
