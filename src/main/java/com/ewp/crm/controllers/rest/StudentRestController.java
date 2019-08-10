@@ -139,22 +139,6 @@ public class StudentRestController {
         if (updatedClient.getEmail().isPresent() && !updatedClient.getEmail().get().isEmpty()) {
             client.setEmail(updatedClient.getEmail().get());
         }
-//        if (student.getNextPaymentDate() != null) {
-//            if (!student.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS).equals(previous.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS)) &&
-//                    "На пробных".equals(client.getStatus().getName())) {
-//                Status oldStatus = client.getStatus();
-//                client.setStatus(statusService.get("Учатся").orElseThrow(() -> new IllegalArgumentException("Status \"Учатся\" doesn't exist!")));
-//                clientHistoryService.createHistoryOfChangingStatus(userFromSession, client, oldStatus).ifPresent(client::addHistory);
-//                ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
-//                        ZonedDateTime.now(),
-//                        oldStatus,
-//                        client.getStatus(),
-//                        client,
-//                        userFromSession);
-//                clientStatusChangingHistoryService.add(clientStatusChangingHistory);
-//                logger.info("{} has changed status of client with id: {} to status \"Учатся\" by the way change next payment date.", userFromSession.getFullName(), client.getId());
-//            }
-//        }
         studentService.update(student);
         clientService.updateClient(client);
         return HttpStatus.OK;
