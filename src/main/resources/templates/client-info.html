@@ -15,7 +15,7 @@
     <div id="client-info-container" class="container-fluid">
         <div class="row-fluid">
             <div class="col-md-6" id="column1">
-                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR')" type="button" class="btn btn-primary"
+                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR', 'HR')" type="button" class="btn btn-primary"
                         id="editClientBtn" onclick="revertUnable()">Редактировать</button>
                 <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
                         style="margin-bottom: 10px" id="feedbackClientBtn" th:onclick="'getFeedback('+ ${client.id} + ')'">смотреть отзывы</button>
