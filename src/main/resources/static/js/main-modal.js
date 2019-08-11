@@ -505,7 +505,7 @@ $(function () {
                 let html = "";
                 ulComments.empty();
 
-                for (let i = list.length-1; i >=0; i--) {
+                for (let i = 0; i < list.length; i++) {
                     let d = new Date(list[i].dateFormat);
                     let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                         d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
