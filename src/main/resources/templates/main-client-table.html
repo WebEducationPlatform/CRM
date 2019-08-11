@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css"
           href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
+    <div th:replace="fragments/status-sticky-header::sticky-style"></div>
 </head>
 
 <body>
@@ -23,7 +24,7 @@
              class="column" th:each="status : ${statuses}"
              th:value="${status.id}"
              th:if="${!status.invisible}">
-            <div id="column-header">
+            <div id="column-header" class="column-header">
                 <div th:id="'column-number'+${counter.incrementAndGet()}"
                      th:value="${status.id}">
                 </div>
@@ -281,6 +282,7 @@
 
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::clientsForStatus"></div>  <!--TODO добавлено Tyurin Den 25-07-19 -->
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
@@ -290,13 +292,18 @@
     <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 </div>
 
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"
+     sec:authorize="hasAnyAuthority('MENTOR')"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"
+     sec:authorize="hasAnyAuthority('MENTOR')"></div>
+
 <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
     <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
     <div th:replace="fragments/message-history::messageHistory"></div>
     <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
     <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
-
+    <div th:replace="fragments/htmlFragments::modalsForStatus"></div>
     <script th:inline="javascript">
         /*<![CDATA[*/
             const slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
@@ -340,6 +347,8 @@
 <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
 </div>
+
+<div th:replace="fragments/status-sticky-header::sticky-scripts"></div>
 
 </body>
 </html>

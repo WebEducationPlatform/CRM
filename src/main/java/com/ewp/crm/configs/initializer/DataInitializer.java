@@ -1,13 +1,41 @@
 package com.ewp.crm.configs.initializer;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.CallRecord;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Job;
+import com.ewp.crm.models.ListMailingType;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SMSInfo;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.StudentStatus;
+import com.ewp.crm.models.User;
+import com.ewp.crm.models.VkRequestForm;
+import com.ewp.crm.service.interfaces.CallRecordService;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ListMailingTypeService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VkRequestFormService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.*;
-import java.util.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class DataInitializer {
 

@@ -1,14 +1,16 @@
 package com.ewp.crm.repository.impl;
 
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Repository
 public class StudentRepositoryImpl implements StudentRepositoryCustom {
+
+    private static Logger logger = LoggerFactory.getLogger(StudentRepositoryImpl.class);
 
     private final EntityManager entityManager;
 
@@ -44,24 +48,55 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     @Override
-    public long countActiveByDate(ZonedDateTime day) {
-        String query = "SELECT COUNT(c) FROM Client AS c " +
-                "WHERE c.id IN (" +
-                "SELECT DISTINCT c.id FROM Client AS c " +
-                "JOIN c.history AS h " +
-                "WHERE h.date <= :day " +
-                "AND h.type = :created " +
-                ") AND c.id NOT IN (" +
-                "SELECT DISTINCT c.id FROM Client AS c " +
-                "JOIN c.history AS h " +
-                "WHERE h.date <= :day " +
-                "AND h.type = :deleted " +
-                ")";
-        return ((Number) entityManager.createQuery(query)
-                .setParameter("day", day)
-                .setParameter("created", ClientHistory.Type.ADD_STUDENT)
-                .setParameter("deleted", ClientHistory.Type.DELETE_STUDENT)
-                .getSingleResult()).longValue();
+    public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
+        String query = "SELECT COUNT(*) FROM (" +
+                "SELECT DISTINCT csch.client_id FROM client_status_changing_history csch" +
+                "   RIGHT JOIN status s " +
+                "       ON " +
+                "           s.status_id = csch.new_status_id AND " +
+                "           s.create_student IS TRUE" +
+                "       WHERE " +
+                "       s.create_student IS TRUE AND" +
+                "       csch.new_status_id IN (:statuses) AND" +
+                "       csch.date <= :day AND" +
+                "           csch.client_id NOT IN (" +
+                "           SELECT csch.client_id FROM client_status_changing_history csch" +
+                "           RIGHT JOIN status s " +
+                "               ON " +
+                "                   s.status_id = csch.new_status_id AND " +
+                "                   s.create_student IS FALSE" +
+                "           LEFT JOIN (" +
+                "               SELECT csch.client_id, MAX(csch.date) AS date FROM client_status_changing_history csch" +
+                "               RIGHT JOIN status s " +
+                "                   ON " +
+                "                       s.status_id = csch.new_status_id AND " +
+                "                       s.create_student IS TRUE" +
+                "               WHERE " +
+                "                   s.create_student IS TRUE AND" +
+                "                   csch.new_status_id IN (:statuses) AND" +
+                "                   csch.date <= :day" +
+                "               GROUP BY csch.client_id" +
+                "               ORDER BY csch.date DESC" +
+                "               ) d ON d.client_id = csch.client_id" +
+                "           WHERE " +
+                "               s.create_student IS FALSE AND" +
+                "               csch.date <= :day AND" +
+                "               csch.date > d.date" +
+                "           GROUP BY csch.client_id" +
+                "           ORDER BY csch.date DESC" +
+                "           )" +
+                "   GROUP BY csch.client_id" +
+                "   ORDER BY csch.date DESC" +
+                ") x;";
+        try {
+            return ((BigInteger) entityManager.createNativeQuery(query)
+                    .setParameter("day", day)
+                    .setParameter("statuses", studentStatuses)
+                    .getSingleResult()).longValue();
+        } catch (Exception e) {
+            logger.error("Failed to count students by date {}", day, e);
+        }
+        return 0;
     }
 
     @Override

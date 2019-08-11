@@ -1,7 +1,11 @@
 package com.ewp.crm.repository.interfaces;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -47,7 +51,11 @@ public interface ClientRepositoryCustom {
 
 	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
 
+    List<String> getClientsEmailsByStatusesIds(List<Long> statusesIds);
+
 	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	List<String> getClientsPhoneNumbersByStatusesIds(List<Long> statusesIds);
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 

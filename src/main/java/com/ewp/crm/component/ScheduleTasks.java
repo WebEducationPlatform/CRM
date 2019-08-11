@@ -4,10 +4,46 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.AssignSkypeCall;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.models.Notification;
+import com.ewp.crm.models.PotentialClient;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.SMSInfo;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
+import com.ewp.crm.models.Student;
+import com.ewp.crm.models.User;
+import com.ewp.crm.models.VkMember;
+import com.ewp.crm.models.VkTrackedClub;
+import com.ewp.crm.models.YouTubeTrackingCard;
+import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.AssignSkypeCallService;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.FacebookService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.PotentialClientService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.ReportService;
+import com.ewp.crm.service.interfaces.SMSInfoService;
+import com.ewp.crm.service.interfaces.SMSService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.StudentService;
+import com.ewp.crm.service.interfaces.TelegramService;
+import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.service.interfaces.VkMemberService;
+import com.ewp.crm.service.interfaces.VkTrackedClubService;
+import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
+import com.ewp.crm.service.interfaces.YoutubeClientService;
+import com.ewp.crm.service.interfaces.YoutubeService;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.ewp.crm.util.patterns.ValidationPattern;
 import org.drinkless.tdlib.TdApi;
@@ -20,7 +56,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -224,29 +264,29 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 5_000)
-	private void handleRequestsFromVk() {
-		if (vkService.hasTechnicalAccountToken()) {
-			try {
-				Optional<List<String>> newMassages = vkService.getNewMassages();
-				if (newMassages.isPresent()) {
-					for (String message : newMassages.get()) {
-						try {
-							Client newClient = vkService.parseClientFromMessage(message);
-							String s = newMassages.orElse(Collections.emptyList()).toString().replaceAll("<br><br>","<br>");
-							ClientHistory clientHistory = new ClientHistory(s,ZonedDateTime.now(ZoneId.systemDefault()),ClientHistory.Type.SOCIAL_REQUEST);
-							newClient.addHistory(clientHistory);
-							addClientFromVk(newClient);
-						} catch (ParseClientException e) {
-							logger.error(e.getMessage());
-						}
-					}
-				}
-			} catch (VKAccessTokenException ex) {
-				logger.error(ex.getMessage());
-			}
-		}
-	}
+//	@Scheduled(fixedRate = 5_000)
+//	private void handleRequestsFromVk() {
+//		if (vkService.hasTechnicalAccountToken()) {
+//			try {
+//				Optional<List<String>> newMassages = vkService.getNewMassages();
+//				if (newMassages.isPresent()) {
+//					for (String message : newMassages.get()) {
+//						try {
+//							Client newClient = vkService.parseClientFromMessage(message);
+//							String s = newMassages.orElse(Collections.emptyList()).toString().replaceAll("<br><br>","<br>");
+//							ClientHistory clientHistory = new ClientHistory(s,ZonedDateTime.now(ZoneId.systemDefault()),ClientHistory.Type.SOCIAL_REQUEST);
+//							newClient.addHistory(clientHistory);
+//							addClientFromVk(newClient);
+//						} catch (ParseClientException e) {
+//							logger.error(e.getMessage());
+//						}
+//					}
+//				}
+//			} catch (VKAccessTokenException ex) {
+//				logger.error(ex.getMessage());
+//			}
+//		}
+//	}
 
 	@Scheduled(fixedRate = 60_000)
 	private void findNewMembersAndSendFirstMessage() {
@@ -269,21 +309,21 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 5_000)
-	private void handleRequestsFromVkCommunityMessages() {
-		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
-		if (newUsers.isPresent()) {
-			for (Long id : newUsers.get()) {
-				Optional<Client> newClient = vkService.getClientFromVkId(id);
-				if (newClient.isPresent()) {
-					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
-						addClientFromVk(newClient.get());
-					}
-				}
-			}
-		}
-	}
+//	@Scheduled(fixedRate = 5_000)
+//	private void handleRequestsFromVkCommunityMessages() {
+//		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
+//		if (newUsers.isPresent()) {
+//			for (Long id : newUsers.get()) {
+//				Optional<Client> newClient = vkService.getClientFromVkId(id);
+//				if (newClient.isPresent()) {
+//					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
+//					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
+//						addClientFromVk(newClient.get());
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	@Scheduled(fixedRate = 6_000)
 	private void checkClientActivationDate() {
@@ -300,10 +340,10 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
-	@Scheduled(cron = "0 0 * * * *")
-	private void getSlackProfiles() {
-		slackService.tryLinkSlackAccountToAllStudents();
-	}
+//	@Scheduled(cron = "0 0 * * * *")
+//	private void getSlackProfiles() {
+//		slackService.tryLinkSlackAccountToAllStudents();
+//	}
 
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {

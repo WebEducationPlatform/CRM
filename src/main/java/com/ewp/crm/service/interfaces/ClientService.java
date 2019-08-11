@@ -1,7 +1,15 @@
 package com.ewp.crm.service.interfaces;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Comment;
+import com.ewp.crm.models.ContractDataForm;
+import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.ClientDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
@@ -39,6 +47,8 @@ public interface ClientService extends CommonService<Client> {
 
 	void addClient(Client client, User user);
 
+	void createClientStatusChangingHistory(Status lastStatus, Status newStatus, Client client, boolean clientCreation, User user);
+
 	void updateClient(Client client);
 
 	List<Client> filteringClient(FilteringCondition filteringCondition);
@@ -57,7 +67,11 @@ public interface ClientService extends CommonService<Client> {
 
 	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
 
+	Optional<List<String>> getClientsEmailsByStatusesIds(List<Long> statusesIds);
+
 	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	Optional<List<String>> getClientsPhoneNumbersByStatusesIds(List<Long> statusesIds);
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
@@ -89,8 +103,10 @@ public interface ClientService extends CommonService<Client> {
 
     List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
 
-	List<Client> getClientsByEmails(List<String> emails);
+	Optional<List<Client>> getClientsByEmails(List<String> emails);
 
-	void transferClientsBetweenMentors(User sender, User receiver);
+    List<ClientDto.ClientTransformer> getClientsDtoByEmails(List<String> emails);
+
+    void transferClientsBetweenMentors(User sender, User receiver);
 
 }
