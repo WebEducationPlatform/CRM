@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -110,7 +111,7 @@ public class AdminRestUserController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    // Удаление пользователя с перемещением его студентов другому пользователю
+    // Удаление пользователя с переназначением его студентов другому пользователю
     @RequestMapping(value = "/admin/rest/user/deleteWithTransfer", method = RequestMethod.POST)
     public ResponseEntity deleteUserWithClientTransfer(@RequestParam Long userIdToBeDeleted,
                                                        @RequestParam Long receiverUserId,
@@ -121,9 +122,13 @@ public class AdminRestUserController {
         User receiverUser = Optional.of(userService.get(receiverUserId))
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Destination user " +
                         "with ID = %d not found!", receiverUserId)));
-        clientService.transferClientsBetweenOwners(deletedUser, receiverUser);
-        clientService.transferClientsBetweenMentors(deletedUser, receiverUser);
-        //notificationService.deleteNotificationsByUserToNotify(deletedUser);
+        for (Role role : deletedUser.getRole()) {
+            if (role.getRoleName().equals("MENTOR")) {
+                clientService.transferClientsBetweenMentors(deletedUser, receiverUser);
+                break;
+            }
+            clientService.transferClientsBetweenOwners(deletedUser, receiverUser);
+        }
         commentService.deleteAllCommentsByUserId(userIdToBeDeleted);
         smsInfoService.deleteAllSMSByUserId(userIdToBeDeleted);
         userService.delete(userIdToBeDeleted);

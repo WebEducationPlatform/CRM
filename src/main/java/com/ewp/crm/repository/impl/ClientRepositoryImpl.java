@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -596,21 +597,25 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Transactional
+    @Modifying
     @Override
     public void transferClientsBetweenOwners(User sender, User receiver) {
-        entityManager.createQuery("UPDATE Client c SET c.ownerUser = :receiver WHERE c.ownerUser = :sender")
-                .setParameter("sender", sender)
-                .setParameter("receiver", receiver)
-                .executeUpdate();
+        entityManager.createNativeQuery("UPDATE client c SET c.owner_user_id = :receiver " +
+                "WHERE c.owner_user_id = :sender").
+                setParameter("receiver", receiver).
+                setParameter("sender", sender).
+                executeUpdate();
     }
 
     @Transactional
+    @Modifying
     @Override
     public void transferClientsBetweenMentors(User sender, User receiver) {
-        entityManager.createQuery("UPDATE Client c SET c.ownerMentor = :receiver WHERE c.ownerMentor = :sender")
-                .setParameter("sender", sender)
-                .setParameter("receiver", receiver)
-                .executeUpdate();
+        entityManager.createNativeQuery("UPDATE client c SET c.owner_mentor_id = :receiver " +
+                "WHERE c.owner_mentor_id = :sender").
+                setParameter("receiver", receiver).
+                setParameter("sender", sender).
+                executeUpdate();
     }
 
 }
