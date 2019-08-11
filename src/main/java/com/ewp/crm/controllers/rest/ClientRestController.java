@@ -642,6 +642,31 @@ public class ClientRestController {
         }
     }
 
+    @PostMapping("/emails/filters")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public ResponseEntity<List<String>> getClientsEmailsByStatuses(@RequestParam(name="country") String country,
+                                                                   @RequestParam(name="city") String city,
+                                                                   @RequestParam(name="age_min") String age_min,
+                                                                   @RequestParam(name="age_max") String age_max,
+
+                                                                   @RequestParam(name="sex") String sex) {
+
+        FilteringCondition filteringCondition = new FilteringCondition();
+        filteringCondition.setAgeFrom(Integer.valueOf(age_min));
+        filteringCondition.setAgeTo(Integer.valueOf(age_max));
+        filteringCondition.setCountry(country);
+        filteringCondition.setCity(city);
+        if (!sex.equalsIgnoreCase("ANY")) {
+            if (sex.equalsIgnoreCase("MALE")){
+                filteringCondition.setSex(Client.Sex.MALE);
+            }
+            else {
+                filteringCondition.setSex(Client.Sex.FEMALE);
+            }
+        }
+            return new ResponseEntity<>(clientService.getFilteredClientsEmail(filteringCondition), HttpStatus.OK);
+    }
+
     @PostMapping("/phones/statuses")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<List<String>> getClientsPhoneNumbersByStatuses(@RequestParam(name="statuses") List<Long> statuses) {
