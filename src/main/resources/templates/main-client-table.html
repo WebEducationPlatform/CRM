@@ -291,6 +291,11 @@
     <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 </div>
 
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"
+     sec:authorize="hasAnyAuthority('MENTOR')"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"
+     sec:authorize="hasAnyAuthority('MENTOR')"></div>
+
 <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
     <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
