@@ -298,24 +298,24 @@ $(document).ready(function () {
         let sex = 'ANY';
         if ($("#filter-mailing-list-male").is(':checked') ^ $("#filter-mailing-list-female").is(':checked')) {
             if ($("#filter-mailing-list-male").is(':checked')) {
-                sex = 'MALE';git
+                sex = 'MALE';
             } else {
                 sex = 'FEMALE';
             }
         }
 
         var request = $.ajax({
-            url: "/getFilteredEmails",
+            url: "/rest/client/emails/filters",
             type: "POST",
-            contentType: "application/json",
-            dataType: 'text',
             data: {
                 country: country,
                 city: city,
                 age_min: age_min,
                 age_max: age_max,
                 sex: sex
-            }
+            },
+            traditional: true,
+            async: true
         });
         request.done(function (msg) {
             alert("Request OK: " + msg);
