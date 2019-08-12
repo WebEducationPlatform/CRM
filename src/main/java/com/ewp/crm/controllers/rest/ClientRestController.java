@@ -652,10 +652,18 @@ public class ClientRestController {
                                                                    @RequestParam(name="sex") String sex) {
 
         FilteringCondition filteringCondition = new FilteringCondition();
-        filteringCondition.setAgeFrom(Integer.valueOf(age_min));
-        filteringCondition.setAgeTo(Integer.valueOf(age_max));
-        filteringCondition.setCountry(country);
-        filteringCondition.setCity(city);
+        if (!age_min.equals("-1")){
+            filteringCondition.setAgeFrom(Integer.valueOf(age_min)) ;
+        }
+        if ( !age_max.equals("-1")){
+            filteringCondition.setAgeTo(Integer.valueOf(age_max));
+        }
+        if(country.length() > 0) {
+            filteringCondition.setCountry(country);
+        }
+        if (city.length() > 0){
+            filteringCondition.setCity(city);
+        }
         if (!sex.equalsIgnoreCase("ANY")) {
             if (sex.equalsIgnoreCase("MALE")){
                 filteringCondition.setSex(Client.Sex.MALE);
