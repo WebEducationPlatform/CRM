@@ -1,0 +1,70 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Дни рождения сотрудников</title>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script th:src="@{/js/validator.min.js}"></script>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+</div>
+<div class="modal-body row py-sm-3">
+    <div class="col-md-6">
+        <h1 class="page-header">Дни рождения сотрудников</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr style="font-size: 30px">
+                <td>ID</td>
+                <td>Имя</td>
+                <td>Фамилия</td>
+                <td>Дата рождения</td>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="user :  ${users}">
+                <td><p th:text="${user.id}"/></td>
+                <td><p th:text="${user.firstName}"/></td>
+                <td><p th:text="${user.lastName}"/></td>
+                <td><p th:text="${user.birthDate}"/></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <h1 class="page-header">Настройки для отправки шаблона для дня рождения</h1>
+        <div class="form-group">
+            <label>Выберите шаблон для рассылки</label>
+            <select id="birth-users" th:field="*{birthUsersTemplates}" class="browser-default custom-select custom-select-lg mb-3" >
+                <option value="">Не выбрано</option>
+                <option th:each="template : ${birthUsersTemplates}"
+                        th:value="${template.id}"
+                        th:utext="${template.name}"/>
+            </select>
+        </div>
+        <div class="form-group need">
+            <label for="id-chat-birth-users">ID чата в ВК</label>
+            <input type="text" class="form-control" required="required" id="id-chat-birth-users"/>
+        </div>
+        <div class="form-group">
+            <label for="users-birth-notification-time">Выберите время рассылки</label>
+            <input id="users-birth-notification-time" class="form-control" type="time"/>
+        </div>
+        <div class="form-group">
+            <label for="messageToUsersBirthday">Сообщения для поздравления дня рождения</label>
+            <textarea class="form-control rounded-0" id="messageToUsersBirthday" rows="3"></textarea>
+        </div>
+        <div class="col-md-12 text-center actions">
+            <button type="submit" id="saveButtonBirthUsers" class="btn btn-primary sendButton"
+                    onclick="saveBirthUsersProperties()">Сохранить
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/birth-users.js}"></script>
+</body>
+</html>

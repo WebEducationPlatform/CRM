@@ -108,6 +108,11 @@
         </div>
         <br/>
         <div>
+            <a class="btn btn-primary pull" href="/users/birthdays" sec:authorize="hasAnyAuthority('OWNER')">
+                Настроить сообщение для дней рождений пользователей</a>
+        </div>
+        <br/>
+        <div>
             <th:block th:if="isTdlibInstalled">
                 <th:block th:if="${isTelegramAuthenticated}">
                     <button id="telegram-logout-button" class="btn btn-primary pull">

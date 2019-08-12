@@ -2,10 +2,7 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.TelegramService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Controller
 @PropertySource("file:./slackbot.properties")
 public class UserController {
@@ -31,18 +31,21 @@ public class UserController {
 	private final ImageConfig imageConfig;
 	private final NotificationService notificationService;
 	private final TelegramService telegramService;
+	private final MessageTemplateService messageTemplateService;
 
 	@Autowired
 	public UserController(UserService userService,
 						  RoleService roleService,
 						  ImageConfig imageConfig,
 						  NotificationService notificationService,
-						  TelegramService telegramService) {
+						  TelegramService telegramService,
+						  MessageTemplateService messageTemplateService) {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
 		this.notificationService = notificationService;
 		this.telegramService = telegramService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	@Value("${slackbot.domain}")
@@ -99,6 +102,7 @@ public class UserController {
 		userService.update(userFromSession);
 		return new ModelAndView("redirect:/user/customize");
 	}
+
 	@GetMapping(value = "/user/autoAnswer")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
 	public ModelAndView getAutoAnswerView(@AuthenticationPrincipal User userFromSession) {
@@ -107,4 +111,12 @@ public class UserController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/users/birthdays")
+	@PreAuthorize("hasAnyAuthority('OWNER')")
+	public ModelAndView getUsersBirthdaysView(){
+		ModelAndView birthdayUsers = new ModelAndView("users-birthday");
+		birthdayUsers.addObject("users", userService.getAll().stream().filter(User::isVerified).collect(Collectors.toList()));
+		birthdayUsers.addObject("birthUsersTemplates", messageTemplateService.getAll());
+		return birthdayUsers;
+	}
 }

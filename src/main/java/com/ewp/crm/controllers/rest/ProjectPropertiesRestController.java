@@ -9,11 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -187,4 +183,21 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/birth-users")
+    public ResponseEntity setPropertiesToUsersBirthday(@RequestParam(value = "chatId") Long chatId,
+                                                       @RequestParam(value = "templateId") Long templateId,
+                                                       @RequestParam(value = "time") String localTime,
+                                                       @RequestParam(value = "message") String message) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (templateId != null) {
+            current.setTemplateBirthId(templateId);
+        } else {
+            current.setTemplateBirthId(null);
+            current.setMessageBirthUsers(message);
+        }
+        current.setChatId(chatId);
+        current.setTimeToSendBirthNotification(LocalTime.parse(localTime));
+        projectPropertiesService.update(current);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
 }

@@ -21,29 +21,7 @@ import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.interfaces.AssignSkypeCallService;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.FacebookService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.PotentialClientService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.ReportService;
-import com.ewp.crm.service.interfaces.SMSInfoService;
-import com.ewp.crm.service.interfaces.SMSService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.SocialProfileService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.TelegramService;
-import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.service.interfaces.VKService;
-import com.ewp.crm.service.interfaces.VkMemberService;
-import com.ewp.crm.service.interfaces.VkTrackedClubService;
-import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
-import com.ewp.crm.service.interfaces.YoutubeClientService;
-import com.ewp.crm.service.interfaces.YoutubeService;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.ewp.crm.util.patterns.ValidationPattern;
 import org.drinkless.tdlib.TdApi;
@@ -130,6 +108,8 @@ public class ScheduleTasks {
 
 	private final UserService userService;
 
+	private final MessageTemplateService messageTemplateService;
+
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
 						 YouTubeTrackingCardService youTubeTrackingCardService,
@@ -142,7 +122,8 @@ public class ScheduleTasks {
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 VkCampaignService vkCampaignService, TelegramService telegramService,
-						 SlackService slackService, UserService userService) {
+						 SlackService slackService, UserService userService,
+						 MessageTemplateService messageTemplateService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -171,6 +152,7 @@ public class ScheduleTasks {
 		this.slackService = slackService;
 		this.projectProperties = projectPropertiesService.getOrCreate();
 		this.userService = userService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	private void addClientFromVk(Client newClient) {
@@ -472,6 +454,29 @@ public class ScheduleTasks {
 			logger.info("Payment notification properties not set!");
 		}
 	}
+
+    /**
+     * Sends payment notification to student's contacts.
+     */
+    @Scheduled(fixedDelay = 3600000)
+    private void sendBirthdayUsersNotifications() {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+
+        LocalTime time = properties.getTimeToSendBirthNotification().truncatedTo(ChronoUnit.HOURS);
+        LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
+
+        if (properties.getTemplateBirthId() != null) {
+            MessageTemplate birthUsersTemplate = messageTemplateService.get(properties.getTemplateBirthId());
+            if (now.equals(time)) {
+                vkService.sendMessageByChatId(properties.getChatId().toString(), birthUsersTemplate.getOtherText());
+            }
+        } else {
+            if (now.equals(time)) {
+                vkService.sendMessageByChatId(properties.getChatId().toString(), properties.getMessageBirthUsers());
+            }
+        }
+
+    }
 
     @Scheduled(fixedRate = 60_000)
     private void fetchTelegramMessages() {

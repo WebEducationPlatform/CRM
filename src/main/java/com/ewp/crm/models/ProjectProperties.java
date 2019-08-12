@@ -132,6 +132,23 @@ public class ProjectProperties {
     @Column(name = "bank_identification_code")
     private String bankIdentificationCode;
 
+    /**
+     * Настройки для дней рождения пользователей
+     */
+
+    @Column(name = "time_birth_users")
+    private LocalTime timeToSendBirthNotification;
+
+    @Column(name = "chat_id")
+    private Long chatId;
+
+    @Column(name = "template_birth_users")
+    private Long templateBirthId;
+
+    @Column(name = "message_birth_users")
+    @Lob
+    private String messageBirthUsers;
+
     public ProjectProperties() {
     }
 
@@ -342,6 +359,38 @@ public class ProjectProperties {
 
     public void setFirstSkypeCallAfterStatus(Long firstSkypeCallAfterStatus) {
         this.firstSkypeCallAfterStatus = firstSkypeCallAfterStatus;
+    }
+
+    public LocalTime getTimeToSendBirthNotification() {
+        return timeToSendBirthNotification;
+    }
+
+    public void setTimeToSendBirthNotification(LocalTime timeToSendBirthNotification) {
+        this.timeToSendBirthNotification = timeToSendBirthNotification;
+    }
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
+
+    public Long getTemplateBirthId() {
+        return templateBirthId;
+    }
+
+    public void setTemplateBirthId(Long templateBirthId) {
+        this.templateBirthId = templateBirthId;
+    }
+
+    public String getMessageBirthUsers() {
+        return messageBirthUsers;
+    }
+
+    public void setMessageBirthUsers(String messageBirthUsers) {
+        this.messageBirthUsers = messageBirthUsers;
     }
 
     @Override
