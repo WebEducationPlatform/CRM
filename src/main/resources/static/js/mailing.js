@@ -291,38 +291,60 @@ $(document).ready(function () {
     });
 
     $("#fromFiltersImportButton").click(function () {
-        let country = $("#filter-mailing-list-countries").val();
-        let city = $("#filter-mailing-list-cities").val();
-        let age_min = $("#filter-mailing-list-age-min").val();
-        let age_max = $("#filter-mailing-list-age-max").val();
-        let sex = 'ANY';
-        if ($("#filter-mailing-list-male").is(':checked') ^ $("#filter-mailing-list-female").is(':checked')) {
-            if ($("#filter-mailing-list-male").is(':checked')) {
-                sex = 'MALE';
-            } else {
-                sex = 'FEMALE';
+
+        if (!$("#filter-mailing-list-countries").val() && !$("#filter-mailing-list-cities").val()
+            && !$("#filter-mailing-list-age-min").val() && !$("#filter-mailing-list-age-max").val()
+        && !($("#filter-mailing-list-male").is(':checked') ^ $("#filter-mailing-list-female").is(':checked'))){
+            alert("Для фильтра необходимо указать условие или несколько! \n Уточните параметры фильтра");
+        }
+        else {
+            var field =  $("#listRecipients");
+            let country = $("#filter-mailing-list-countries").val();
+            let city = $("#filter-mailing-list-cities").val();
+
+            let age_min = $("#filter-mailing-list-age-min").val() ? $("#filter-mailing-list-age-min").val() : '-1';
+            let age_max = $("#filter-mailing-list-age-max").val() ? $("#filter-mailing-list-age-max").val() : '-1';
+            let sex = 'ANY';
+
+            if ($("#filter-mailing-list-male").is(':checked') ^ $("#filter-mailing-list-female").is(':checked')) {
+                if ($("#filter-mailing-list-male").is(':checked')) {
+                    sex = 'MALE';
+                } else {
+                    sex = 'FEMALE';
+                }
             }
+
+            var request = $.ajax({
+                url: "/rest/client/emails/filters",
+                type: "POST",
+                data: {
+                    country: country,
+                    city: city,
+                    age_min: age_min,
+                    age_max: age_max,
+                    sex: sex
+                },
+                traditional: true,
+                async: true
+            });
+            request.done(function (data) {
+                if (data.length === 0 ) {
+                    alert("Данных не найдено! \n Уточните параметры фильтра");
+                }
+                else{
+                    let listEmails = field.val();
+                    field.val('');
+                    $.each(data, function (i, item) {
+                        field.val(field.val() + item  + '\n');
+                    });
+                }
+            });
+            request.fail(function (jqXHR, textStatus) {
+                alert("при запросе данных произошла ошибка\n Уточните данные запроса ");
+            });
         }
 
-        var request = $.ajax({
-            url: "/rest/client/emails/filters",
-            type: "POST",
-            data: {
-                country: country,
-                city: city,
-                age_min: age_min,
-                age_max: age_max,
-                sex: sex
-            },
-            traditional: true,
-            async: true
-        });
-        request.done(function (msg) {
-            alert("Request OK: " + msg);
-        });
-        request.fail(function (jqXHR, textStatus) {
-            alert("Request failed: " + textStatus);
-        });
+
     });
 
     $("#updateFromStatusesImportButton").click(function () {
