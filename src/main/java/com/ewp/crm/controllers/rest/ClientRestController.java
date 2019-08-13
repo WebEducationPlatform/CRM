@@ -652,4 +652,14 @@ public class ClientRestController {
         }
     }
 
+    @GetMapping("/slackIds")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public List<Optional<Client>> getClientsByFullName (@RequestParam("fullNames") List<String> fullNames) {
+        List<Optional<Client>> clients = new ArrayList<>();
+        fullNames.forEach(fullName -> {
+            String[] splitedNames = fullName.split(" ");
+            clients.add(clientService.findByNameAndLastNameIgnoreCase(splitedNames[0], splitedNames[1]));
+        });
+        return clients;
+    }
 }

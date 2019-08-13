@@ -189,13 +189,45 @@ function drawUndefinedEmailsBlock(undefinedEmails) {
             text: 'Нераспознанные студенты:',
             style: "font-size: 120%; color: red;"
         }).appendTo('#right-column');
+        let url = "http://localhost:8972/student/get?emails=";
         $.each(undefinedEmails, function (i, email) {
             $('<div></div>', {
                 //class: 'portlet panel panel-default',
+                id: "undefined" + i,
                 text: email,
                 style: "color: red;"
             }).appendTo('#right-column');
+            url = url + email + ',';
         });
+        $.get(url)
+            .done(function (data) {
+                console.log(data);
+                let url = "/rest/client/slackIds?slackIds=";
+                $.each(data, function (i, client) {
+                    url = url + client.name + ',';
+                });
+                $.get(url.slice(0, -1))
+                    .done(function (data) {
+                        console.log(data)
+                        $.each(data, function (i, client) {
+                            if (client !== null) {
+                                $('<div></div>', {
+                                    class: 'portlet common-modal panel panel-default',
+                                    id: 'undef' + client.id,
+                                    value: client.id,
+                                    'data-card-id': client.id,
+                                }).appendTo('div#undefined' + i);
+                                $('<div></div>', {
+                                    class: 'portlet-body',
+                                    'client-id': client.id,
+                                    name: 'client-' + client.id + '-modal',
+                                    onclick: 'showCurrentModal(' + client.id + ')',
+                                    text: client.name + " " + client.lastName
+                                }).appendTo('div#undef' + client.id + '.portlet');
+                            }
+                        })
+                    })
+            });
     }
     $('<P></P>', {}).appendTo('#right-column');
     $('<P></P>', {
