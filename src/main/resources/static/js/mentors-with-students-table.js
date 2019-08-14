@@ -1,4 +1,5 @@
 let botDomain = $("#slackBotDomain").val();
+let botAccessProtocol = $("#slackBotAccessProtocol").val();
 let mentorMaxStudents = $("#mentorMaxStudents").val();
 const maxStudents = mentorMaxStudents * mentors.length;
 let mentorsMap = new Map(Object.entries(JSON.parse(mentorsFromBotJson)));
@@ -189,22 +190,22 @@ function drawUndefinedEmailsBlock(undefinedEmails) {
             text: 'Нераспознанные студенты:',
             style: "font-size: 120%; color: red;"
         }).appendTo('#right-column');
-        let url = "http://localhost:8972/student/get?emails=";
+        let url = botAccessProtocol + botDomain + "/student/get?emails=";
         $.each(undefinedEmails, function (i, email) {
-            $('<div></div>', {
-                //class: 'portlet panel panel-default',
-                id: "undefined" + i,
-                text: email,
-                style: "color: red;"
-            }).appendTo('#right-column');
             url = url + email + ',';
         });
         $.get(url)
             .done(function (data) {
                 console.log(data);
-                let url = "/rest/client/slackIds?slackIds=";
-                $.each(data, function (i, client) {
-                    url = url + client.name + ',';
+                let url = "/rest/client/names?full_names=";
+                $.each(data, function (i, clientFromBot) {
+                    url = url + clientFromBot.name + ',';
+                    $('<div></div>', {
+                        //class: 'portlet panel panel-default',
+                        id: "undefined" + clientFromBot.name.replace(/\s/g, ''),
+                        text: clientFromBot.name + "  " + clientFromBot.email,
+                        style: "color: red;"
+                    }).appendTo('#right-column');
                 });
                 $.get(url.slice(0, -1))
                     .done(function (data) {
@@ -216,7 +217,7 @@ function drawUndefinedEmailsBlock(undefinedEmails) {
                                     id: 'undef' + client.id,
                                     value: client.id,
                                     'data-card-id': client.id,
-                                }).appendTo('div#undefined' + i);
+                                }).appendTo('div#undefined' + client.name + client.lastName);
                                 $('<div></div>', {
                                     class: 'portlet-body',
                                     'client-id': client.id,
@@ -229,11 +230,11 @@ function drawUndefinedEmailsBlock(undefinedEmails) {
                     })
             });
     }
-    $('<P></P>', {}).appendTo('#right-column');
-    $('<P></P>', {
-        text: 'Расчеты по студентам неверны!',
-        style: "font-size: 120%; color: red;"
-    }).appendTo('#right-column');
+    // $('<P></P>', {}).appendTo('#right-column');
+    // $('<P></P>', {
+    //     text: 'Расчеты по студентам неверны!',
+    //     style: "font-size: 120%; color: red;"
+    // }).appendTo('#right-column');
 }
 
 function countStudents(counter, status) {
