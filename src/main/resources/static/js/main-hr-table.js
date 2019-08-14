@@ -6,7 +6,6 @@ $(document).ready(function () {
             text: name
         }).appendTo('#main-row');
         $.each(students, function (i, student) {
-            console.log(student);
             $('<div></div>', {
                 class: 'portlet common-modal panel panel-default',
                 id: student.id,
