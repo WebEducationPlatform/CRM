@@ -24,12 +24,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Пользователь CRM, менеджер, ментор и тд
@@ -181,6 +179,10 @@ public class User implements UserDetails {
 
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private Set<UserRoutes> userRoutes = new HashSet<>();
 
     public User() {
         this.isEnabled = false;
@@ -502,5 +504,13 @@ public class User implements UserDetails {
 
     public void setCallRecords(List<CallRecord> callRecords) {
         this.callRecords = callRecords;
+    }
+
+    public Set<UserRoutes> getUserRoutes() {
+        return userRoutes;
+    }
+
+    public void setUserRoutes(Set<UserRoutes> userRoutes) {
+        this.userRoutes = userRoutes;
     }
 }
