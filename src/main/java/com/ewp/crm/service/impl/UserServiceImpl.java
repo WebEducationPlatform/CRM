@@ -28,9 +28,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl extends CommonServiceImpl<User> implements UserService {
@@ -184,4 +182,14 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     public List<MentorDtoForMentorsPage> getAllMentors() {
         return userDAO.getAllMentors();
     }
+
+    @Override
+    public List<User> getUsersByRoles(List<Role> roles) {
+        Set<User> users = new HashSet<>();
+        for (Role role : roles) {
+            users.addAll(userDAO.getUserByRole(role));
+        }
+        return new ArrayList<>(users);
+    }
+
 }

@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserService extends CommonService<User> {
 
@@ -34,4 +35,6 @@ public interface UserService extends CommonService<User> {
 	Optional<User> getUserToOwnCard();
 
 	List<MentorDtoForMentorsPage> getAllMentors();
+
+	List<User> getUsersByRoles(List<Role> roles);
 }

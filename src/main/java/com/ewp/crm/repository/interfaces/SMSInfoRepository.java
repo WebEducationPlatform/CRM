@@ -16,6 +16,8 @@ public interface SMSInfoRepository extends CommonGenericRepository<SMSInfo> {
 
 	@Modifying
 	@Transactional
-	@Query("DELETE FROM SMSInfo s WHERE s.id IN(SELECT s.id FROM SMSInfo s JOIN s.user su WHERE su.id = :userId)")
+//	@Query("DELETE FROM SMSInfo s WHERE s.id IN (SELECT s.id FROM SMSInfo s JOIN s.user su WHERE su.id = :userId)")
+	@Query("DELETE FROM SMSInfo s WHERE s.user.id = :userId")
 	void deleteAllByUserId(@Param("userId") long id);
+
 }
