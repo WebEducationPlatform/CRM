@@ -4,7 +4,7 @@ $(document).ready(function () {
             class: 'column ui-sortable',
             id: 'status-column-' + name.replace(/\s/g, ''),
             text: name
-        }).appendTo('#status-columns');
+        }).appendTo('#main-row');
         $.each(students, function (i, student) {
             console.log(student);
             $('<div></div>', {
