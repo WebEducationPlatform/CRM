@@ -20,9 +20,9 @@ public class UserRoutes {
 
     @Column(name = "userRouteType")
     @Enumerated(EnumType.STRING)
-    private userRouteType userRouteType;
+    private UserRouteType userRouteType;
 
-    public enum userRouteType {
+    public enum UserRouteType {
         FROM_JM_EMAIL,     // канал с которого
         FROM_VK         //поступают заявки
     }
@@ -30,7 +30,7 @@ public class UserRoutes {
     public UserRoutes() {
     }
 
-    public UserRoutes(UserRoutes userRoutes, User user, Integer weight, UserRoutes.userRouteType userRouteType) {
+    public UserRoutes(UserRoutes userRoutes, User user, Integer weight, UserRouteType userRouteType) {
         this.user = user;
         this.weight = weight;
         this.userRouteType = userRouteType;
@@ -60,11 +60,11 @@ public class UserRoutes {
         this.weight = weight;
     }
 
-    public UserRoutes.userRouteType getUserRouteType() {
+    public UserRouteType getUserRouteType() {
         return userRouteType;
     }
 
-    public void setUserRouteType(UserRoutes.userRouteType userRouteType) {
+    public void setUserRouteType(UserRouteType userRouteType) {
         this.userRouteType = userRouteType;
     }
 

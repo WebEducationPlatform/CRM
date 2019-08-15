@@ -14,11 +14,18 @@
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
-          <h1>% Распределения заявок по мэнеджерам</h1>
+          <h1>% Распределения заявок по менеджерам</h1>
         </div>
         <div class="modal-body">
           <div class="container-fluid">
             <div class="row">
+              <div class="form-group">
+                <label for="clientroutes-list-type">выберете источник заявки:</label>
+                <select id="clientroutes-list-type" class="form-control" onchange="setUserRoutesTypes()">
+                  <option th:each="itemType:${userRoutesTypes}" th:value="${itemType}" th:text="${itemType}">Тип рассылки</option>
+                </select>
+              </div>
+              <hr/>
               <table class="table table-hover table-fixed" id="routes-table">
                 <thead id="thead-table-routes">
                 <tr class="head-table">
