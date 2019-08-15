@@ -224,8 +224,8 @@ function sort_table(button, n, type) {
     for (i = 0; i < sortedRows.length; i++) {
         var order = $.inArray(sortedRows[i], arrForSort);
         resultRows.push(rowsToArray[order]);
-        arrForSort.splice(num, 1);
-        rowsToArray.splice(num, 1);
+        arrForSort.splice(order, 1);
+        rowsToArray.splice(order, 1);
     }
     $("#table-body > tr").remove();
     $("#table-body").append(resultRows);
