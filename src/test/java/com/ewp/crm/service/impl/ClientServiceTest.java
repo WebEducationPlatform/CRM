@@ -27,58 +27,58 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Transactional
 public class ClientServiceTest {
 
-    @Autowired
-    private ClientService clientService;
+	@Autowired
+	private ClientService clientService;
 
-    //проверяет, равен ли созданный клиент клиенту, добавленному в базу методом add() клиентсервиса
-    @Test
-    public void testAdd() {
-        String expectedName = "Test_clientService_add";
-        Client expectedClient = new Client.Builder(expectedName).build();
-        Client actualClient = clientService.add(expectedClient);
-        assertEquals(expectedClient, actualClient);
-    }
+	//проверяет, равен ли созданный клиент клиенту, добавленному в базу методом add() клиентсервиса
+	@Test
+	public void testAdd() {
+		String expectedName = "Test_clientService_add";
+		Client expectedClient = new Client.Builder(expectedName).build();
+		Client actualClient = clientService.add(expectedClient);
+		assertEquals(expectedClient, actualClient);
+	}
 
-    //проверяет, равен ли созданный клиент клиенту, прочитанному из базы методом getClientByID() клиентсервиса
-    @Test
-    public void testGet() {
-        String expectedName = "Test_clientService_get";
-        Client expectedClient = new Client.Builder(expectedName).build();
-        clientService.add(expectedClient);
-        Long id = expectedClient.getId();
-        //проверяет, добавлен ли клиент в базу данных (id != null) перед чтением из базы
-        assertNotNull(id);
-        Client actualClient = clientService.getClientByID(id).isPresent() ? clientService.getClientByID(id).get() : null;
-        assertEquals(expectedClient, actualClient);
-    }
+	//проверяет, равен ли созданный клиент клиенту, прочитанному из базы методом getClientByID() клиентсервиса
+	@Test
+	public void testGet() {
+		String expectedName = "Test_clientService_get";
+		Client expectedClient = new Client.Builder(expectedName).build();
+		clientService.add(expectedClient);
+		Long id = expectedClient.getId();
+		//проверяет, добавлен ли клиент в базу данных (id != null) перед чтением из базы
+		assertNotNull(id);
+		Client actualClient = clientService.getClientByID(id).isPresent() ? clientService.getClientByID(id).get() : null;
+		assertEquals(expectedClient, actualClient);
+	}
 
-    //проверяет, равен ли измененный клиент клиенту, прочитанному из базы после работы метода updateClient() клиентсервиса
-    @Test
-    public void testUpdate() {
-        String oldName = "Test_clientService_update";
-        Client expectedClient = new Client.Builder(oldName).build();
-        clientService.add(expectedClient);
-        String expectedName = "Test_clientService_updated";
-        expectedClient.setName(expectedName);
-        Long id = expectedClient.getId();
-        //проверяет, добавлен ли клиент в базу данных (id != null) перед обновлением
-        assertNotNull(id);
-        clientService.updateClient(expectedClient);
-        Client actualClient = clientService.get(id);
-        assertEquals(expectedClient, actualClient);
-    }
+	//проверяет, равен ли измененный клиент клиенту, прочитанному из базы после работы метода updateClient() клиентсервиса
+	@Test
+	public void testUpdate() {
+		String oldName = "Test_clientService_update";
+		Client expectedClient = new Client.Builder(oldName).build();
+		clientService.add(expectedClient);
+		String expectedName = "Test_clientService_updated";
+		expectedClient.setName(expectedName);
+		Long id = expectedClient.getId();
+		//проверяет, добавлен ли клиент в базу данных (id != null) перед обновлением
+		assertNotNull(id);
+		clientService.updateClient(expectedClient);
+		Client actualClient = clientService.get(id);
+		assertEquals(expectedClient, actualClient);
+	}
 
-    //проверяет, равен ли удаленный клиент null после работы метода delete() клиентсервиса
-    @Test
-    public void testDelete() {
-        Client client = new Client.Builder("Test_clientService_delete").build();
-        clientService.add(client);
-        Long id = client.getId();
-        //проверяет, добавлен ли клиент в базу данных (id != null) перед удалением
-        assertNotNull(id);
-        clientService.delete(id);
-        Client deleted = clientService.get(id);
-        assertNull(deleted);
-    }
+	//проверяет, равен ли удаленный клиент null после работы метода delete() клиентсервиса
+	@Test
+	public void testDelete() {
+		Client client = new Client.Builder("Test_clientService_delete").build();
+		clientService.add(client);
+		Long id = client.getId();
+		//проверяет, добавлен ли клиент в базу данных (id != null) перед удалением
+		assertNotNull(id);
+		clientService.delete(id);
+		Client deleted = clientService.get(id);
+		assertNull(deleted);
+	}
 
 }
