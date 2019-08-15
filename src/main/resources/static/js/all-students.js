@@ -160,66 +160,75 @@ function noteAndSort(button, n, type) {
     } );}, 10);
 }
 
-function sort_table(button, n, type) {
-    var table, rows, switching, i, x, y, x_val, y_val, temp_x, temp_y, shouldSwitch, dir, switchcount = 0;
-    table = document.getElementById("students-table");
-    switching = true;
-    dir = "asc";
-    while (switching) {
-        switching = false;
-        rows = table.rows;
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
-            if (type == "notes" || type == "email") {
-                x_val = x.innerText.toLowerCase();
-                y_val = y.innerText.toLowerCase();
-            } else if (type == "date") {
-                temp_x = x.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
-                temp_y = y.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
-                x_val = new Date(temp_x[2], temp_x[1] - 1, temp_x[0]);
-                y_val = new Date(temp_y[2], temp_y[1] - 1, temp_y[0]);
-            } else if (type == "status") {
-                x_val = x.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase();
-                y_val = y.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase();
+var dir = "asc";
+
+function merge_sort(array, dir) {
+
+    function merge(left, right) {
+        var result = [];
+        var il = 0;
+        var ir = 0;
+        while (il < left.length && ir < right.length){
+            if (left[il] < right[ir] && dir === "asc"){
+                result.push(left[il++]);
+            } else if (left[il] > right[ir] && dir === "desc") {
+                result.push(left[il++]);
             } else {
-                x_val = isNaN(parseInt(x.innerHTML)) ? x.innerHTML.toLowerCase() : parseInt(x.innerHTML);
-                y_val = isNaN(parseInt(y.innerHTML)) ? y.innerHTML.toLowerCase() : parseInt(y.innerHTML);
-            }
-            if (dir == "asc") {
-                if (x_val > y_val) {
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (dir == "desc") {
-                if (x_val < y_val) {
-                    shouldSwitch = true;
-                    break;
-                }
+                result.push(right[ir++]);
             }
         }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            switchcount ++;
-        } else {
-            if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-            }
-        }
+        return result.concat(left.slice(il)).concat(right.slice(ir));
     }
-    /*Conditions to change arrows directions*/
-    if (dir == "asc") {
-        if($(button).find('i').hasClass('fa-sort')) {
-            $(button).find('i').toggleClass('fa-sort fa-sort-up');
-        } else {
-            $(button).find('i').toggleClass('fa-sort-down fa-sort-up');
+
+    function merge_sort(items) {
+        if (items.length < 2){
+            return items;
         }
-    } else if (dir == "desc"){
-        $(button).find('i').toggleClass('fa-sort-up fa-sort-down');
+        var middle = Math.floor(items.length / 2);
+        var left = items.slice(0, middle);
+        var right = items.slice(middle);
+        return merge(merge_sort(left), merge_sort(right));
     }
+    return merge_sort(array);
+}
+
+function getValueRow(tagTd, type) {
+    if (type === "notes" || type === "email") {
+        var valueRow = tagTd.innerText.toLowerCase();
+    } else if (type === "date") {
+        var tagSpanOfTd = tagTd.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
+        valueRow = new Date(tagSpanOfTd[2], tagSpanOfTd[1] - 1, tagSpanOfTd[0]);
+    } else if (type === "status") {
+        valueRow = tagTd.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase();
+    } else {
+        valueRow = isNaN(parseInt(tagTd.innerHTML)) ? tagTd.innerHTML.toLowerCase() : parseInt(tagTd.innerHTML);
+    }
+    return valueRow;
+}
+
+function sort_table(button, n, type) {
+    var rowsFromTableBody = document.getElementById("table-body").rows;
+    var arrForSort = [];
+    for (var i = 0; i < rowsFromTableBody.length; i++) {
+        var tagTd = rowsFromTableBody[i].getElementsByTagName("TD")[n];
+        arrForSort.push(getValueRow(tagTd, type));
+    }
+    var sortedRows =  merge_sort(arrForSort, dir);
+    if (dir === "asc") {
+        dir = "desc";
+    } else {
+        dir = "asc";
+    }
+    var rowsToArray = [].slice.call(rowsFromTableBody);
+    var resultRows = [];
+    for (i = 0; i < sortedRows.length; i++) {
+        var order = $.inArray(sortedRows[i], arrForSort);
+        resultRows.push(rowsToArray[order]);
+        arrForSort.splice(num, 1);
+        rowsToArray.splice(num, 1);
+    }
+    $("#table-body > tr").remove();
+    $("#table-body").append(resultRows);
 }
 
 var clickedStatus = [];
