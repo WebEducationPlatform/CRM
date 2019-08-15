@@ -86,6 +86,7 @@ public class MentorsController {
         modelAndView.addObject("studentsDto", studentsDto);
         modelAndView.addObject("mentorsFromBotJson", Objects.requireNonNull(mentorsFromBotJson));
         modelAndView.addObject("slackBotDomain", slackBotDomain);
+        modelAndView.addObject("slackBotAccessProtocol", slackBotAccessProtocol);
         modelAndView.addObject("maxStudents", maxStudents);
         modelAndView.addObject("mentors", mentorDtos);
         modelAndView.addObject("studentStatuses", studentStatus.getAll());
