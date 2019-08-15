@@ -7,3 +7,12 @@ $(document).ready(function () {
     });
   });
 });
+
+
+$('#routes-modal-window').on('shown.bs.modal', function () {
+  alert($("#clientroutes-list-type").val());
+})
+
+function setUserRoutesTypes(){
+  alert($(this).text());
+}
