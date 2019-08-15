@@ -9,6 +9,42 @@
   </head>
 
   <body>
+  <!--modalwindow-->
+  <div id="routes-modal-window" class="modal fade main-modal" role="dialog" data-keyboard="false">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>% Распределения заявок по мэнеджерам</h1>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <table class="table table-hover table-fixed" id="routes-table">
+                <thead id="thead-table-routes">
+                <tr class="head-table">
+                  <th>#</th>
+                  <th>Имя</th>
+                  <th>Фамилия</th>
+                  <th>% распределения заявок </th>
+                </tr>
+                </thead>
+
+                <tbody id="routes-table-body">
+                <tr th:each="manager : ${hrManagers}">
+                  <td th:text="${manager.id}"></td>
+                  <td th:text="${manager.firstName}"></td>
+                  <td th:text="${manager.lastName}"></td>
+                  <td th:text="${manager.phoneNumber}"></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End modal-->
     <div style="margin: 2%">
       <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
@@ -22,6 +58,13 @@
           <div class="col-md-4"><input class="form-control clearable" id="searchInput"
                                        placeholder="Поиск координатора ..." />
           </div>
+          <div class="col-md-4"> <button  type="button" class="btn btn-primary "
+                                          sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
+                                          data-toggle="modal" data-target="#routes-modal-window">
+            Установить % распределения заявок
+          </button>
+          </div>
+
         </div>
 
         <table class="table table-hover table-fixed" id="clients-table">
@@ -39,6 +82,7 @@
               <th>Звонков всего</th>
               <th>Звонков в день</th>
               <th>Среднее количество минут до первых звонков</th>
+              <th>% распределения заявок </th>
             </tr>
           </thead>
 
