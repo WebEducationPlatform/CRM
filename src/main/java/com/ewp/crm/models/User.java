@@ -180,7 +180,6 @@ public class User implements UserDetails {
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private Set<UserRoutes> userRoutes = new HashSet<>();
 
