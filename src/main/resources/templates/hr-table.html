@@ -35,7 +35,6 @@
                   <th>% распределения заявок </th>
                 </tr>
                 </thead>
-
                 <tbody id="routes-table-body">
                 <tr th:each="manager : ${hrManagers}">
                   <td th:text="${manager.id}"></td>
@@ -65,7 +64,7 @@
           <div class="col-md-4"><input class="form-control clearable" id="searchInput"
                                        placeholder="Поиск координатора ..." />
           </div>
-          <div class="col-md-4"> <button  type="button" class="btn btn-primary "
+          <div class="col-md-4"><button type="button" class="btn btn-primary "
                                           sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
                                           data-toggle="modal" data-target="#routes-modal-window">
             Установить % распределения заявок
@@ -89,7 +88,6 @@
               <th>Звонков всего</th>
               <th>Звонков в день</th>
               <th>Среднее количество минут до первых звонков</th>
-              <th>% распределения заявок </th>
             </tr>
           </thead>
 
