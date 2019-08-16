@@ -1,19 +1,10 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.dto.ClientDto;
-import com.ewp.crm.models.dto.ClientDtoForBoard;
 import com.ewp.crm.models.dto.HrDtoForBoard;
 import com.ewp.crm.service.interfaces.*;
-import com.google.gson.Gson;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -24,10 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
-import sun.net.www.http.HttpClient;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,14 +69,16 @@ public class HrController {
 			});
 			ResponseEntity<String[]> lostStudentsEmails = new RestTemplate().getForEntity(url.toString(), String[].class);
 			List<String> lostStudentsEmailsList = Arrays.asList(Objects.requireNonNull(lostStudentsEmails.getBody()));
-			List<ClientDto.ClientTransformer> clientList = clientService.getClientsDtoByEmails(lostStudentsEmailsList);
-			List<ClientDto> clients = new ArrayList<>();
-			clientList.forEach(clientTransformer ->
-					clients.add(new ClientDto(
-							clientTransformer.getClient_id(), clientTransformer.getFirst_name(), clientTransformer.getLast_name(),
-							"", clientTransformer.getClient_email())));
-			//lostStudentsEmailsList.forEach(email -> clientList.add(emailClientHashMap.get(email)));
-			lostStudentsInStatus.put(status.getName(), clients);
+			if (!lostStudentsEmailsList.isEmpty()) {
+				List<ClientDto.ClientTransformer> clientList = clientService.getClientsDtoByEmails(lostStudentsEmailsList);
+				List<ClientDto> clients = new ArrayList<>();
+				clientList.forEach(clientTransformer ->
+						clients.add(new ClientDto(
+								clientTransformer.getClient_id(), clientTransformer.getFirst_name(), clientTransformer.getLast_name(),
+								"", clientTransformer.getClient_email())));
+				//lostStudentsEmailsList.forEach(email -> clientList.add(emailClientHashMap.get(email)));
+				lostStudentsInStatus.put(status.getName(), clients);
+			}
 		});
 		ModelAndView modelAndView = new ModelAndView("main-client-table-hr");
 		SocialProfile socialProfile = new SocialProfile();
