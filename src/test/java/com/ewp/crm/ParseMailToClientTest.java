@@ -17,7 +17,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"WeakerAccess", "OptionalGetWithoutIsPresent"})
 @ExtendWith(SpringExtension.class)
@@ -52,8 +52,7 @@ public class ParseMailToClientTest {
             javaMailSender.send(message);
             await().atMost(30, TimeUnit.SECONDS).until(() -> clientService.getClientByEmail(expectedClientEmail).isPresent());
             Client actualClient = clientService.getClientByEmail(expectedClientEmail).get();
-            String actualClientEmail = actualClient.getEmail().get();
-            assertEquals(expectedClientEmail, actualClientEmail);
+            assertNotNull(actualClient);
             clientService.delete(actualClient);
         } catch (MessagingException e) {
             e.printStackTrace();
