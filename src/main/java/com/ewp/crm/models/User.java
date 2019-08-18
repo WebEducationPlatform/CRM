@@ -8,20 +8,7 @@ import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -180,7 +167,8 @@ public class User implements UserDetails {
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user",cascade = CascadeType.ALL)
+    @MapKey(name = "id")
     private Set<UserRoutes> userRoutes = new HashSet<>();
 
     public User() {
@@ -505,11 +493,11 @@ public class User implements UserDetails {
         this.callRecords = callRecords;
     }
 
-    public Set<UserRoutes> getUserRoutes() {
+    public Set<UserRoutes>  getUserRoutes() {
         return userRoutes;
     }
 
-    public void setUserRoutes(Set<UserRoutes> userRoutes) {
+    public void setUserRoutes(Set<UserRoutes>  userRoutes) {
         this.userRoutes = userRoutes;
     }
 }

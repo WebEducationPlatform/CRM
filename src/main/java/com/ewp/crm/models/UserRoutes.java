@@ -3,6 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "user_routes")
@@ -13,8 +14,8 @@ public class UserRoutes {
     @Column(name = "user_routes_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
 
@@ -33,8 +34,8 @@ public class UserRoutes {
     public UserRoutes() {
     }
 
-    public UserRoutes(UserRoutes userRoutes, User user, Integer weight, UserRouteType userRouteType) {
-        this.user = user;
+    public UserRoutes(Integer weight, UserRouteType userRouteType) {
+
         this.weight = weight;
         this.userRouteType = userRouteType;
     }
@@ -69,6 +70,20 @@ public class UserRoutes {
 
     public void setUserRouteType(UserRouteType userRouteType) {
         this.userRouteType = userRouteType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserRoutes that = (UserRoutes) o;
+        return Objects.equals(user, that.user) &&
+                userRouteType == that.userRouteType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user,  userRouteType);
     }
 
 }

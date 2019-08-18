@@ -44,6 +44,18 @@
                 </tr>
                 </tbody>
               </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary pull-right "
+                        sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" onclick='saveUserRoutes()'>
+                  Сохранить изменения
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            <div class="row justify-content-end">
+
+
             </div>
           </div>
         </div>
