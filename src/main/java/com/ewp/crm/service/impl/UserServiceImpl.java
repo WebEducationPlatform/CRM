@@ -5,7 +5,9 @@ import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
+import com.ewp.crm.models.dto.UserRoutesDto;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
@@ -28,9 +30,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl extends CommonServiceImpl<User> implements UserService {
@@ -183,5 +183,26 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     @Override
     public List<MentorDtoForMentorsPage> getAllMentors() {
         return userDAO.getAllMentors();
+    }
+
+    @Override
+    public void updateClientRoutes(List<UserRoutesDto> userRoutesDtoListist) {
+      for (UserRoutesDto routesDto: userRoutesDtoListist) {
+                User hrUser =  get(routesDto.getUser_id());
+                Set<UserRoutes> userRoutes = hrUser.getUserRoutes() != null ? hrUser.getUserRoutes(): new HashSet<>();
+                UserRoutes uRoutes = UserRoutesDto.getUserRoutesFromDto(routesDto);
+                uRoutes.setUser(hrUser);
+                if (userRoutes.contains(uRoutes)){
+                    for (UserRoutes rout: userRoutes ) {
+                        if (rout.equals(uRoutes)){
+                            rout.setWeight(uRoutes.getWeight());
+                        }
+                    }
+                } else {
+                    userRoutes.add(uRoutes);
+                }
+                hrUser.setUserRoutes(userRoutes);
+                update(hrUser);
+            }
     }
 }
