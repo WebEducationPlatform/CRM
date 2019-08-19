@@ -154,28 +154,43 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     }
 
     @Override
-    @Transactional
     public Optional<User> getUserToOwnCard() {
+        return getUserToOwnCard(null) ;
+    }
+
+    @Override
+    @Transactional
+    public Optional<User> getUserToOwnCard(UserRoutes.UserRouteType routetype) {
         User userToOwnClient = null;
-        long roleId = roleService.getRoleByName("HR").getId();
-        try {
-            String query =
-                    "SELECT u.*, p.*, 1 AS clazz_, FALSE AS mentor_show_only_my_clients " +
-                            "   FROM  user u " +
-                            "       LEFT JOIN permissions p ON u.user_id = p.user_id " +
-                            "   WHERE " +
-                            "       u.user_id = p.user_id AND " +
-                            "       p.role_id = :roleId " +
-                            "   ORDER BY u.last_client_date " +
-                            "   LIMIT 1;";
+        if (routetype == null) {
+            long roleId = roleService.getRoleByName("HR").getId();
+            try {
+                String query =
+                        "SELECT u.*, p.*, 1 AS clazz_, FALSE AS mentor_show_only_my_clients " +
+                                "   FROM  user u " +
+                                "       LEFT JOIN permissions p ON u.user_id = p.user_id " +
+                                "   WHERE " +
+                                "       u.user_id = p.user_id AND " +
+                                "       p.role_id = :roleId " +
+                                "   ORDER BY u.last_client_date " +
+                                "   LIMIT 1;";
                 userToOwnClient = (User) entityManager.createNativeQuery(query, User.class)
                         .setParameter("roleId", roleId)
                         .getSingleResult();
                 logger.info("Coordinator for new client card to own found: " + userToOwnClient.getFullName());
                 userToOwnClient.setLastClientDate(Instant.now());
                 update(userToOwnClient);
-        } catch (Exception e) {
-            logger.error("Can't find coordinator for new client card to own roleId = {}", roleId, e);
+            } catch (Exception e) {
+                logger.error("Can't find coordinator for new client card to own roleId = {}", roleId, e);
+            }
+
+        } else {
+            if (routetype.equals(UserRoutes.UserRouteType.FROM_JM_EMAIL)){
+                List<UserRoutesDto> userRoutes = userDAO.getUserByRoleAndUserRoutesType("HR", UserRoutes.UserRouteType.FROM_JM_EMAIL);
+                userDAO.getOne(getUserIdByPercentChance(userRoutes));
+                userToOwnClient.setLastClientDate(Instant.now());
+                update(userToOwnClient);
+            }
         }
         return Optional.ofNullable(userToOwnClient);
     }
@@ -204,5 +219,27 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 hrUser.setUserRoutes(userRoutes);
                 update(hrUser);
             }
+    }
+
+    private Long getUserIdByPercentChance(List<UserRoutesDto> userRoutesList){
+        Long[] userIds = new Long[100];
+        int currentId = 0;
+        int currSumm = 0;
+        Collections.sort(userRoutesList,new Comparator<UserRoutesDto>() {
+            public int compare(UserRoutesDto o1, UserRoutesDto o2) {
+                return (o1.getWeight() < o2.getWeight()) ? -1 : 1;
+            }
+        });
+        for (int i = 0; i < userIds.length; i++) {
+            if (userRoutesList.get(currentId).getWeight() < (currSumm + i)) {
+                userIds[i] = userRoutesList.get(currentId).getUser_id();
+            }
+            else{
+                currSumm += userRoutesList.get(currentId).getWeight();
+                currentId++;
+                userIds[i] = userRoutesList.get(currentId).getUser_id();
+            }
+        }
+        return userIds[(int) (Math.random() * 100)];
     }
 }

@@ -168,7 +168,6 @@ public class User implements UserDetails {
     private Instant lastClientDate;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user",cascade = CascadeType.ALL)
-    @MapKey(name = "id")
     private Set<UserRoutes> userRoutes = new HashSet<>();
 
     public User() {

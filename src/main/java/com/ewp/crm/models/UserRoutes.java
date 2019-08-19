@@ -28,7 +28,9 @@ public class UserRoutes {
 
     public enum UserRouteType {
         FROM_JM_EMAIL,     // канал с которого
-        FROM_VK         //поступают заявки
+        FROM_VK,         //поступают заявки
+        FROM_WHATSAPP,
+        FROM_TELEGRAM
     }
 
     public UserRoutes() {
