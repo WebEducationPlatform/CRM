@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.models.dto.UserRoutesDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,8 @@ public interface UserService extends CommonService<User> {
 	void setColorBackground(String color, User user);
 
 	List<User> getUserByVkToken(long id);
+
+	Optional<User> getUserToOwnCard(UserRoutes.UserRouteType routetype);
 
 	Optional<User> getUserToOwnCard();
 
