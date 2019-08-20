@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface UserDAO extends CommonGenericRepository<User> {
+public interface UserDAO extends CommonGenericRepository<User>, UserDAOCustom {
 
 	User getUserByEmailOrPhoneNumber(String email, String phoneNumber);
 

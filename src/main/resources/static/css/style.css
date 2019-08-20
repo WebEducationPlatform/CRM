@@ -112,7 +112,11 @@ body {
     max-width: 240px;
 	margin: 5px;
 	float: left;
-	padding-bottom: 100px;
+}
+
+/*Отступ снизу нужен для работы перетаскивания карточек в пустой статус*/
+.clients-cards {
+    padding-bottom: 100px;
 }
 
 .portlet {
@@ -373,7 +377,7 @@ ul.nav a:hover {
 	margin-top: 10px;
 }
 
-#delete-status-icon, #hide-status-icon{
+.delete-status-icon, #hide-status-icon{
 	cursor: pointer;
 }
 
@@ -813,6 +817,10 @@ button.upload-more-history {
     margin-top: -1px;
 }
 
+.dropdown-header {
+	text-align: center;
+}
+
 .notification-dropdown {
 	max-height: 100px;
 	overflow-y: auto;
@@ -1004,4 +1012,18 @@ textarea[class*="feedback-video-url"] {
 #divToFiltration {
     text-align: center;
     display: none;
+}
+
+.editUserButtons a:active {
+	text-decoration: none;
+	color: black;
+}
+
+.editUserButtons a:hover {
+	text-decoration: none;
+	color: black;
+}
+
+#table-hidden-statuses tr td {
+	vertical-align: middle;
 }

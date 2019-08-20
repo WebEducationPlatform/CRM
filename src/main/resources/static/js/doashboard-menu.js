@@ -140,6 +140,12 @@ $(document).ready(function () {
                 }, 200, function () {
                     $(this).addClass('visible');
                 });
+                fillFilterList();
+                if (userLoggedIn.authorities.some(arrayEl => (arrayEl.authority === 'OWNER') || (arrayEl.authority === 'ADMIN') || (arrayEl.authority === 'HR'))) {
+                    drawHiddenStatusesTable();
+                    drawVerifiedUsersTable();
+                    drawNewUsersTable();
+                }
             };
             var hidePanel = function () {
                 $panel.animate({
