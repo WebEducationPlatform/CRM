@@ -11,6 +11,7 @@ import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.models.dto.UserRoutesDto;
+import com.ewp.crm.models.dto.UserDtoForBoard;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
@@ -280,5 +281,14 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             ));
         }
         return result;
+    }
+  
+    public Optional<List<UserDtoForBoard>> getAllMentorsForDto() {
+        return Optional.ofNullable(userDAO.getAllMentorsForDto());
+    }
+
+    @Override
+    public Optional<List<UserDtoForBoard>> getAllWithoutMentorsForDto() {
+        return Optional.ofNullable(userDAO.getAllWithoutMentorsForDto());
     }
 }

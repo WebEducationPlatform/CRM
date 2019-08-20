@@ -15,10 +15,19 @@
 </head>
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-<div id="status-columns" class="status-columns"></div>
+<div id="empty-container" class="container-fluid" style="height: 110px;"></div>
+<div id="page-container" class="container-fluid">
+    <div id="main-row" class="row center-block" style="display: flex; justify-content: center; flex-flow:row wrap;">
+    </div>
+</div>
 
 <input hidden="true" id="slackBotDomain" th:value="${slackBotDomain}"/>
-
+<input hidden="true" id="slackBotAccessProtocol" th:value="${slackBotAccessProtocol}"/>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var statuses = /*[[${statuses}]]*/ 'default';
+    /*]]>*/
+</script>
 <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
