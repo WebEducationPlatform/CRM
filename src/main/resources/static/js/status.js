@@ -1,22 +1,5 @@
-var deleteId;
-
-$('.delete-client').on('click', function (event) {
-    deleteId = $(this).data('clientid');
-    let formData = {clientId: deleteId};
-    $.ajax({
-        type: 'GET',
-        url: 'rest/client/' + deleteId,
-        data: formData,
-        success: function (client) {
-            deleteClientStatus();
-        }
-    });
-
-});
-
-
-// удаление карточки  и уведомлений
-function deleteClientStatus() {
+// удаление карточки и уведомлений (в статус deleted)
+function deleteClientStatus(deleteId) {
     let url = "/rest/status/client/delete";
     let requestParam = {
         clientId: deleteId
@@ -72,28 +55,22 @@ $(document).on("show.bs.dropdown", ".statuses-by-dropdown", function () {
 });
 
 //скрытие карточки в скрытый статус
-var invisibleId;
-var statusId;
-$('.invisible-client').on('click', function (event) {
-    invisibleId = $(this).data('clientid');
-    statusId = $(this).data('statusid');
-    let formData = {clientId: invisibleId};
+function invisibleClient(clientId, statusId) {
+    let formData = {clientId: clientId};
     $.ajax({
         type: 'GET',
-        url: 'rest/client/' + invisibleId,
+        url: 'rest/client/' + clientId,
         data: formData,
         success: function () {
-            invisible();
+            invisible(clientId, statusId);
         }
     });
-});
+}
 
-function invisible() {
-    let a = $(this),
-        url = '/rest/status/client/change',
-        clientid = invisibleId,
+function invisible(clientId, statusId) {
+    let url = '/rest/status/client/change',
         formData = {
-            clientId: invisibleId,
+            clientId: clientId,
             statusId: statusId
         };
     $.ajax({
@@ -101,8 +78,7 @@ function invisible() {
         url: url,
         data: formData,
         success: function () {
-            console.log(clientid);
-            $('.portlet[value="' + clientid + '"]').remove();
+            $('.portlet[value="' + clientId + '"]').remove();
         },
         error: function () {
             alert('Не задан статус по-умолчанию для нового студента!');
@@ -150,10 +126,12 @@ function deleteStatus() {
         url: url,
         data: formData,
         success: function (result) {
-            location.reload();
+            $('#status-column' + deleteStatusId).remove();
+            $('#deleteStatusModal').modal('hide');
+            //location.reload();
         },
         error: function (e) {
-
+            console.log(e);
         }
     });
 }
@@ -199,7 +177,8 @@ function hideStatus() {
         url: url,
         data: formData,
         success: function () {
-            location.reload();
+            $('#status-column' + statusHideId).remove();
+            //location.reload();
         },
         error: function (error) {
             console.log(error);
@@ -208,7 +187,7 @@ function hideStatus() {
 }
 
 $(document).ready(function () {
-    $(".show-status-btn").on("click", function showStatus() {
+    $("#table-hidden-statuses").on("click", ".show-status-btn", function showStatus() {
         let
             url = '/admin/rest/status/visible/change',
             formData = {
@@ -228,6 +207,7 @@ $(document).ready(function () {
             }
         })
     });
+
     // обработчик кнопок для возврата клиента из отложки
     //  в all-clients-table
     $(document).on('click', '.from-postpone', function returnClientFromPostpone() {
@@ -243,6 +223,7 @@ $(document).ready(function () {
             }
         })
     });
+
     // обработчик кнопок для возврата клиента из скрытых статусов
     // кнопки в all-clients-table
     $(document).on("click", '.return-to-visible-status', function returnClientToStatus() {
@@ -281,12 +262,14 @@ $(".create_student_checkbox").click(function () {
 });
 
 function showAllStatuses(){
+    let element = $('#all-statuses-positions-table tbody');
     $.ajax({
         type: 'GET',
         url: "/rest/status/all/dto-position-id",
         success: function (dtoes) {
+            element.empty();
             for (let i = 0; i <dtoes.length ; i++) {
-                $('#all-statuses-positions-table tbody').append("<tr>" +
+                element.append("<tr>" +
                     "<td hidden>" + dtoes[i].id + "</td>" +
                     "<td hidden>" + dtoes[i].position + "</td>" +
                     "<td>" +dtoes[i].statusName +"</td>" +
