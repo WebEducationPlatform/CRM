@@ -195,7 +195,8 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         } else {
             if (routetype == UserRoutes.UserRouteType.FROM_JM_EMAIL){
                 List<UserRoutesDto> userRoutes = getUserByRoleAndUserRoutesType("HR", UserRoutes.UserRouteType.FROM_JM_EMAIL.name());
-                userDAO.getOne(getUserIdByPercentChance(userRoutes));
+                Long userId = getUserIdByPercentChance(userRoutes);
+                userToOwnClient = userDAO.getUserById(userId);
                 userToOwnClient.setLastClientDate(Instant.now());
                 update(userToOwnClient);
             }
@@ -239,16 +240,18 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             }
         });
         for (int i = 0; i < userIds.length; i++) {
-            if (userRoutesList.get(currentId).getWeight() < (currSumm + i)) {
+            if (userRoutesList.get(currentId).getWeight() > (currSumm + i)) {
                 userIds[i] = userRoutesList.get(currentId).getUser_id();
             }
             else{
                 currSumm += userRoutesList.get(currentId).getWeight();
-                currentId++;
+                if (currentId < userRoutesList.size()-1 ) {
+                    currentId++;
+                }
                 userIds[i] = userRoutesList.get(currentId).getUser_id();
             }
         }
-        return userIds[(int) (Math.random() * 100)];
+        return userIds[(int) (Math.random() * 99)];
     }
 
     private List<UserRoutesDto>  getUserByRoleAndUserRoutesType(String userRole, String userRouteType){

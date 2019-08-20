@@ -21,6 +21,7 @@ function setUserRoutesTypes() {
     dataType: "JSON",
     url: '/rest/hr/getuserroutesbytype/' + routeType,
     success: function (hrList, textStatus, XMLHttpRequest) {
+      $(".alert").alert ('close');
       gHrList = hrList;
       console.log(textStatus);
       if (hrList.length > 0) {
@@ -55,11 +56,12 @@ function setUserRoutesTypes() {
 }
 
 function saveUserRoutes() {
+  $(".alert").alert ('close');
   let hr_routes = [];
   let routeType = $("#clientroutes-list-type").val();
 
-  if ( checkSummPercents( $("input[id^='hr-']")) > 100 ){
-    alert ("Сумма всех полей больше 100");
+  if ( checkSummPercents( $("input[id^='hr-']")) != 100 ){
+    $('<div class="alert alert-warning" role="alert">Сумма всех полей должна == 100 </div>').prependTo($(".modal-footer"));
     return;
   }
   $("#routes-table-body  :input").each(function (indx, element) {
@@ -79,8 +81,7 @@ function saveUserRoutes() {
     dataType: 'JSON',
     data: json,
     success: function () {
-      alert("Сохранено");
-      // $("#routes-modal-window").modal('hide');
+      $('<div class="alert alert-success" role="alert">Данные сохранены</div>').prependTo($(".modal-footer"));
     },
     error: function (jqxhr, status, errorMsg) {
       alert("При выполнении запроса произошла ошибка\n" +
