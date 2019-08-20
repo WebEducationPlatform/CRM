@@ -43,14 +43,40 @@ public class UserRoutesDto {
     public UserRoutesDto() {
     }
 
+    public UserRoutesDto( Long user_id, Integer weight) {
+        this.user_id = user_id;
+        this.weight = weight;
+    }
+
     public UserRoutesDto(Long user_id, Integer weight, UserRoutes.UserRouteType userRouteType) {
         this.user_id = user_id;
         this.weight = weight;
         this.userRouteType = userRouteType;
     }
 
-    public static UserRoutes getUserRoutesFromDto(UserRoutesDto userRoutesDto){
-        return  new UserRoutes(userRoutesDto.getWeight(),userRoutesDto.getUserRouteType());
+    public UserRoutesDto(Long user_id, Integer weight, String userRouteType) {
+        UserRoutes.UserRouteType type = null;
+        switch (userRouteType){
+            case "FROM_JM_EMAIL":
+                type = UserRoutes.UserRouteType.FROM_JM_EMAIL;
+                break;
+            case "FROM_VK":
+                type = UserRoutes.UserRouteType.FROM_VK;
+                break;
+            case "FROM_WHATSAPP":
+                type = UserRoutes.UserRouteType.FROM_WHATSAPP;
+                break;
+            case "FROM_TELEGRAM":
+                type = UserRoutes.UserRouteType.FROM_TELEGRAM;
+                break;
+        }
+
+        this.user_id = user_id;
+        this.weight = weight;
+        this.userRouteType = type;
     }
 
+    public static UserRoutes getUserRoutesFromDto(UserRoutesDto userRoutesDto) {
+        return new UserRoutes(userRoutesDto.getWeight(), userRoutesDto.getUserRouteType());
+    }
 }

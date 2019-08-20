@@ -1,11 +1,14 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.controllers.rest.IPTelephonyRestController;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.UserRoutes;
+import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.models.dto.UserRoutesDto;
 import com.ewp.crm.repository.interfaces.UserDAO;
@@ -26,10 +29,15 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.Tuple;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -185,8 +193,8 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             }
 
         } else {
-            if (routetype.equals(UserRoutes.UserRouteType.FROM_JM_EMAIL)){
-                List<UserRoutesDto> userRoutes = userDAO.getUserByRoleAndUserRoutesType("HR", UserRoutes.UserRouteType.FROM_JM_EMAIL);
+            if (routetype == UserRoutes.UserRouteType.FROM_JM_EMAIL){
+                List<UserRoutesDto> userRoutes = getUserByRoleAndUserRoutesType("HR", UserRoutes.UserRouteType.FROM_JM_EMAIL.name());
                 userDAO.getOne(getUserIdByPercentChance(userRoutes));
                 userToOwnClient.setLastClientDate(Instant.now());
                 update(userToOwnClient);
@@ -241,5 +249,33 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             }
         }
         return userIds[(int) (Math.random() * 100)];
+    }
+
+    private List<UserRoutesDto>  getUserByRoleAndUserRoutesType(String userRole, String userRouteType){
+        List<UserRoutesDto> result = new ArrayList<>();
+
+        String sqlQuery =
+                " SELECT " +
+					" ur.user_routes_id as id, u.user_id as user_id, ur.weight as weight, ur.user_route_type as userRouteType" +
+					" FROM  user_routes ur" +
+					" LEFT JOIN user u  on ur.user_id = u.user_id" +
+					" LEFT JOIN permissions p on p.user_id= u.user_id" +
+					" JOIN role r on  r.id = p.role_id" +
+					" WHERE r.role_name = :role" +
+					" AND ur.user_route_type = :routetype";
+
+        List<Tuple> tuples = entityManager.createNativeQuery(sqlQuery, Tuple.class)
+                .setParameter("role", userRole)
+                .setParameter("routetype", userRouteType)
+                .getResultList();
+
+        for (Tuple tuple :tuples) {
+            result.add(new UserRoutesDto(
+                    ((BigInteger) tuple.get("user_id")).longValue(),
+                    (Integer) tuple.get("weight"),
+                    (String) tuple.get("userRouteType")
+            ));
+        }
+        return result;
     }
 }
