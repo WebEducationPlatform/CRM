@@ -13,7 +13,7 @@ import javax.persistence.ConstructorResult;
 import javax.persistence.SqlResultSetMapping;
 import java.util.List;
 
-public interface UserDAO extends CommonGenericRepository<User> {
+public interface UserDAO extends CommonGenericRepository<User>, UserDAOCustom {
 
 	User getUserByEmailOrPhoneNumber(String email, String phoneNumber);
 

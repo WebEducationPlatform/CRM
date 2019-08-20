@@ -6,6 +6,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.models.dto.UserRoutesDto;
+import com.ewp.crm.models.dto.UserDtoForBoard;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -39,5 +40,10 @@ public interface UserService extends CommonService<User> {
 
 	List<MentorDtoForMentorsPage> getAllMentors();
 
-     void updateClientRoutes(List<UserRoutesDto> userRoutesDtoListist) ;
+  void updateClientRoutes(List<UserRoutesDto> userRoutesDtoListist) ;
+
+	Optional<List<UserDtoForBoard>> getAllMentorsForDto();
+
+	Optional<List<UserDtoForBoard>> getAllWithoutMentorsForDto();
+
 }

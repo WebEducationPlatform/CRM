@@ -3,13 +3,8 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.models.dto.StatusDtoForBoard;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +27,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.ewp.crm.util.Constants.*;
 
 @RestController
 @RequestMapping("/rest/status")
@@ -46,12 +44,14 @@ public class StatusRestController {
     private final StudentService studentService;
     private final StudentStatusService studentStatusService;
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
+    private final RoleService roleService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
                                 ClientHistoryService clientHistoryService, NotificationService notificationService,
                                 StudentService studentService, StudentStatusService studentStatusService,
-                                ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
+                                ClientStatusChangingHistoryService clientStatusChangingHistoryService,
+                                RoleService roleService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -59,6 +59,7 @@ public class StatusRestController {
         this.studentService = studentService;
         this.studentStatusService = studentStatusService;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+        this.roleService = roleService;
     }
 
     @GetMapping
@@ -75,6 +76,27 @@ public class StatusRestController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR')")
     public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
         return statusService.get(id).map(s -> ResponseEntity.ok(clientService.getAllClientsByStatus(s))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping(value = "/all/invisible")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession) {
+        List<Role> sessionRoles = userFromSession.getRole();
+        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
+            role = roleService.getRoleByName(ROLE_NAME_MENTOR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_HR))) {
+            role = roleService.getRoleByName(ROLE_NAME_HR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_ADMIN))) {
+            role = roleService.getRoleByName(ROLE_NAME_ADMIN);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
+            role = roleService.getRoleByName(ROLE_NAME_OWNER);
+        }
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+        return ResponseEntity.ok(statuses.stream().filter(StatusDtoForBoard::getInvisible).collect(Collectors.toList()));
     }
 
     @RequestMapping(value = "lost", method = {RequestMethod.POST}, consumes = MediaType.APPLICATION_JSON_VALUE)
