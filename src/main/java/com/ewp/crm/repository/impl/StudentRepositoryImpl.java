@@ -62,43 +62,34 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     @Override
     public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
         String query = "SELECT COUNT(*) FROM (" +
-                "SELECT DISTINCT csch.client_id FROM client_status_changing_history csch" +
-                "   RIGHT JOIN status s " +
+                "SELECT csch.client_id FROM client_status_changing_history csch " +
+                "RIGHT JOIN status s " +
+                "ON " +
+                "   s.status_id = csch.new_status_id " +
+                "WHERE " +
+                "   csch.new_status_id IN (:statuses) AND" +
+                "   csch.date <= :day AND" +
+                "   csch.client_id NOT IN (" +
+                "       SELECT csch.client_id FROM client_status_changing_history csch" +
+                "       RIGHT JOIN status s " +
                 "       ON " +
-                "           s.status_id = csch.new_status_id AND " +
-                "           s.create_student IS TRUE" +
-                "       WHERE " +
-                "       s.create_student IS TRUE AND" +
-                "       csch.new_status_id IN (:statuses) AND" +
-                "       csch.date <= :day AND" +
-                "           csch.client_id NOT IN (" +
-                "           SELECT csch.client_id FROM client_status_changing_history csch" +
+                "           s.status_id = csch.new_status_id" +
+                "       LEFT JOIN (" +
+                "           SELECT csch.client_id, MAX(csch.date) AS date FROM client_status_changing_history csch" +
                 "           RIGHT JOIN status s " +
-                "               ON " +
-                "                   s.status_id = csch.new_status_id AND " +
-                "                   s.create_student IS FALSE" +
-                "           LEFT JOIN (" +
-                "               SELECT csch.client_id, MAX(csch.date) AS date FROM client_status_changing_history csch" +
-                "               RIGHT JOIN status s " +
-                "                   ON " +
-                "                       s.status_id = csch.new_status_id AND " +
-                "                       s.create_student IS TRUE" +
-                "               WHERE " +
-                "                   s.create_student IS TRUE AND" +
-                "                   csch.new_status_id IN (:statuses) AND" +
-                "                   csch.date <= :day" +
-                "               GROUP BY csch.client_id" +
-                "               ORDER BY csch.date DESC" +
-                "               ) d ON d.client_id = csch.client_id" +
+                "           ON " +
+                "               s.status_id = csch.new_status_id" +
                 "           WHERE " +
-                "               s.create_student IS FALSE AND" +
-                "               csch.date <= :day AND" +
-                "               csch.date > d.date" +
+                "               csch.new_status_id IN (:statuses) AND" +
+                "               csch.date <= :day" +
                 "           GROUP BY csch.client_id" +
-                "           ORDER BY csch.date DESC" +
-                "           )" +
-                "   GROUP BY csch.client_id" +
-                "   ORDER BY csch.date DESC" +
+                "       ) d ON d.client_id = csch.client_id" +
+                "       WHERE " +
+                "           csch.date <= :day AND" +
+                "           csch.date > d.date" +
+                "       GROUP BY csch.client_id" +
+                "   )" +
+                "GROUP BY csch.client_id" +
                 ") x;";
         try {
             return ((BigInteger) entityManager.createNativeQuery(query)
