@@ -26,6 +26,8 @@ public class UserRoutes {
     @Enumerated(EnumType.STRING)
     private UserRouteType userRouteType;
 
+
+
     public enum UserRouteType {
         FROM_JM_EMAIL,     // канал с которого
         FROM_VK,         //поступают заявки

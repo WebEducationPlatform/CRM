@@ -8,6 +8,9 @@ import com.ewp.crm.models.dto.UserRoutesDto;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
+import javax.persistence.SqlResultSetMapping;
 import java.util.List;
 
 public interface UserDAO extends CommonGenericRepository<User> {
@@ -30,14 +33,19 @@ public interface UserDAO extends CommonGenericRepository<User> {
 			"WHERE r.role_name = 'MENTOR'")
     List<MentorDtoForMentorsPage> getAllMentors();
 
-	@Query(nativeQuery = true,
-			value = " SELECT " +
-					" u.user_id, ur.user_route_type, ur.weight" +
-					" FROM  user_routes ur" +
-					" LEFT JOIN user u  on ur.user_id = u.user_id" +
-					" LEFT JOIN permissions p on p.user_id= u.user_id" +
-					" JOIN role r on  r.id = p.role_id" +
-					" WHERE r.role_name = 1?" +
-					" AND ur.user_route_type = 2?")
-	List<UserRoutesDto> getUserByRoleAndUserRoutesType(String role, UserRoutes.UserRouteType routeType);
+//	@Query(nativeQuery = true,
+//			value = " SELECT " +
+//					" ur.user_routes_id as id, u.user_id as user_id, ur.weight as weight, ur.user_route_type as userRouteType" +
+//					" FROM  user_routes ur" +
+//					" LEFT JOIN user u  on ur.user_id = u.user_id" +
+//					" LEFT JOIN permissions p on p.user_id= u.user_id" +
+//					" JOIN role r on  r.id = p.role_id" +
+//					" WHERE r.role_name = :role" +
+//					" AND ur.user_route_type = :routetype")
+////	private Long id;
+////	private Long user_id;
+////	private Integer weight;
+////	private UserRoutes.UserRouteType userRouteType;
+//
+//	List<UserRoutesDto> getUserByRoleAndUserRoutesType(@Param("role") String role, @Param("routetype")String routeType);
 }
