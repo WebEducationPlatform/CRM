@@ -40,8 +40,6 @@ public interface UserService extends CommonService<User> {
 
 	List<MentorDtoForMentorsPage> getAllMentors();
 
-  void updateClientRoutes(List<UserRoutesDto> userRoutesDtoListist) ;
-
 	Optional<List<UserDtoForBoard>> getAllMentorsForDto();
 
 	Optional<List<UserDtoForBoard>> getAllWithoutMentorsForDto();

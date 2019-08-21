@@ -167,9 +167,6 @@ public class User implements UserDetails {
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user",cascade = CascadeType.ALL)
-    private Set<UserRoutes> userRoutes = new HashSet<>();
-
     public User() {
         this.isEnabled = false;
         this.isVerified = false;
@@ -492,11 +489,4 @@ public class User implements UserDetails {
         this.callRecords = callRecords;
     }
 
-    public Set<UserRoutes>  getUserRoutes() {
-        return userRoutes;
-    }
-
-    public void setUserRoutes(Set<UserRoutes>  userRoutes) {
-        this.userRoutes = userRoutes;
-    }
 }
