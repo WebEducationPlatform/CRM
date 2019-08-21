@@ -38,8 +38,8 @@ public class HrRestController {
 
     @PostMapping(value = "/saveroutes")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public ResponseEntity saveHrRoutes(@RequestBody List<UserRoutesDto> userRoutesDtoListist) {
-        userRoutesService.updateUserRoutes(userRoutesDtoListist);
-        return ResponseEntity.ok(userRoutesDtoListist);
+    public ResponseEntity saveHrRoutes(@RequestBody List<UserRoutesDto> userRoutesDtoList) {
+        userRoutesService.updateUserRoutes(userRoutesDtoList);
+        return ResponseEntity.ok(userRoutesDtoList);
     }
 }

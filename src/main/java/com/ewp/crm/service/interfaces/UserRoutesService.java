@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserRoutesService {
-    Set<UserRoutes> getByUser(Long userId);
+    Set<UserRoutes> getByUserId(Long userId);
     List<UserRoutes> getAllByUserRouteType(UserRoutes.UserRouteType userRouteType);
     void saveAll(Set<UserRoutes> userRoutes);
     List<UserRoutesDto>  getUserByRoleAndUserRoutesType(String userRole, String userRouteType);

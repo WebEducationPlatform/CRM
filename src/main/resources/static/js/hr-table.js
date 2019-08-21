@@ -23,27 +23,28 @@ function setUserRoutesTypes() {
     success: function (hrList, textStatus, XMLHttpRequest) {
       $(".alert").alert ('close');
       gHrList = hrList;
-      console.log(textStatus);
+
       if (hrList.length > 0) {
         let result = "";
         $("#routes-table-body").html("");
         for (var i = 0; i < hrList.length; i++) {
           result += "<tr>" +
-              "<td>" + hrList[i].id + "</td>" +
-              "<td>" + hrList[i].firstName + "</td>" +
-              "<td>" + hrList[i].lastName + "</td>" +
-              "<td><input id='hr-" + hrList[i].id + "' name='hr-" + hrList[i].id + "' type='number' min='0' max='100' value=0 /></td></tr>";
+              "<td>" + hrList[i].user_id + "</td>" +
+              "<td>" + hrList[i].first_name + "</td>" +
+              "<td>" + hrList[i].last_name + "</td>" +
+              "<td><input id='hr-" + hrList[i].user_id + "' name='hr-" + hrList[i].user_id +
+              "' type='number' min='0' max='100' value='" + hrList[i].weight + "'/></td></tr>";
         }
         $("#routes-table-body").html(result);
-        for (var i = 0; i < hrList.length; i++) {
-          if (hrList[i].userRoutes && hrList[i].userRoutes.length > 0) {
-            for (var y = 0; y < hrList[i].userRoutes.length; y++) {
-              if (hrList[i].userRoutes[y].userRouteType == routeType) {
-                $("#hr-" + hrList[i].id ).val(hrList[i].userRoutes[y].weight);
-              }
-            }
-          }
-        }
+        // for (var i = 0; i < hrList.length; i++) {
+        //   if (hrList[i].userRoutes && hrList[i].userRoutes.length > 0) {
+        //     for (var y = 0; y < hrList[i].userRoutes.length; y++) {
+        //       if (hrList[i].userRoutes[y].userRouteType == routeType) {
+        //         $("#hr-" + hrList[i].id ).val(hrList[i].userRoutes[y].weight);
+        //       }
+        //     }
+        //   }
+        // }
       } else {
         alert("Данных нет");
       }

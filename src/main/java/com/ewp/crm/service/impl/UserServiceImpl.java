@@ -207,8 +207,6 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         return userDAO.getAllMentors();
     }
 
-
-
     public Optional<List<UserDtoForBoard>> getAllMentorsForDto() {
         return Optional.ofNullable(userDAO.getAllMentorsForDto());
     }

@@ -8,5 +8,5 @@ import java.util.Set;
 
 public interface UserRoutesRepository  extends JpaRepository<UserRoutes, Long> {
     List<UserRoutes> getAllByUserRouteType(UserRoutes.UserRouteType userRouteType);
-    Set<UserRoutes> getByUser(Long userId);
+    Set<UserRoutes> getByUserId(Long userId);
 }

@@ -29,8 +29,8 @@ public class UserRoutesServiceImpl implements UserRoutesService {
     }
 
     @Override
-    public Set<UserRoutes> getByUser(Long userId) {
-        return userRoutesRepository.getByUser(userId);
+    public Set<UserRoutes> getByUserId(Long userId) {
+        return userRoutesRepository.getByUserId(userId);
     }
 
     @Override
@@ -49,7 +49,9 @@ public class UserRoutesServiceImpl implements UserRoutesService {
 
         String sqlQuery =
                 " SELECT " +
-                        " ur.user_routes_id as id, u.user_id as user_id, ur.weight as weight, ur.user_route_type as userRouteType" +
+                        " ur.user_routes_id as id," +
+                        " u.user_id as user_id, u.first_name as first_name, u.last_name as last_name, " +
+                        "ur.weight as weight, ur.user_route_type as userRouteType" +
                         " FROM  user_routes ur" +
                         " LEFT JOIN user u  on ur.user_id = u.user_id" +
                         " LEFT JOIN permissions p on p.user_id= u.user_id" +
@@ -65,6 +67,8 @@ public class UserRoutesServiceImpl implements UserRoutesService {
         for (Tuple tuple :tuples) {
             result.add(new UserRoutesDto(
                     ((BigInteger) tuple.get("user_id")).longValue(),
+                    (String) tuple.get("first_name"),
+                    (String) tuple.get("last_name"),
                     (Integer) tuple.get("weight"),
                     (String) tuple.get("userRouteType")
             ));
@@ -77,7 +81,7 @@ public class UserRoutesServiceImpl implements UserRoutesService {
         Set<UserRoutes> userRoutes = null;
         for (UserRoutesDto routesDto : userRoutesDtoListist) {
             User hrUser = userDAO.getUserById(routesDto.getUser_id());
-            userRoutes = getByUser(routesDto.getUser_id());
+            userRoutes = getByUserId(routesDto.getUser_id());
             UserRoutes uRoutes = UserRoutesDto.getUserRoutesFromDto(routesDto);
             uRoutes.setUser(hrUser);
             if (userRoutes.contains(uRoutes)) {
