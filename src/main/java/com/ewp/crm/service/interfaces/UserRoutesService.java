@@ -8,7 +8,9 @@ import java.util.Set;
 
 public interface UserRoutesService {
     Set<UserRoutes> getByUserId(Long userId);
+    UserRoutes getByUserIdAndUserRouteType(Long userId, UserRoutes.UserRouteType type);
     List<UserRoutes> getAllByUserRouteType(UserRoutes.UserRouteType userRouteType);
+    void save(UserRoutes userRoutes);
     void saveAll(Set<UserRoutes> userRoutes);
     List<UserRoutesDto>  getUserByRoleAndUserRoutesType(String userRole, String userRouteType);
     Long getUserIdByPercentChance(List<UserRoutesDto> userRoutesList);
