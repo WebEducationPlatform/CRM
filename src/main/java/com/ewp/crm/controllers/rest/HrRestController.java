@@ -1,5 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.HrDtoForBoard;
 import com.ewp.crm.models.dto.UserRoutesDto;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserRoutesService;
@@ -12,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rest/hr")
@@ -27,6 +30,14 @@ public class HrRestController {
         this.userService = userService;
         this.roleService = roleService;
         this.userRoutesService = userRoutesService;
+    }
+
+    @GetMapping("/hrlist")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ResponseEntity<List<HrDtoForBoard>> getHrPercentDistribution() {
+        return ResponseEntity.ok(userService.getByRole(roleService.getRoleByName("HR"))
+                .stream().map(HrDtoForBoard::new)
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/getuserroutesbytype/{userRoutesType}")

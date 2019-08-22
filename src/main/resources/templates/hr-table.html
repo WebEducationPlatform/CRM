@@ -40,7 +40,8 @@
                   <td th:text="${manager.id}"></td>
                   <td th:text="${manager.firstName}"></td>
                   <td th:text="${manager.lastName}"></td>
-                  <td th:text="${manager.phoneNumber}"></td>
+                  <td><input th:id="${'hr-' + manager.id}" th:name="${'hr-' + manager.id}"
+                             type='number' min='0' max='100' value='0'/></td>
                 </tr>
                 </tbody>
               </table>

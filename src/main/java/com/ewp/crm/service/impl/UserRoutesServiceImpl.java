@@ -34,8 +34,18 @@ public class UserRoutesServiceImpl implements UserRoutesService {
     }
 
     @Override
+    public UserRoutes getByUserIdAndUserRouteType(Long userId, UserRoutes.UserRouteType type) {
+        return userRoutesRepository.getByUserIdAndUserRouteType(userId, type);
+    }
+
+    @Override
     public List<UserRoutes> getAllByUserRouteType(UserRoutes.UserRouteType userRouteType) {
         return userRoutesRepository.getAllByUserRouteType(userRouteType);
+    }
+
+    @Override
+    public void save(UserRoutes userRoutes) {
+        userRoutesRepository.save(userRoutes);
     }
 
     @Override
@@ -78,23 +88,20 @@ public class UserRoutesServiceImpl implements UserRoutesService {
 
     @Override
     public void updateUserRoutes(List<UserRoutesDto> userRoutesDtoListist) {
-        Set<UserRoutes> userRoutes = null;
+        UserRoutes userRoutesFromDB = null;
         for (UserRoutesDto routesDto : userRoutesDtoListist) {
             User hrUser = userDAO.getUserById(routesDto.getUser_id());
-            userRoutes = getByUserId(routesDto.getUser_id());
-            UserRoutes uRoutes = UserRoutesDto.getUserRoutesFromDto(routesDto);
-            uRoutes.setUser(hrUser);
-            if (userRoutes.contains(uRoutes)) {
-                for (UserRoutes rout : userRoutes) {
-                    if (rout.equals(uRoutes)) {
-                        rout.setWeight(uRoutes.getWeight());
-                    }
-                }
-            } else {
-                userRoutes.add(uRoutes);
+            userRoutesFromDB = getByUserIdAndUserRouteType(routesDto.getUser_id(),routesDto.getUserRouteType() );
+            if (userRoutesFromDB == null){
+                UserRoutes uRoutes = UserRoutesDto.getUserRoutesFromDto(routesDto);
+                uRoutes.setUser(hrUser);
+                save(uRoutes);
+            }else{
+                userRoutesFromDB.setWeight(routesDto.getWeight());
+                save(userRoutesFromDB);
             }
+
         }
-        saveAll(userRoutes);
     }
 
     @Override
