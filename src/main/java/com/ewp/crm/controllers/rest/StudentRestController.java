@@ -79,7 +79,7 @@ public class StudentRestController {
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
         if (student.getStatus().getId() == null) {
-            studentStatusService.getByName(student.getStatus().getStatus()).ifPresent(student::setStatus);
+            studentStatusService.getByStatus(student.getStatus().getStatus()).ifPresent(student::setStatus);
         }
         Student previous = studentService.get(student.getId());
         Client updatedClient = student.getClient();

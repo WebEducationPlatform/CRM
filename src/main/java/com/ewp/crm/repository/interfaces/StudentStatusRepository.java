@@ -4,5 +4,5 @@ import com.ewp.crm.models.StudentStatus;
 
 public interface StudentStatusRepository extends CommonGenericRepository<StudentStatus> {
 
-    StudentStatus getStudentStatusByStatus(String name);
+    StudentStatus getStudentStatusByStatus(String status);
 }

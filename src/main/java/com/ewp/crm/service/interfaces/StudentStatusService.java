@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface StudentStatusService extends CommonService<StudentStatus> {
 
-    Optional<StudentStatus> getByName(String status);
+    Optional<StudentStatus> getByStatus(String status);
 
     void save(StudentStatus studentStatus);
 }

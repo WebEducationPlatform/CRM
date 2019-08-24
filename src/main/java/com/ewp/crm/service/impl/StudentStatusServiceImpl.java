@@ -6,6 +6,7 @@ import com.ewp.crm.service.interfaces.StudentStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 @Service
@@ -18,7 +19,7 @@ public class StudentStatusServiceImpl extends CommonServiceImpl<StudentStatus> i
     }
 
     @Override
-    public Optional<StudentStatus> getByName(String status) {
+    public Optional<StudentStatus> getByStatus(String status) {
         return Optional.ofNullable(studentStatusRepository.getStudentStatusByStatus(status));
     }
 
