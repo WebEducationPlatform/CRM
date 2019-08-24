@@ -343,32 +343,31 @@ $('.payment-date-btn').on('click', function () {
     return false;
 });
 
-// $('.button_color').on('click', function () {
     function button_color(button){
     $(button).colorpicker({format: 'hex'});
-        change_row_color();
+         change_row_color();
 }
 
-$('#butcolor').colorpicker().on('changeColor', function (e) {
 
-    // function change_row_color(e){
-    let id = $(this)[0].value;
-    let color = e.color.toHex();
-    $('#row_' + id).css({'background-color' : color});
-}).on('hidePicker', function (e) {
-    let id = $(this)[0].value;
-    let color = e.color.toHex();
-    $.ajax({
-        async: false,
-        type: 'POST',
-        url: '/rest/student/color/set/' + id,
-        data: {'color' : color},
-        success: function () {
-            $('#row_' + id).css({'background-color' : color});
-        }
-    });
-});
-
+    function change_row_color() {
+$('.button_color').colorpicker().on('changeColor', function (e) {
+            let id = $(this)[0].value;
+            let color = e.color.toHex();
+            $('#row_' + id).css({'background-color': color});
+        }).on('hidePicker', function (e) {
+            let id = $(this)[0].value;
+            let color = e.color.toHex();
+            $.ajax({
+                async: false,
+                type: 'POST',
+                url: '/rest/student/color/set/' + id,
+                data: {'color': color},
+                success: function () {
+                    $('#row_' + id).css({'background-color': color});
+                }
+            });
+        });
+    }
 $('#reset-all-colors-btn').on('click', function () {
     $.ajax({
         async: false,
