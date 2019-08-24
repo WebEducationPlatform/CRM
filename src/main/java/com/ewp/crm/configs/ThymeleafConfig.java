@@ -24,7 +24,7 @@ public class ThymeleafConfig {
 		resolver.setPrefix("classpath:/templates/");
 		resolver.setSuffix(".html");
 		resolver.setCharacterEncoding("UTF-8");
-		resolver.setTemplateMode("HTML5");
+		resolver.setTemplateMode("LEGACYHTML5");
 		resolver.setCacheable(false);
 		return resolver;
 	}
@@ -32,6 +32,7 @@ public class ThymeleafConfig {
 	@Bean
 	public StringTemplateResolver stringTemplateResolver() {
 		StringTemplateResolver resolver = new StringTemplateResolver(PREFIX);
+		resolver.setTemplateMode("LEGACYHTML5");
 		resolver.setCharacterEncoding("UTF-8");
 		return resolver;
 	}

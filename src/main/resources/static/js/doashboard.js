@@ -1,65 +1,20 @@
-//Search clients in main
-function clientsSearch() {
-    $("#search-clients").keyup(function () {
-        let jo = $(".portlet");
-        let jo2 = jo.find($(".search_text"));
-        let data = this.value.toLowerCase().split(" ");
-        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
-
-        for (let i = 0; i < jo2.length; i++) {
-            let count = 0;
-            for (let z = 0; z < data.length; z++) {
-                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
-                    count++;
-                }
-            }
-            if (count === data.length) {
-                jo[i].style.display = 'block';
-            }
-        }
-    });
-}
-
-//func responsible for the client's cards motion
 $(document).ready(function () {
     $.ajaxSetup({
         xhrFields: {
             withCredentials: true
         }
     });
+
     getUserLoggedIn(true);
     get_us();
-    $(".column").sortable({
-        delay: 100,
-        items: '> .portlet',
-        connectWith: ".column",
-        handle: ".portlet-title, .portlet-header",
-        cancel: ".portlet-toggle",
-        start: function (event, ui) {
-            ui.item.addClass('tilt');
-            tilt_direction(ui.item);
-        },
-        stop: function (event, ui) {
-            ui.item.removeClass("tilt");
-            $("html").unbind('mousemove', ui.item.data("move_handler"));
-            ui.item.removeData("move_handler");
-            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'));
+    clientsSearch();
+
+    //Отслеживаем нажатие клавиши Enter при создании нового статуса
+    $("#new-status-name").keypress(function (e) {
+        if (e.keyCode === 13) {
+            createNewStatus();
         }
     });
-
-
-    $(document).ready(function () {
-        $("#new-status-name").keypress(function (e) {
-            if (e.keyCode === 13) {
-                createNewStatus();
-            }
-        });
-    });
-
-    $(".portlet")
-        .addClass("panel panel-default")
-        .find(".portlet-header")
-        .addClass("panel-heading");
 
     $("#create-new-status-btn").click(function () {
         $(this).hide();
@@ -71,8 +26,6 @@ $(document).ready(function () {
         $("#new-status-form").hide();
         $("#create-new-status-btn").show();
     });
-
-    clientsSearch();
 
     $(".sms-error-btn").on("click", function smsInfoModalOpen() {
         let modal = $("#sms_error_modal"),
@@ -89,16 +42,75 @@ $(document).ready(function () {
         });
         modal.find("#clear_sms_errors").attr("onClick", "clearNotifications(" + btn.attr("data-id") + ")");
         modal.modal();
-    })
+    });
 
     $("#sms_error_modal").on('hidden.bs.modal', function () {
         $('#main-modal-window').css('overflow-y', 'auto');
         let modal = $(this);
         modal.find("tbody").empty();
-    })
+    });
+
+    $("#createDefaultStatus").modal({
+        backdrop: 'static',
+        keyboard: false
+    }, 'show');
 });
 
-//Поменять позицию статуса на доске
+//Отрисовка карточек клиентов в статусах
+$(document).ready(function () {
+    let statuses = $(".column");
+    for (var i = 0; i < statuses.length; i++) {
+        let statusId = $(statuses[i]).attr("value");
+        $.get("/rest/client/order", {statusId: statusId})
+            .done(function (order) {
+                $("#" + order + statusId).addClass("active");
+            });
+        let url = "/status/" + statusId;
+        $("#clients-for-status" + statusId).load(url, function() {
+            cardsMotion(this);
+        });
+    }
+});
+
+//func responsible for the client's cards motion
+function cardsMotion(element) {
+    $(element).sortable({
+        delay: 100,
+        items: '.portlet',
+        connectWith: ".clients-cards",
+        handle: ".portlet-title, .portlet-header",
+        cancel: ".portlet-toggle",
+        start: function (event, ui) {
+            ui.item.addClass('tilt');
+            tilt_direction(ui.item);
+        },
+        stop: function (event, ui) {
+            ui.item.removeClass("tilt");
+            $("html").unbind('mousemove', ui.item.data("move_handler"));
+            ui.item.removeData("move_handler");
+            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().parent().attr('value'));
+        }
+    });
+}
+
+//Меняем стили (наклон - право/лево) при перетаскивании карточки клиента
+function tilt_direction(item) {
+    var left_pos = item.position().left,
+        move_handler = function (e) {
+            if (e.pageX >= left_pos) {
+                item.addClass("right");
+                item.removeClass("left");
+            } else {
+                item.addClass("left");
+                item.removeClass("right");
+            }
+            left_pos = e.pageX;
+        };
+    $("html").bind("mousemove", move_handler);
+    item.data("move_handler", move_handler);
+}
+
+//Поменять позицию статуса на доске - похоже не работает, есть другая функция!
 $(".change-status-position").on('click', function () {
     let destinationId = $(this).attr("value");
     let sourceId = $(this).parents(".column").attr("value");
@@ -120,26 +132,15 @@ $(".change-status-position").on('click', function () {
     });
 });
 
-$(function () {
-    $('.open-description-btn').on('click', function (event) {
-        var id = $(this).data('id');
-        var infoClient = $('#info-client' + id);
-        var text = infoClient.find('.client-description').text();
-        var clientModal = $('#clientDescriptionModal');
-        $("#save-description").attr("data-id", id);
+function openDescriptionModal(id) {
+    var infoClient = $('#info-client' + id);
+    var text = infoClient.find('.client-description').text();
+    var clientModal = $('#clientDescriptionModal');
+    $("#save-description").attr("data-id", id);
 
-        clientModal.find('textarea').val(text);
-        clientModal.modal('show');
-    });
-});
-
-$(document).ready(function () {
-    $("#createDefaultStatus").modal({
-        backdrop: 'static',
-        keyboard: false
-    }, 'show');
-    console.log("#createDefaultStatus");
-});
+    clientModal.find('textarea').val(text);
+    clientModal.modal('show');
+}
 
 function assignUser(id, user, principalId) {
     var
@@ -179,12 +180,16 @@ function assignUser(id, user, principalId) {
             assignBtn.remove();
 
             //Add Worker icon and info for search by worker
-            info_client.append(
-                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+            let mentorCard = info_client.find(".mentor-icon_card");
+            let html = "<span class='user-icon_card' id='own-" + id + "' value='" + owner.firstName + " " + owner.lastName + "'>" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
-                "</p>" +
-                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
-            );
+                "</span>" +
+                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>";
+            if (mentorCard.length != 0) {
+                mentorCard.before(html);
+            } else {
+                info_client.append(html);
+            }
             fillFilterList()
         },
         error: function (error) {
@@ -220,7 +225,7 @@ function assignMentor(id, user, principalId) {
             info_client.find(".mentor-icon_card").remove();
 
             info_client.append(
-                "<span class='mentor-icon_card' id='mn-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                "<span class='mentor-icon_card' id='mn-" + id + "' value='" + owner.firstName + " " + owner.lastName + "'>" +
                 "Ментор: " + owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</span>" +
                 "<span style='display:none'>" + owner.firstName + " " + owner.lastName + "</span>" +
@@ -231,21 +236,6 @@ function assignMentor(id, user, principalId) {
         error: function (error) {
         }
     });
-}
-function tilt_direction(item) {
-    var left_pos = item.position().left,
-        move_handler = function (e) {
-            if (e.pageX >= left_pos) {
-                item.addClass("right");
-                item.removeClass("left");
-            } else {
-                item.addClass("left");
-                item.removeClass("right");
-            }
-            left_pos = e.pageX;
-        };
-    $("html").bind("mousemove", move_handler);
-    item.data("move_handler", move_handler);
 }
 
 //Change status button
@@ -281,6 +271,7 @@ function changeStatusName(id) {
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(formData),
         success: function (result) {
+            //Насколько тут нужна перезагрузка страницы??
             window.location.reload();
         },
         error: function (e) {
@@ -327,6 +318,7 @@ function createNewStatus() {
             url: url,
             data: formData,
             success: function (result) {
+                //Насколько тут нужна перезагрузка страницы??
                 window.location.reload();
             },
             error: function (e) {
@@ -342,9 +334,10 @@ function createNewStatus() {
 }
 
 //Сохранить комментарий на лицевой стороне карточки
-$("#save-description").on("click", function saveDescription() {
+//Не работает ввиду отсутствия класса .client-description у элементов страницы!
+function saveDescription() {
     let text = $('#clientDescriptionModal').find('textarea').val();
-    let id = $(this).attr("data-id");
+    let id = $("#save-description").attr("data-id");
     let
         url = '/rest/client/addDescription',
         formData = {
@@ -357,11 +350,10 @@ $("#save-description").on("click", function saveDescription() {
         data: formData,
         success: function () {
             $("#info-client" + id).find('.client-description').text(text);
-            $('#clientDescriptionModal').modal('hide');
         },
         error: function (error) {
             console.log(error.responseText);
-            $('#clientDescriptionModal').modal('hide');
         }
-    })
-});
+    });
+    $('#clientDescriptionModal').modal('hide');
+}
