@@ -32,6 +32,11 @@ public class MessageSubjectRestController {
         MessageSubject messageSubject = parseMessageObjectFromRequest(request);
         Optional<MessageSubject> byTitle = messageSubjectService.getByTitle(messageSubject.getTitle());
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/dev
         if (byTitle.isPresent()) {
             Long id = byTitle.get().getSubject_id();
             messageSubject.setSubject_id(id);
@@ -87,6 +92,11 @@ public class MessageSubjectRestController {
             statusName = messageSubject.getStatus().getName();
         }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/dev
         // создаем поле для ввода темы сообщения и заполняем значением из базы данных
         trBuilder.append("<td><input type='text' value='"+messageSubject.getTitle()+"' required/></td>");
 

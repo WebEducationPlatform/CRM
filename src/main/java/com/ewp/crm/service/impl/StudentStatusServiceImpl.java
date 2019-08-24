@@ -6,6 +6,7 @@ import com.ewp.crm.service.interfaces.StudentStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 @Service

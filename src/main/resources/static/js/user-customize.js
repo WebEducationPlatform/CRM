@@ -125,48 +125,50 @@ $("#telegram-auth-send-phone").click(function () {
 });
 
 //Fill values on auto-answer modal shows up
-// $('#auto-answer-modal').on('show.bs.modal', function () {
-//     $.ajax({
-//         type: 'GET',
-//         url: '/rest/message-template',
-//         success: function (response) {
-//             $("#auto-answer-template").empty().append(
-//                 $('<option>').val('').text('Не выбрано')
-//             );
-//             $.each(response, function (i, item) {
-//                 $("#auto-answer-template").append(
-//                     $('<option>').val(item.id).text(item.name)
-//                 )
-//             });
-//             $.ajax({
-//                 type: 'GET',
-//                 url: '/rest/properties',
-//                 success: function (response) {
-//                     if (response.autoAnswerTemplate == null) {
-//                         $("#auto-answer-template option[value='']").prop('selected', true)
-//                     } else {
-//                         $("#auto-answer-template option[value=" + response.autoAnswerTemplate.id + "]").prop('selected', true);
-//                     }
-//                     $("#auto-answer-enable").prop('checked', response.isAutoAnswerEnabled);
-//                 }
-//             })
-//         }
-//     });
-// });
+$('#auto-answer-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/message-template',
+        success: function (response) {
+            $("#auto-answer-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#auto-answer-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/rest/properties',
+                success: function (response) {
+                    if (response.autoAnswerTemplate == null) {
+                        $("#auto-answer-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#auto-answer-template option[value=" + response.autoAnswerTemplate.id + "]").prop('selected', true);
+                    }
+                    $("#auto-answer-enable").prop('checked', response.isAutoAnswerEnabled);
+                }
+            })
+        }
+    });
+});
 
 //Set notification properties
 $("#update-auto-answer").click(function () {
-
-    var table = document.getElementById("templatesTable");
-
-    table.find('tr').each(function (i, el) {
-        var $tds = $(this).find('td'),
-            productId = $tds.eq(0).text(),
-            product = $tds.eq(1).text(),
-            quantity = $tds.eq(2).text();
-        console.log(productId + " " + product + " " + quantity);
-        // do something with productId, product, Quantity
-    });
+    let data = {
+        autoAnswerTemplate: $("#auto-answer-template").val()
+    };
+    if (!validate(data)) {
+        return
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/auto-answer',
+        data: data,
+        success: function () {
+        }
+    })
 });
 
 //Validate input data

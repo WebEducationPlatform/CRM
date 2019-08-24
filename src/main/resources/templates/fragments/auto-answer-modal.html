@@ -4,7 +4,8 @@
 <head>
 </head>
 <body>
-<th:block th:fragment="autoAnswerModal" >
+
+<th:block th:fragment="autoAnswerModal">
     <div th:id="auto-answer-modal" class="modal fade auto-answer-modal" role="dialog" data-keyboard="false"
          sec:authorize="hasAnyAuthority('OWNER')">
         <div class="modal-dialog modal-md">
@@ -15,32 +16,20 @@
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
-
-                        <div><p>Шаблон по умолчанию</p></div>
-                        <div>
-                            <button id="add-row-button" onclick="fillDropDownLists()">Добавить Шаблон</button>
-                        </div>
-
-                        <div>
-                            <table class="table table-condensed font-size" id="templatesTable">
-                                <thead>
+                        <div class="row">
+                            <table class="table table-condensed font-size">
                                 <tr>
-                                    <td>Заголовок</td>
-                                    <td>Шаблон</td>
-                                    <td>Добавить в статус</td>
-                                    <td>Действие</td>
-                                    <td></td>
+                                    <td><label for="auto-answer-template">Выберите шаблон для рассылки</label>
+                                    </td>
+                                    <td><select id="auto-answer-template" class="form-control"></select></td>
                                 </tr>
-                                </thead>
-                                <tbody id="templatesBody"></tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        Закрыть
+                    <button id="update-auto-answer" type="button" class="btn btn-default" data-dismiss="modal">
+                        Применить
                     </button>
                 </div>
             </div>

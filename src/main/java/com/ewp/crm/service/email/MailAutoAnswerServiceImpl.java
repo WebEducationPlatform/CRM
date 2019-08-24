@@ -303,9 +303,15 @@ public class MailAutoAnswerServiceImpl implements MailAutoAnswerService {
             }
         }
 
+<<<<<<< HEAD
         Client.Builder clientBuilder =
                 new Client.Builder(map.get("Name"), map.get("Phone"), map.get("Email"));
         Client client = clientBuilder.build();
+=======
+            Client.Builder clientBuilder =
+                    new Client.Builder(map.get("Name"), map.get("Phone"), map.get("Email"));
+            Client client = clientBuilder.build();
+>>>>>>> origin/dev
 
         if (status != null) {
             client.setStatus(status);
