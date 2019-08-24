@@ -18,7 +18,7 @@ public class StudentStatusServiceImpl extends CommonServiceImpl<StudentStatus> i
     }
 
     @Override
-    public Optional<StudentStatus> getByName(String status) {
+    public Optional<StudentStatus> getByStatus(String status) {
         return Optional.ofNullable(studentStatusRepository.getStudentStatusByStatus(status));
     }
 
