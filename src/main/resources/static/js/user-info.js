@@ -1,13 +1,16 @@
 var isAutorizedUserOwner = false;
 var isAutorizedUserAdmin = false;
 var isUpdatedUserOwner = false;
+var isUpdatedUserMentor = false;
 var myRows = [];
-let botIp = $("#slackBotDomain").val();
+let botDomain = $("#slackBotDomain").val();
 let botPort = $("#slackbotPort").val();
 $(document).ready(function () {
     $.each(updatedUserRoles, function (i, role) {
         if (role.roleName === 'OWNER') {
             isUpdatedUserOwner = true;
+        }else if (role.roleName === 'MENTOR'){
+            isUpdatedUserMentor = true;
         }
     });
     $.when($.get('/rest/client/getPrincipal')).done(function (user) {
@@ -32,6 +35,7 @@ $(document).ready(function () {
         });
     });
 });
+
 
 $(document).ready(function () {
     $(document.getElementsByTagName("option")).each(function () {
@@ -111,6 +115,23 @@ function changeUser(id, authId) {
             console.log(e.responseText);
         }
     });
+    // if (isUpdatedUserMentor){
+    //     let mentorUrl = '/mentor/rest/mentor/update/' + updatedUserId;
+    //     $.ajax({
+    //         url: mentorUrl,
+    //         type: 'POST',
+    //         dataType: 'json',
+    //         data: {
+    //             id: updatedUserId,
+    //             quantityStudents: $("#quantity-students").val(),
+    //             success: function (resp) {
+    //
+    //             }
+    //
+    //         }
+    //
+    //     })
+    // }
 }
 
 $(document).on('click', '#editUser', function editUserBtn() {
@@ -142,7 +163,7 @@ $(document).on('click', '#editUser', function editUserBtn() {
 });
 
 $(document).ready(function () {
-    $('#user-form').validator()
+    $('#user-form').validator();
 });
 
 $(document).ready(function () {
@@ -358,11 +379,44 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
         name: wrap.firstName + " " + wrap.lastName,
         email: wrap.email
     };
-    let url = "https://" + botIp + ":" + botPort + "/crm/new/mentor";
+    let url = "https://" + botDomain +  "/crm/new/mentor";
     $.ajax({
         url: url,
         type: 'POST',
         contentType: 'application/json; charset=UTF-8',
         data: JSON.stringify(data),
-    })
+    });
+
+
+
+}
+
+$(document).ready(function () {
+    let quantity = $("#quantity-students");
+    let studentsQuantityDiv = $("#students-quantity");
+    if (isUpdatedUserMentor) {
+        studentsQuantityDiv.show();
+    }else {
+        studentsQuantityDiv.hide();
+    }
+    let url = "/admin/rest/mentor/student/quantity/"+updatedUserId;
+    $.ajax({
+            url: url,
+            type: 'GET',
+            contentType: 'application/json; charset=UTF-8',
+            complete: function (result) {
+                quantity.val(result.responseText);
+                alert(result.responseText);
+            },
+            error: function (data) {
+                console.log('Something went wrong, couldn`t get quantity students')
+            }
+        }
+    )
+
+});
+
+function updateUserAsMentor() {
+
+
 }

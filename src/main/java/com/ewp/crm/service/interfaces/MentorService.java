@@ -10,4 +10,12 @@ public interface MentorService {
     void saveMentorShowAllFieldAndUserIdField(boolean showAll, Long userId);
 
     void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId);
+
+    int getQuantityStudentsByMentorId(long id);
+
+    void updateQuantityStudentsByMentorId(long id, int quantityStudents);
+
+    void updateUserAsMentorWithQuantityStudents(long id, int quantityStudents);
+
+    void updateUserAsMentorWithDefaultValues(long id);
 }

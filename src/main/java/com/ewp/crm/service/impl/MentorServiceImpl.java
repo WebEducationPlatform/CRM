@@ -36,4 +36,24 @@ public class MentorServiceImpl implements MentorService {
     public void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId) {
         mentorRepository.updateMentorShowAllFieldAndUserIdField(showAll, userId);
     }
+
+    @Override
+    public int getQuantityStudentsByMentorId(long id) {
+        return mentorRepository.getQuantityStudentsByMentorId(id);
+    }
+
+    @Override
+    public void updateQuantityStudentsByMentorId(long id, int quantityStudents){
+        mentorRepository.updateQuantityStudentsByMentorId(id, quantityStudents);
+    }
+
+    @Override
+    public void updateUserAsMentorWithQuantityStudents(long id, int quantityStudents){
+        mentorRepository.updateUserAsMentorWithQuantityStudents(id, quantityStudents);
+    }
+
+    @Override
+    public void updateUserAsMentorWithDefaultValues(long id) {
+        mentorRepository.updateUserAsMentorWithDefaultValues(id);
+    }
 }
