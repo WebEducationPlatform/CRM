@@ -343,11 +343,15 @@ $('.payment-date-btn').on('click', function () {
     return false;
 });
 
-$('.button_color').on('click', function () {
-    $(this).colorpicker({format: 'hex'});
-});
+// $('.button_color').on('click', function () {
+    function button_color(button){
+    $(button).colorpicker({format: 'hex'});
+        change_row_color();
+}
 
-$('.button_color').colorpicker().on('changeColor', function (e) {
+$('#butcolor').colorpicker().on('changeColor', function (e) {
+
+    // function change_row_color(e){
     let id = $(this)[0].value;
     let color = e.color.toHex();
     $('#row_' + id).css({'background-color' : color});
@@ -547,22 +551,22 @@ $('#main-modal-window').on('hidden.bs.modal', function () {
 });
 
 //go to student info page
-$('.button_info').click(function () {
-    var clientId = this.value;
+    function button_info(button) {
+    var clientId = button.value;
     changeUrl('/student/all', clientId);
     var currentModal = $('#main-modal-window');
     currentModal.data('clientId', clientId);
-    currentModal.data('studentId', this.id.split("_")[3]);
+    currentModal.data('studentId', button.id.split("_")[3]);
     currentModal.modal('show');
-});
+}
 
 //delete student by id
-$('.button_delete').click(function () {
+    function button_delete(button){
     let currentModal = $('#student-reject-modal');
-    currentModal.data('reject-student-id', this.value);
+    currentModal.data('reject-student-id', button.value);
     $('#reject-reason').val('');
     currentModal.modal('show');
-});
+}
 
 $('#reject_student').on('click', function () {
     var id = $('#student-reject-modal').data('reject-student-id');
