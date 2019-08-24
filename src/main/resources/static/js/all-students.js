@@ -378,8 +378,9 @@ $('#reset-all-colors-btn').on('click', function () {
     });
 });
 
-$('.button_color_reset').on('click', function () {
-    let id = $(this).val();
+
+  function reset_color(id){
+    // let id = $(this).val();
     $.ajax({
         async: false,
         type: 'POST',
@@ -388,7 +389,7 @@ $('.button_color_reset').on('click', function () {
             $('#row_' + id).css({'background-color' : ''});
         }
     });
-});
+}
 
 //enable student editing when clicking on his fields in table
 $('td').click(function () {
