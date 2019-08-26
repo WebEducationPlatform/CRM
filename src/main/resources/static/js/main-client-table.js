@@ -287,3 +287,42 @@ function drawClientCardMenu(clientId) {
         element.before(liHTML);
     }
 }
+
+$(document).ready(function() {
+    $('#cards-as-columns').on('click', function() {
+        cardsViewSwitch("columns");
+        $(this).css("background-color","red");
+        $("#cards-as-rows").css("background-color","white");
+    });
+
+    $('#cards-as-rows').on('click', function() {
+        cardsViewSwitch("rows");
+        $(this).css("background-color","red");
+        $("#cards-as-columns").css("background-color","white");
+    });
+});
+
+function cardsViewSwitch(direction) {
+    if (direction === "columns") {
+        console.log(direction);
+        $(".status-columns").css("flex-direction", "column");
+        //$(".clients-cards").css({'display' : 'flex', 'flex-direction' : 'row'});
+        $(".clients-cards").css("flex-direction", "row");
+        //$(".clients-cards").css("flex-wrap", "wrap");
+    } else if (direction === "rows") {
+        console.log(direction);
+        $(".status-columns").css("flex-direction", "row");
+        //$(".clients-cards").css({'display' : 'flex', 'flex-direction' : 'column'});
+        //$(".clients-cards").css("display", "flex");
+        $(".clients-cards").css("flex-direction", "column");
+        //$(".column").css({'max-width' : '100%', 'min-height' : '100px'});
+    }
+}
+
+/*
+.column {
+    min-width: 240px;
+    max-width: 240px;
+
+    min-width: 100%;
+    min-height: 200px;*/
