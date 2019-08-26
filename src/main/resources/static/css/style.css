@@ -109,20 +109,24 @@ body {
 }
 .column {
 	min-width: 240px;
-    max-width: 240px;
+    max-width: 100%;
 	margin: 5px;
 	float: left;
 }
 
 /*Отступ снизу нужен для работы перетаскивания карточек в пустой статус*/
 .clients-cards {
-    padding-bottom: 100px;
+	min-height: 100px;
+    /*padding-bottom: 100px;*/
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
 }
 
 .portlet {
-	min-width: 120px;
+	min-width: 240px;
 	max-width: 240px;
-	max-height:50px;
+	max-height: 50px;
 	margin: 0 1em 1em 0;
 	padding: 0.01em;
 	cursor: pointer;
@@ -199,6 +203,7 @@ ul.nav a:hover {
 }
 
 .column-header {
+	max-width: 240px;
 	border-bottom: 5px solid #ff00001a;
 	margin-right: 5%;
 	position: relative;
@@ -1026,4 +1031,13 @@ textarea[class*="feedback-video-url"] {
 
 #table-hidden-statuses tr td {
 	vertical-align: middle;
+}
+
+#cards-as-rows {
+	height: 10px;
+	margin-right: 5px;
+}
+
+#cards-as-columns {
+	height: 10px;
 }
