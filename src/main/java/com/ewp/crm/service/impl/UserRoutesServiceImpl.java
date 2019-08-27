@@ -10,9 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
-import java.math.BigInteger;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserRoutesServiceImpl implements UserRoutesService {
@@ -34,11 +35,6 @@ public class UserRoutesServiceImpl implements UserRoutesService {
     }
 
     @Override
-    public UserRoutes getByUserIdAndUserRouteType(Long userId, UserRoutes.UserRouteType type) {
-        return userRoutesRepository.getByUserIdAndUserRouteType(userId, type);
-    }
-
-    @Override
     public List<UserRoutes> getAllByUserRouteType(UserRoutes.UserRouteType userRouteType) {
         return userRoutesRepository.getAllByUserRouteType(userRouteType);
     }
@@ -55,35 +51,7 @@ public class UserRoutesServiceImpl implements UserRoutesService {
 
     @Override
     public List<UserRoutesDto>  getUserByRoleAndUserRoutesType(String userRole, String userRouteType){
-        List<UserRoutesDto> result = new ArrayList<>();
-
-        String sqlQuery =
-                " SELECT " +
-                        " ur.user_routes_id as id," +
-                        " u.user_id as user_id, u.first_name as first_name, u.last_name as last_name, " +
-                        "ur.weight as weight, ur.user_route_type as userRouteType" +
-                        " FROM  user_routes ur" +
-                        " LEFT JOIN user u  on ur.user_id = u.user_id" +
-                        " LEFT JOIN permissions p on p.user_id= u.user_id" +
-                        " JOIN role r on  r.id = p.role_id" +
-                        " WHERE r.role_name = :role" +
-                        " AND ur.user_route_type = :routetype";
-
-        List<Tuple> tuples = entityManager.createNativeQuery(sqlQuery, Tuple.class)
-                .setParameter("role", userRole)
-                .setParameter("routetype", userRouteType)
-                .getResultList();
-
-        for (Tuple tuple :tuples) {
-            result.add(new UserRoutesDto(
-                    ((BigInteger) tuple.get("user_id")).longValue(),
-                    (String) tuple.get("first_name"),
-                    (String) tuple.get("last_name"),
-                    (Integer) tuple.get("weight"),
-                    (String) tuple.get("userRouteType")
-            ));
-        }
-        return result;
+        return  userRoutesRepository.getUserByRoleUserRoutesType( userRole,  userRouteType);
     }
 
     @Override
@@ -91,7 +59,7 @@ public class UserRoutesServiceImpl implements UserRoutesService {
         UserRoutes userRoutesFromDB = null;
         for (UserRoutesDto routesDto : userRoutesDtoListist) {
             User hrUser = userDAO.getUserById(routesDto.getUser_id());
-            userRoutesFromDB = getByUserIdAndUserRouteType(routesDto.getUser_id(),routesDto.getUserRouteType() );
+            userRoutesFromDB = userRoutesRepository.getByUserIdAndUserRouteType(routesDto.getUser_id(),routesDto.getUserRouteType() );
             if (userRoutesFromDB == null){
                 UserRoutes uRoutes = UserRoutesDto.getUserRoutesFromDto(routesDto);
                 uRoutes.setUser(hrUser);
@@ -100,7 +68,6 @@ public class UserRoutesServiceImpl implements UserRoutesService {
                 userRoutesFromDB.setWeight(routesDto.getWeight());
                 save(userRoutesFromDB);
             }
-
         }
     }
 
