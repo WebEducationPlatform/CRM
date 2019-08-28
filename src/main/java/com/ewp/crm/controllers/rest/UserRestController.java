@@ -6,6 +6,8 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.UserDtoForBoard;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@Api(value = "user rest controller")
 public class UserRestController {
 
     private final UserService userService;
@@ -33,6 +36,7 @@ public class UserRestController {
 
 	@GetMapping(value = "/rest/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
+//	@ApiOperation(value=" show all consumers")
 	public ResponseEntity<List<User>> getAll(@AuthenticationPrincipal User userFromSession) {
 		List <User> users = userService.getAll();
 		users.remove(userService.get(userFromSession.getId())); //Список всех, кроме текущего!
@@ -41,6 +45,7 @@ public class UserRestController {
 
 	@GetMapping(value = "/rest/user/isverified", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
+	@ApiOperation(value=" show all verified users")
 	public ResponseEntity<List<User>> getAllVerified() {
 		List <User> userList = userService.getAll();
 		return ResponseEntity.ok(userList.stream().filter(User::isVerified).collect(Collectors.toList()));
@@ -48,6 +53,7 @@ public class UserRestController {
 
 	@GetMapping(value = "/rest/user/unverified", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
+	@ApiOperation(value=" show all unverified users")
 	public ResponseEntity<List<User>> getAllUnverified() {
 		List <User> userList = userService.getAll();
 		return ResponseEntity.ok(userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
@@ -55,6 +61,7 @@ public class UserRestController {
 
 	@GetMapping(value = "/rest/users", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
+	@ApiOperation(value = "show all users")
 	public ResponseEntity<List<User>> getAllUsers() {
 		List <User> users = userService.getAll();
 		return ResponseEntity.ok(users);
@@ -62,6 +69,7 @@ public class UserRestController {
 
 	@GetMapping(value = "/rest/user/usersWithoutMentors", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
+	@ApiOperation(value = "show all users without mentor")
 	public ResponseEntity<List<UserDtoForBoard>> getAllWithoutMentors() {
 		Optional<List<UserDtoForBoard>> userList = userService.getAllWithoutMentorsForDto();
 		if (!userList.isPresent()) {
@@ -72,6 +80,7 @@ public class UserRestController {
 
 	@GetMapping(value = "/rest/user/mentors", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
+	@ApiOperation(value = "show all mentors")
 	public ResponseEntity<List<UserDtoForBoard>> getAllMentors() {
 		Optional<List<UserDtoForBoard>> userList = userService.getAllMentorsForDto();
 		if (!userList.isPresent()) {
@@ -82,6 +91,7 @@ public class UserRestController {
 
 	@GetMapping(value = {"/user/socialNetworkTypes"})
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+	@ApiOperation(value = "show all socialNetworkTypes")
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		SocialProfile socialProfile = new SocialProfile();
 		List<SocialNetworkType> socialNetworkTypes = socialProfile.getAllSocialNetworkTypes();
@@ -93,6 +103,7 @@ public class UserRestController {
 	}
 
 	@GetMapping("rest/client/getPrincipal")
+
 	public ResponseEntity getPrincipal(@AuthenticationPrincipal User userFromSession) {
 		return ResponseEntity.ok(userFromSession);
 	}
