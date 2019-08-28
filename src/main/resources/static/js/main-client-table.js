@@ -123,6 +123,36 @@ function getAllWithoutMentors() {
     });
 }
 
+//Получаем направление вывода статусов на Доске и переключаем вид
+function getRowStatusDirection() {
+    let url = "/rest/user/isRowStatusDirection";
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: true,
+        success: function (direction) {
+            statusViewSwitch(direction);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//Запоминаем направление вывода статусов на Доске
+function setRowStatusDirection(direction) {
+    let url = "/rest/user/isRowStatusDirection";
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {direction : direction},
+        async: true,
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
 //Заполняем таблицу всех скрытых статусов
 function drawHiddenStatusesTable() {
     getInvisibleStatuses();
@@ -289,40 +319,29 @@ function drawClientCardMenu(clientId) {
 }
 
 $(document).ready(function() {
-    $('#cards-as-columns').on('click', function() {
-        cardsViewSwitch("columns");
-        $(this).css("background-color","red");
-        $("#cards-as-rows").css("background-color","white");
+    $('#status-as-columns').on('click', function() {
+        statusViewSwitch(false);
+        setRowStatusDirection(false);
     });
 
-    $('#cards-as-rows').on('click', function() {
-        cardsViewSwitch("rows");
-        $(this).css("background-color","red");
-        $("#cards-as-columns").css("background-color","white");
+    $('#status-as-rows').on('click', function() {
+        statusViewSwitch(true);
+        setRowStatusDirection(true);
     });
+
+    getRowStatusDirection();
 });
 
-function cardsViewSwitch(direction) {
-    if (direction === "columns") {
-        console.log(direction);
-        $(".status-columns").css("flex-direction", "column");
-        //$(".clients-cards").css({'display' : 'flex', 'flex-direction' : 'row'});
-        $(".clients-cards").css("flex-direction", "row");
-        //$(".clients-cards").css("flex-wrap", "wrap");
-    } else if (direction === "rows") {
-        console.log(direction);
+function statusViewSwitch(is_row_status_direction) {
+    if (is_row_status_direction) {
         $(".status-columns").css("flex-direction", "row");
-        //$(".clients-cards").css({'display' : 'flex', 'flex-direction' : 'column'});
-        //$(".clients-cards").css("display", "flex");
-        $(".clients-cards").css("flex-direction", "column");
-        //$(".column").css({'max-width' : '100%', 'min-height' : '100px'});
+        $(".clients-cards").css({'padding-right' : 'inherit', 'flex-direction' : 'column'});
+        $("#status-as-columns").css("background-color", "white");
+        $("#status-as-rows").css("background-color", "red");
+    } else {
+        $(".status-columns").css("flex-direction", "column");
+        $(".clients-cards").css({'padding-right' : '50px', 'flex-direction' : 'row'});
+        $("#status-as-rows").css("background-color", "white");
+        $("#status-as-columns").css("background-color", "red");
     }
 }
-
-/*
-.column {
-    min-width: 240px;
-    max-width: 240px;
-
-    min-width: 100%;
-    min-height: 200px;*/

@@ -12,32 +12,31 @@ $(document).ready(function () {
         // Обработка на скрол по документу
         document.addEventListener('scroll', function(e) {
             // Проверяем текущее отображение статусов - выполняем только для горизонтального
-            if (clientsContent.css('flex-direction') !== 'column') {
-                if (window.pageYOffset + navbar.offsetHeight > columnHeaderTop) {
-                    if (!clientsContent.hasClass('fix-status-header')) {
-                        clientsContent.addClass('fix-status-header');
-                        // Получаем ширину навбара и выставляем заголовок, чтобы прилипли
-                        $('.column-header-wrapper').css({
-                            top: navbar.offsetHeight + 'px'
-                        });
-                    }
-                } else {
-                    if (clientsContent.hasClass('fix-status-header')) {
-                        // Удаляем класс липучку
-                        clientsContent.removeClass('fix-status-header');
-                        // И смещение
-                        $('.column-header-wrapper').css({transform: ''});
-                    }
-                }
-
-                // Если прилипли уже, то смещаем и по Х на скролл
-                if (clientsContent.hasClass('fix-status-header')) {
-                    $('.column-header-wrapper').each(function (index, value) {
-                        $(value).css({
-                            transform: `translateX(${- window.pageXOffset}px)`,
-                        });
+            if ((clientsContent.css('flex-direction') !== 'column')
+                && (window.pageYOffset + navbar.offsetHeight > columnHeaderTop)) {
+                if (!clientsContent.hasClass('fix-status-header')) {
+                    clientsContent.addClass('fix-status-header');
+                    // Получаем ширину навбара и выставляем заголовок, чтобы прилипли
+                    $('.column-header-wrapper').css({
+                        top: navbar.offsetHeight + 'px'
                     });
                 }
+            } else {
+                if (clientsContent.hasClass('fix-status-header')) {
+                    // Удаляем класс липучку
+                    clientsContent.removeClass('fix-status-header');
+                    // И смещение
+                    $('.column-header-wrapper').css({transform: ''});
+                }
+            }
+
+            // Если прилипли уже, то смещаем и по Х на скролл
+            if (clientsContent.hasClass('fix-status-header')) {
+                $('.column-header-wrapper').each(function (index, value) {
+                    $(value).css({
+                        transform: `translateX(${- window.pageXOffset}px)`,
+                    });
+                });
             }
         });
 

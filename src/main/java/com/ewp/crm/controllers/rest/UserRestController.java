@@ -7,6 +7,7 @@ import com.ewp.crm.models.dto.UserDtoForBoard;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -97,7 +98,7 @@ public class UserRestController {
 	}
 
 	@PostMapping(value = "/user/ColorBackground")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity addColor(@RequestParam(name = "color") String color,
 								   @AuthenticationPrincipal User userFromSession) {
 		userService.setColorBackground(color, userFromSession);
@@ -105,9 +106,23 @@ public class UserRestController {
 	}
 
 	@GetMapping(value = "/user/ColorBackground")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity getColor(@AuthenticationPrincipal User userFromSession) {
 		return ResponseEntity.ok(userFromSession.getColorBackground());
+	}
+
+	@GetMapping(value = "/rest/user/isRowStatusDirection")
+	public ResponseEntity isRowStatusDirection(@AuthenticationPrincipal User userFromSession) {
+		User user = userService.get(userFromSession.getId());
+		return ResponseEntity.ok(user.getRowStatusDirection());
+	}
+
+	@PostMapping(value = "/rest/user/isRowStatusDirection")
+	public ResponseEntity setRowStatusDirection(@RequestParam(name = "direction") boolean direction,
+								   @AuthenticationPrincipal User userFromSession) {
+		userFromSession.setRowStatusDirection(direction);
+		userService.update(userFromSession);
+		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 }

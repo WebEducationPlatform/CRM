@@ -116,8 +116,8 @@ body {
 
 /*Отступ снизу нужен для работы перетаскивания карточек в пустой статус*/
 .clients-cards {
-	min-height: 100px;
-    /*padding-bottom: 100px;*/
+	min-height: 50px;
+    padding-bottom: 50px;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;
@@ -1033,11 +1033,11 @@ textarea[class*="feedback-video-url"] {
 	vertical-align: middle;
 }
 
-#cards-as-rows {
+#status-as-rows {
 	height: 10px;
 	margin-right: 5px;
 }
 
-#cards-as-columns {
+#status-as-columns {
 	height: 10px;
 }
