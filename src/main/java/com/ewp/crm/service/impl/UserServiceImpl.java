@@ -97,18 +97,28 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 user.getRole().toString(),
                 Arrays.toString(new Throwable().getStackTrace()));
         user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
-        User currentUserByEmail;
-        if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
-            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
-            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
+        User userFromDb = userDAO.getOne(user.getId());
+        if (userFromDb != null) {
+            userFromDb.setFirstName(user.getFirstName());
+            userFromDb.setLastName(user.getLastName());
+            userFromDb.setEmail(user.getEmail());
+            userFromDb.setBirthDate(user.getBirthDate());
+            userFromDb.setPhoneNumber(user.getPhoneNumber());
+            userFromDb.setVk(user.getVk());
+            userFromDb.setSex(user.getSex());
+            userFromDb.setCountry(user.getCountry());
+            userFromDb.setCity(user.getCity());
+            userFromDb.setIpTelephony(user.isIpTelephony());
+            userFromDb.setRole(user.getRole());
+            userFromDb.setEnableMailNotifications(user.isEnableMailNotifications());
+            userFromDb.setEnableSmsNotifications(user.isEnableSmsNotifications());
+            userFromDb.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
+            if (user.getPassword().length() > 0) {
+                userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
+            userDAO.saveAndFlush(userFromDb);
         }
-
-        if (!user.getPassword().equals(userDAO.getOne(user.getId()).getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
-        logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
-        userDAO.saveAndFlush(user);
     }
 
     @Override
