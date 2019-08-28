@@ -117,11 +117,6 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             userFromDB.setEnableSmsNotifications(user.isEnableSmsNotifications());
             userFromDB.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
             user.setId(userDAO.getOne(user.getId()).getId());
-//            User currentUserByEmail;
-//        if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
-//            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
-//            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
-//        }
             if (user.getPassword().length() > 0) {
                 userFromDB.setPassword(passwordEncoder.encode(user.getPassword()));
             }
