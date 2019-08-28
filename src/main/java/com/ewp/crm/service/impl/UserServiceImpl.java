@@ -100,18 +100,36 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 user.getRole().toString(),
                 Arrays.toString(new Throwable().getStackTrace()));
         user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
-        User currentUserByEmail;
-        if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
-            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
-            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
-        }
-
-        if (!user.getPassword().equals(userDAO.getOne(user.getId()).getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
-        logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
-        userDAO.saveAndFlush(user);
+        User userFromDB = userDAO.getOne(user.getId());
+        if (user.getId() > 0 && userFromDB != null){
+            userFromDB.setFirstName(user.getFirstName());
+            userFromDB.setLastName(user.getLastName());
+            userFromDB.setBirthDate(user.getBirthDate());
+            userFromDB.setPhoneNumber(user.getPhoneNumber());
+            userFromDB.setPhoneNumber(user.getPhoneNumber());
+            userFromDB.setEmail(user.getEmail());
+            userFromDB.setVk(user.getVk());
+            userFromDB.setSex(user.getSex());
+            userFromDB.setCountry(user.getCountry());
+            userFromDB.setCity(user.getCity());
+            userFromDB.setRole(user.getRole());
+            userFromDB.setEnableMailNotifications(user.isEnableMailNotifications());
+            userFromDB.setEnableSmsNotifications(user.isEnableSmsNotifications());
+            userFromDB.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
+            user.setId(userDAO.getOne(user.getId()).getId());
+//            User currentUserByEmail;
+//        if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
+//            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
+//            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
+//        }
+            if (user.getPassword().length() > 0) {
+                userFromDB.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+                logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
+                userDAO.saveAndFlush(userFromDB);
+            }else {
+                new UserExistsException("User not found in DB");
+            }
     }
 
     @Override
