@@ -2,6 +2,7 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.AutoAnswersService;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.NotificationService;
 import org.slf4j.Logger;
@@ -15,15 +16,17 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/autoanswers")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR','MENTOR')")
-public class AutoAnswers {
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+public class AutoAnswersController {
     private static Logger logger = LoggerFactory.getLogger(MessageTemplateController.class);
 
+    private final AutoAnswersService autoAnswersService;
     private final MessageTemplateService messageTemplateService;
     private final ImageConfig imageConfig;
     private final NotificationService notificationService;
 
-    public AutoAnswers(MessageTemplateService messageTemplateService, ImageConfig imageConfig, NotificationService notificationService) {
+    public AutoAnswersController(AutoAnswersService autoAnswersService, MessageTemplateService messageTemplateService, ImageConfig imageConfig, NotificationService notificationService) {
+        this.autoAnswersService = autoAnswersService;
         this.messageTemplateService = messageTemplateService;
         this.imageConfig = imageConfig;
         this.notificationService = notificationService;
@@ -32,7 +35,7 @@ public class AutoAnswers {
     @GetMapping(value = "/all")
     public ModelAndView showAutoAnswersAll(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("autoAnswers");
-        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+        modelAndView.addObject("autoAnswers", autoAnswersService.getAll());
         modelAndView.addObject("user", userFromSession);
         return modelAndView;
     }
