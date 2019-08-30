@@ -203,10 +203,10 @@
                 </td>
                 <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
-                    <button class="button_color btn btn-success glyphicon glyphicon-tint btn-xs" th:value="${student.id}" title="Окраска"></button>
-                    <button class="button_color_reset btn btn-warning glyphicon glyphicon-repeat btn-xs" th:value="${student.id}" title="Сброс окраски"></button>
-                    <button class="button_info btn btn-info glyphicon glyphicon-info-sign btn-xs" th:value="${student.client.id}" th:id="${'student_info_button_' + student.id}" title="Информация"></button>
-                    <button class="button_delete btn btn-danger glyphicon glyphicon-remove btn-xs" th:value="${student.id}" title="Удалить студента"></button>
+                    <button class="button_color btn btn-success glyphicon glyphicon-tint btn-xs"th:onclick="'javascript:button_color('+this+')'" th:value="${student.id}" title="Окраска"></button>
+                    <button class="button_color_reset btn btn-warning glyphicon glyphicon-repeat btn-xs"th:onclick="'javascript:reset_color('+${student.id}+')'"  th:value="${student.id}" title="Сброс окраски"></button>
+                    <button class="button_info btn btn-info glyphicon glyphicon-info-sign btn-xs" th:onclick="'javascript:button_info('+this+')'"   th:value="${student.client.id}" th:id="${'student_info_button_' + student.id}" title="Информация"></button>
+                    <button class="button_delete btn btn-danger glyphicon glyphicon-remove btn-xs" th:onclick="'javascript:button_delete('+this+')'"  th:value="${student.id}" title="Удалить студента"></button>
                 </td>
             </tr>
             </tbody>

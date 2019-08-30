@@ -98,6 +98,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
                 params.put("%coordinator%", "");
             }
             String notificationMessage = messageTemplateService.replaceName(template.getOtherText(), params);
+            vkService.sendMessageByChatId(chatToNewClient, notificationMessage);
             List<User> usersToNotify = userService.getAll();
             for (User userToNotify : usersToNotify) {
                 if (userToNotify.isEnableMailNotifications()) {
@@ -107,7 +108,6 @@ public class SendNotificationServiceImpl implements SendNotificationService {
                     smsService.sendSimpleSmsToUser(userToNotify, notificationMessage.replace("https://", ""));
                 }
             }
-            vkService.sendMessageByChatId(chatToNewClient, notificationMessage);
         }
     }
 

@@ -12,22 +12,22 @@
           href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
     <div th:replace="fragments/status-sticky-header::sticky-style"></div>
+    <script th:src="@{/js/main-client-table.js}"></script>
 </head>
 
 <body>
+
 <div style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
 
+        <!--Цикл отрисовки статусов-->
         <div th:id="'status-column'+${status.id}"
              class="column" th:each="status : ${statuses}"
              th:value="${status.id}"
              th:if="${!status.invisible}">
             <div id="column-header" class="column-header">
-                <div th:id="'column-number'+${counter.incrementAndGet()}"
-                     th:value="${status.id}">
-                </div>
                 <div class="btn-group">
                     <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn"
                             class="glyphicon glyphicon glyphicon-cog"
@@ -36,12 +36,14 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}"
-                               sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">Добавить клиента</a></li>
-                        <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
-                                class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
-                            <i class="glyphicon glyphicon-chevron-right"></i></a>
+                               sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">&nbsp;Добавить клиента</a></li>
+                        <li class="glyphicon dropdown">
+                            <a class="link-cursor-pointer glyphicon-sort">&nbsp;Упорядочить клиентов:
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                            </a>
                             <ul class="dropdown-menu sub-menu">
-                                <p style="margin-left: 20px;">Сначала</p>
+                                <p style="margin-left: 20px;">Сначала:</p>
+                                <li class="divider"></li>
                                 <li class="link-cursor-pointer" th:id="'NEW_FIRST'+${status.id}">
                                     <a class="change-client-order" id="NEW_FIRST">Новые</a>
                                 </li>
@@ -56,31 +58,35 @@
                                 </li>
                             </ul>
                         </li>
-                        <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
-                            <li th:if="${status.id!=1}">
-                                <a id="delete-status-icon"
-                                   class="glyphicon glyphicon-remove-circle"
-                                   data-toggle="modal" th:value="${status.id}">Удалить статус</a>
+                        <th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+                            <li th:if="${status.id!=1}" class="delete-status-icon">
+                                <a class="glyphicon glyphicon-remove-circle"
+                                   data-toggle="modal" th:value="${status.id}">&nbsp;Удалить статус</a>
                             </li>
                             <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit"
                                    data-toggle="modal"
-                                   th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a>
+                                   th:attrappend="data-target='#renameStatusModal' + ${status.id}">&nbsp;Изменить статус</a>
                             </li>
                             <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
-                                   th:value="${status.id}">Скрыть</a></li>
-                            <li><a class="glyphicon glyphicon-user">Сделать студентом <input
+                                   th:value="${status.id}">&nbsp;Скрыть</a>
+                            </li>
+                            <li><a class="link-cursor-pointer glyphicon glyphicon-user">&nbsp;Сделать студентом <input
                                     class="create_student_checkbox"
                                     type="checkbox"
                                     th:value="${status.id}"
                                     th:checked="${status.createStudent}"/></a>
                             </li>
-                            <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal"
-                                                              data-target="#all-statuses-to-change-position"
-                                                              onclick="showAllStatuses()">Поменять позицию</a>
+                            <li>
+                                <a class="link-cursor-pointer glyphicon glyphicon-move"
+                                   data-toggle="modal"
+                                   data-target="#all-statuses-to-change-position"
+                                   onclick="showAllStatuses()">&nbsp;Поменять позицию</a>
                             </li>
-                        </div>
+                        </th:block>
                     </ul>
                 </div>
+
+                <!--Изменение размера шрифта в зависимости от длины имени статуса-->
                 <div style="height: 25px">
                     <span th:text="${status.name}" th:if="${status.name.length() &lt; 15}"
                           style="font-size:20px"></span>
@@ -95,8 +101,10 @@
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div th:replace="fragments/htmlFragments::deleteNotifications"
                  sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')"></div>
-            <div th:id="'clients-for-status'+${status.id}"></div>
+            <!--Блок для вывода карточек клиентов в doashboard.js-->
+            <div th:id="'clients-for-status'+${status.id}" class="clients-cards"></div>
         </div>
+
         <div class="create-new-status-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
@@ -117,6 +125,7 @@
         </div>
     </div>
 
+    <!--Блок МЕНЮ-->
     <div id="panel" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR','MENTOR')">
         <div id="panel-content">
             <div class="panel-group">
@@ -133,15 +142,12 @@
                     </div>
                     <div id="collapseStatuses" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <table class="table table-bordered">
-                                <tr th:each="status:${statuses}"
-                                    th:style="${!status.invisible ? 'display:none' : ''}"
-                                    th:if="${status.name != 'deleted'}">
-                                    <td width="70%" th:text="${status.name}"></td>
+                            <!--Таблица скрытых статусов, отрисовка на клиенте-->
+                            <table class="table table-bordered" id="table-hidden-statuses">
+                                <tr style="display:none" id="tr-hidden-statuses">
+                                    <td></td>
                                     <td>
-                                        <button type="button" class="show-status-btn btn" id="testIdIdId"
-                                                th:value="${status.id}">показать
-                                        </button>
+                                        <button type="button" class="show-status-btn btn" value="">Показать</button>
                                     </td>
                                 </tr>
                             </table>
@@ -172,38 +178,24 @@
                     <div id="collapseUser" class="panel-collapse collapse in">
                         <div class="panel-body" id="user_group-body">
                             <table class="table table-bordered">
-                                <tr th:each="usr : ${users}">
-                                    <div th:switch="${usr.enabled}">
-                                        <p th:case="true">
-                                        <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
-                                        </p>
-                                        <p th:case="false">
-                                        <td class="unEnabledUser"
-                                            th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
-                                        </p>
-                                    </div>
+                                <!--Таблица верифицированных пользователей, отрисовка на клиенте-->
+                                <tr style="display:none" id="tr-verified-users">
+                                    <td class="unEnabledUser"></td>
                                     <td class="editUserButtons">
-                                        <a th:href="'/admin/user/' +  ${usr.id}">
-                                            <button type="button"
-                                                    class="glyphicon glyphicon glyphicon-edit"></button>
+                                        <a href="#">
+                                            <button type="button" class="glyphicon glyphicon glyphicon-edit"></button>
                                         </a>
-                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
-                                                type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}"
-                                                sec:authorize="hasAnyAuthority('OWNER')">
-                                        </button>
-                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
-                                                type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attr="data-id=${usr.id}"
-                                                onclick="fillUsersTableForDelete(this)"
-                                                sec:authorize="hasAnyAuthority('OWNER')">
-                                        </button>
+                                        <button type="button" data-toggle="modal" class="glyphicon glyphicon-remove"></button>
+                                        <button type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
+                                                onclick="fillUsersTableForDelete(this)"></button>
                                     </td>
                                 </tr>
+
                             </table>
                         </div>
                     </div>
                 </div>
+
                 <div id="new_user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <div class="panel-heading" id="new_user_group-heading">
                         <a id="new_user_group_label" data-toggle="collapse" data-parent="#accordion"
@@ -212,15 +204,14 @@
                     <div id="collapseNewUser" class="panel-collapse collapse in">
                         <div class="panel-body" id="new_user_group-body">
                             <table class="table table-bordered">
-                                <tr th:each="newusr : ${newUsers}">
-                                    <td th:text="${newusr.firstName} + ' ' + ${newusr.lastName}"></td>
+                                <!--Таблица новых (неверифицированных) сотрудников, отрисовка на клиенте-->
+                                <tr style="display:none" id="tr-new-user">
+                                    <td></td>
                                     <td class="editUserButtons">
-                                        <a th:href="'/admin/user/' +  ${newusr.id}">
+                                        <a href="#">
                                             <button type="button" class="glyphicon glyphicon-ok"></button>
                                         </a>
-                                        <button type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#deleteNewUserModal' + ${newusr.id}">
-                                        </button>
+                                        <button type="button" data-toggle="modal" class="glyphicon glyphicon-remove"></button>
                                     </td>
                                 </tr>
                             </table>
@@ -248,6 +239,8 @@
             <span>Меню</span>
         </div>
     </div>
+    <!--Конец блока МЕНЮ-->
+
 </div>
 
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
@@ -287,11 +280,15 @@
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
 
-<div sec:authorize="hasAnyAuthority('HR')">
-    <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
-</div>
+<div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"
+     sec:authorize="hasAnyAuthority('HR')"></div>
 
-<div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"
+     sec:authorize="hasAnyAuthority('MENTOR')"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"
+     sec:authorize="hasAnyAuthority('MENTOR')"></div>
+
+<th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
     <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
     <div th:replace="fragments/message-history::messageHistory"></div>
@@ -303,14 +300,12 @@
             const slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
         /*]]>*/
     </script>
-</div>
+</th:block>
 
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
@@ -332,15 +327,13 @@
 
 <script type="text/javascript" th:src="@{/js/mentor-menu.js}" sec:authorize="hasAnyAuthority('MENTOR')"></script>
 
-<div sec:authorize="hasAnyAuthority('HR')">
+<th:block sec:authorize="hasAnyAuthority('HR')">
     <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
     <script type="text/javascript" th:src="@{/js/loading-animation.js}"></script>
     <script type="text/javascript" th:src="@{/js/main-hr-table.js}"></script>
-</div>
+</th:block>
 
-<div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
-    <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
-</div>
+<script type="text/javascript" th:src="@{/js/message-history.js}" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')"></script>
 
 <div th:replace="fragments/status-sticky-header::sticky-scripts"></div>
 

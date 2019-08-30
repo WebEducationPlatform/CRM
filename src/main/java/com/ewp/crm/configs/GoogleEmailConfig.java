@@ -188,7 +188,15 @@ public class GoogleEmailConfig {
                         if (addClient) {
                             userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
                             clientService.addClient(client, null);
-                            sendNotificationService.sendNewClientNotification(client, "gmail");
+                            if (parser.getSubject().contains("java-mentor")) {
+                                sendNotificationService.sendNewClientNotification(client, "Java-mentor");
+                            } else if (parser.getSubject().contains("javalearn")) {
+                                sendNotificationService.sendNewClientNotification(client, "Java-learn");
+                            } else if (parser.getSubject().contains("jslearn")) {
+                                sendNotificationService.sendNewClientNotification(client, "JS-learn");
+                            } else {
+                                sendNotificationService.sendNewClientNotification(client, "gmail");
+                            }
                             if (sendAutoAnswer && template != null) {
                                 prepareAndSend.sendEmailInAllCases(client);
                             } else {
