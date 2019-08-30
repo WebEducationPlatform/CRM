@@ -3,6 +3,8 @@ package com.ewp.crm.models;
 import com.ewp.crm.util.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,6 +39,7 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "user")
+@ApiModel(value = "user class")
 public class User implements UserDetails {
 
     @Id
@@ -46,23 +49,29 @@ public class User implements UserDetails {
 
     @Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
     @Column(name = "first_name", nullable = false)
+    @ApiModelProperty
     private String firstName;
 
     @Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
     @Column(name = "last_name", nullable = false)
+    @ApiModelProperty
     private String lastName;
 
     @Column(name = "birth_date")
+    @ApiModelProperty
     private LocalDate birthDate;
 
     @Column(name = "phone_number", nullable = false)
+    @ApiModelProperty
     private String phoneNumber;
 
     @Column(name = "email", nullable = false, unique = true)
+    @ApiModelProperty
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", nullable = false)
+    @ApiModelProperty
     private String password;
 
     @Column(name = "vk")
@@ -181,6 +190,12 @@ public class User implements UserDetails {
 
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
+
+    /**
+     * Индивидуальная настройка направления отображения статусов на Доске
+     */
+    @Column(name = "is_row_status_direction", columnDefinition = "BIT(1) DEFAULT 1", nullable = false)
+    private boolean isRowStatusDirection;
 
     public User() {
         this.isEnabled = false;
@@ -502,5 +517,13 @@ public class User implements UserDetails {
 
     public void setCallRecords(List<CallRecord> callRecords) {
         this.callRecords = callRecords;
+    }
+
+    public boolean getRowStatusDirection() {
+        return isRowStatusDirection;
+    }
+
+    public void setRowStatusDirection(boolean rowStatusDirection) {
+        isRowStatusDirection = rowStatusDirection;
     }
 }
