@@ -54,6 +54,7 @@ public class GoogleEmailConfig {
     private String imapServer;
     private String mailJavaLearn;
     private String mailBootCamp;
+	private boolean autoSetUser = false;
 
     private final BeanFactory beanFactory;
     private final ClientService clientService;
@@ -64,7 +65,7 @@ public class GoogleEmailConfig {
     private final ProjectPropertiesService projectPropertiesService;
     private final SendNotificationService sendNotificationService;
     private final UserService userService;
-    
+
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
     private final Environment env;
 
@@ -112,7 +113,7 @@ public class GoogleEmailConfig {
     public ImapIdleChannelAdapter mailAdapter() {
         // Если стоит пароль по умолчанию * (из gmail.properties), то не зпускаем службу слежки за почтой
         if (password.equals("*")) return null;
-        
+
         ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
         mailReceiver.setJavaMailProperties(javaMailProperties());
         mailReceiver.setShouldDeleteMessages(false);
@@ -131,7 +132,7 @@ public class GoogleEmailConfig {
 
         return imapIdleChannelAdapter;
     }
-    
+
     @Bean
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
@@ -154,18 +155,18 @@ public class GoogleEmailConfig {
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
                         if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                             sendAutoAnswer = false; // Для клиентов из javalearn временно отключаем автоответ
-                            
+
                             // Если клиент пришёл только за рассылкой (в форме один емайл), то отправляем его в статус "рассылки постоплата"
                             if (!client.getPhoneNumber().isPresent() &&
                                     (client.getName().isEmpty() || IncomeStringToClient.UNKNOWN_NAME_DEFAULT.equals(client.getName()))) {
                                 // Если такого статуса нет то создаём, если нет назначаем пользователя на этот статус
                                 Optional<Status> mailingPostpay = statusService.get("Постоплата рассылки");
-                                
+
                                 if (!mailingPostpay.isPresent()) {
                                     mailingPostpay = Optional.of(new Status("Постоплата рассылки"));
                                     statusService.add(mailingPostpay.get());
                                 }
-                                
+
                                 client.getEmail().ifPresent(client::setName);
                                 mailingPostpay.ifPresent(client::setStatus);
                             } else {
@@ -186,7 +187,9 @@ public class GoogleEmailConfig {
                             }
                         }
                         if (addClient) {
-                            userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
+							if (autoSetUser) {
+								userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
+							}
                             clientService.addClient(client, null);
                             if (parser.getSubject().contains("java-mentor")) {
                                 sendNotificationService.sendNewClientNotification(client, "Java-mentor");
