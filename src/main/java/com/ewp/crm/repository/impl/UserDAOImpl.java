@@ -1,8 +1,13 @@
 package com.ewp.crm.repository.impl;
 
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.UserDtoForBoard;
 import com.ewp.crm.repository.interfaces.UserDAOCustom;
+import com.ewp.crm.service.impl.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -13,6 +18,7 @@ import java.util.List;
 
 @Repository
 public class UserDAOImpl implements UserDAOCustom {
+    private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @PersistenceContext
     EntityManager entityManager;
@@ -52,5 +58,30 @@ public class UserDAOImpl implements UserDAOCustom {
             result.add(new UserDtoForBoard(userId, firstName, lastName));
         }
         return result;
+    }
+
+    @Override
+    @Transactional
+    public User getUserByRoleIdAndLastClientDate(long roleId) {
+        User userToOwnClient = null;
+        try {
+            String query =
+                    "SELECT u.*, p.*, 1 AS clazz_, FALSE AS mentor_show_only_my_clients " +
+                            "   FROM  user u " +
+                            "       LEFT JOIN permissions p ON u.user_id = p.user_id " +
+                            "   WHERE " +
+                            "       u.user_id = p.user_id AND " +
+                            "       p.role_id = :roleId " +
+                            "   ORDER BY u.last_client_date " +
+                            "   LIMIT 1;";
+            userToOwnClient = (User) entityManager.createNativeQuery(query, User.class)
+                    .setParameter("roleId", roleId)
+                    .getSingleResult();
+            logger.info("Coordinator for new client card to own found: " + userToOwnClient.getFullName());
+
+        } catch (Exception e) {
+            logger.error("Can't find coordinator for new client card to own roleId = {}", roleId, e);
+        }
+        return userToOwnClient;
     }
 }
