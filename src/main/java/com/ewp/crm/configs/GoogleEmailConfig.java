@@ -1,10 +1,7 @@
 package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.MessageTemplate;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.Status;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MailSendService;
@@ -186,7 +183,11 @@ public class GoogleEmailConfig {
                             }
                         }
                         if (addClient) {
-                            userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
+                            UserRoutes.UserRouteType routeType = null;
+                            if (parser.getSubject().contains("java-mentor")){
+                                routeType = UserRoutes.UserRouteType.FROM_JM_EMAIL;
+                            }
+                            userService.getUserToOwnCard(routeType).ifPresent(client::setOwnerUser);
                             clientService.addClient(client, null);
                             if (parser.getSubject().contains("java-mentor")) {
                                 sendNotificationService.sendNewClientNotification(client, "Java-mentor");
