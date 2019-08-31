@@ -105,4 +105,8 @@ public interface ClientService extends CommonService<Client> {
 	Optional<List<Client>> getClientsByEmails(List<String> emails);
 
     List<ClientDto.ClientTransformer> getClientsDtoByEmails(List<String> emails);
+
+	List<String> getClientsCountries();
+
+	List<String> getClientsCities();
 }
