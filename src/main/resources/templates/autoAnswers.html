@@ -27,18 +27,19 @@
                 <thead id="thead-table-students-status">
                 <tr class="head-table">
                     <th class="col-md-1 fit">#</th>
-                    <th class="col-md-9">Шаблон</th>
-                    <th class="col-md-3"></th>
+                    <th class="col-md-6">Тема сообщения</th>
+                    <th class="col-md-3">Шаблон для ответа</th>
+                    <th class="col-md-3">Действия</th>
                 </tr>
                 </thead>
                 <tbody id="table-body">
                 <tr th:each="template : ${autoAnswers}">
                     <td th:text="${template.id}"></td>
                     <td th:text="${template.subject}"></td>
+                    <td ><a th:href="@{/template/edit/{id}(id=${template.messageTemplate.id}) } "  th:text="${template.messageTemplate.name}"></td>
                     <td class="fit" align='right'>
-                        <button class="btn btn-primary glyphicon glyphicon-font" th:data="${template.id}" th:value="${template.subject}" onclick="renameTemplate(this)" title="Переименовать шаблон"></button>
-                        <button class="button_edit_template btn btn-info glyphicon glyphicon-pencil" th:value="${template.id}" title="Изменить шаблон"></button>
-                        <button class="button_delete_template btn btn-danger glyphicon glyphicon-remove" th:value="${template.id}" title="Удалить шаблон"></button>
+                        <button class="button_edit_autoanswer btn btn-info glyphicon glyphicon-pencil" th:value="${template.id}" title="Изменить"></button>
+                        <button class="button_delete_autoanswer btn btn-danger glyphicon glyphicon-remove" th:value="${template.id}" title="Удалить"></button>
                     </td>
                 </tr>
                 </tbody>
@@ -48,77 +49,42 @@
         </th:block>
     </div>
 
-    <!--Modal window for rename template-->
-    <div id="rename-template-modal" class="modal fade main-modal" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 id="modal-header" class="modal-title">Переименование шаблона</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <h5 id="rename-template-modal-err" class="modal-title" style="color: red; text-align: center"></h5>
-                            <label for="template-rename">Отредактируйте имя шаблона</label>
-                            <input id="template-rename" class="form-control" type="text"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="send_name" type="button" class="btn btn-default">Сохранить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--End of modal window for rename template-->
-
-    <!--Modal window for rename theme template-->
-    <div id="rename-theme-template-modal" class="modal fade main-modal" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 id="modal-theme-header" class="modal-title">Переименование тему шаблона</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <h5 id="rename-theme-template-modal-err" class="modal-title" style="color: red; text-align: center"></h5>
-                            <label for="template-theme-rename">Отредактируйте тему шаблона</label>
-                            <input id="template-theme-rename" class="form-control" type="text"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="send_theme" type="button" class="btn btn-default">Сохранить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--End of modal window for rename theme autoanswer-->
+    <!--Create modal win for autoanswer-->
     <div th:id="autoanswer-create-modal" class="modal fade main-modal" role="dialog" data-keyboard="false">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 id="modal-header" class="modal-title">Создание нового шаблона</h4>
+                    <h4 id="modal-header" class="modal-title">Создание авто ответа</h4>
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row">
-                            <h5 id="template-create-modal-err" class="modal-title" style="color: red; text-align: center"></h5>
-                            <label for="template-name">Введите имя шаблона</label>
-                            <input id="template-name" class="form-control" type="text"/>
+                            <h5 id="autoanswer-create-modal-err" class="modal-title" style="color: red; text-align: center"></h5>
+                            <label for="autoanswer-subject">Тема входящего сообщения</label>
+                            <input id="autoanswer-subject" class="form-control" type="text"/>
+                         </div>
+                        <div class="row">
+                            <label for="autoanswer-template">Шаблон для автоответа</label>
+                            <select id="autoanswer-template" class="form-control" >
+                                <option th:each="item:${templates}" th:value=${item.id} th:text="${item.name}">шаблон для ответа</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <label for="autoanswer-status">Статус нового клиента из заявки</label>
+                            <select id="autoanswer-status" class="form-control" >
+                                <option th:each="item:${statuses}" th:value=${item.id} th:text="${item.name}">Статус</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="create_template" type="button" class="btn btn-default">Создать</button>
+                    <button id="create_autoanswer" type="button" class="btn btn-default">Создать</button>
                 </div>
             </div>
         </div>
     </div>
+    <!--End of modal win for create autoanswer-->
     <script type="text/javascript" th:src="@{/js/autoanswers.js}"></script>
 
 </div>

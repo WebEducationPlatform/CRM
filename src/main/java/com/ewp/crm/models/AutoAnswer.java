@@ -22,8 +22,17 @@ public class AutoAnswer {
     @JoinColumn(name = "status_id")
     private Status status;
 
+    public AutoAnswer() {
+    }
+
     public AutoAnswer(String subject) {
         this.subject = subject;
+    }
+
+    public AutoAnswer(String subject, MessageTemplate messageTemplate, Status status) {
+        this.subject = subject;
+        this.messageTemplate = messageTemplate;
+        this.status = status;
     }
 
     public Long getId() {

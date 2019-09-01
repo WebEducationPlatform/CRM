@@ -5,6 +5,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.AutoAnswersService;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,20 +23,22 @@ public class AutoAnswersController {
 
     private final AutoAnswersService autoAnswersService;
     private final MessageTemplateService messageTemplateService;
-    private final ImageConfig imageConfig;
-    private final NotificationService notificationService;
+    private final StatusService statusService;
 
-    public AutoAnswersController(AutoAnswersService autoAnswersService, MessageTemplateService messageTemplateService, ImageConfig imageConfig, NotificationService notificationService) {
+
+    public AutoAnswersController(AutoAnswersService autoAnswersService, MessageTemplateService messageTemplateService,
+                                 StatusService statusService) {
         this.autoAnswersService = autoAnswersService;
         this.messageTemplateService = messageTemplateService;
-        this.imageConfig = imageConfig;
-        this.notificationService = notificationService;
+        this.statusService = statusService;
     }
 
     @GetMapping(value = "/all")
     public ModelAndView showAutoAnswersAll(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("autoAnswers");
         modelAndView.addObject("autoAnswers", autoAnswersService.getAll());
+        modelAndView.addObject("statuses", statusService.getAll());
+        modelAndView.addObject("templates", messageTemplateService.getAll());
         modelAndView.addObject("user", userFromSession);
         return modelAndView;
     }
