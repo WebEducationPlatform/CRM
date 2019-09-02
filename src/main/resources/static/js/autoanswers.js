@@ -1,15 +1,25 @@
 //Open creaate new template modal
 $("#button_create_autoanswer").click(function () {
+    $('#autoanswer-id').val('');
+    $('#autoanswer-subject').val('');
+    deselectOptions()
     $('#autoanswer-create-modal').modal('show');
 });
-//Create new autoanswer
+//Create and update  autoanswer
 $("#create_autoanswer").click(function () {
+    let id = $('#autoanswer-id').val();
+    if (id > 0){
+        url = '/rest/autoanswers/update/';
+    }else{
+        url = '/rest/autoanswers/add';
+    }
 
     if ($('#autoanswer-subject').val().length != 0 ) {
         $.ajax({
             type: 'POST',
-            url: '/rest/autoanswers/add',
+            url: url,
             data: {
+                id: id,
                 subject: $('#autoanswer-subject').val(),
                 messageTemplate:Number($('#autoanswer-template').val()),
                 status: Number($('#autoanswer-status').val())
@@ -29,22 +39,22 @@ $("#create_autoanswer").click(function () {
 });
 
 //Edit autoanswer by id modal button
-$(".button_update_autoanswer").click( function () {
+$(".button_edit_autoanswer").click( function () {
     let id = this.value;
-    $('<input>', { value: id, text: id, type: 'hidden'}).appendTo('#wrapper');
-    $('#autoanswer-create-modal').modal('show');
     $.ajax({
-        type: 'POST',
-        url: '/rest/autoanswers/delete',
-        data: {autoanswer_id: id},
+        type: 'GET',
+        url: '/rest/autoanswers/get/' + id,
+        dataType: 'JSON',
         success: function (response) {
-            if (response === "CONFLICT") {
-                alert("Шаблон используется для оповещения!");
-            } else {
-                location.reload();
-            }
+            $('#autoanswer-id').val(response.id);
+            $('#autoanswer-subject').val(response.subject);
+            deselectOptions()
+            $('#autoanswer-template option[value=' + response.messageTemplate_id + ']').prop('selected', true);
+            $('#autoanswer-status option[value=' + response.status_id + ']').prop('selected', true);
+            $('#autoanswer-create-modal').modal('show');
         }
     });
+
 });
 //Delete autoanswer by id modal button
 $(".button_delete_autoanswer").click( function () {
@@ -63,3 +73,12 @@ $(".button_delete_autoanswer").click( function () {
         }
     });
 });
+
+function deselectOptions(){
+    $('#autoanswer-template option:selected').each(function(){
+        this.selected=false;
+    });
+    $('#autoanswer-status option:selected').each(function(){
+        this.selected=false;
+    });
+}

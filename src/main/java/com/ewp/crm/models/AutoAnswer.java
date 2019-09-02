@@ -1,11 +1,12 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "answers")
-public class AutoAnswer {
+public class AutoAnswer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
