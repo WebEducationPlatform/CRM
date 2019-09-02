@@ -9,20 +9,20 @@ $("#button_create_autoanswer").click(function () {
 //Create and update  autoanswer
 $("#create_autoanswer").click(function () {
     let id = $('#autoanswer-id').val();
-    if (id > 0){
+    if (id > 0) {
         url = '/rest/autoanswers/update/';
-    }else{
+    } else {
         url = '/rest/autoanswers/add';
     }
 
-    if ($('#autoanswer-subject').val().length != 0 ) {
+    if ($('#autoanswer-subject').val().length != 0) {
         $.ajax({
             type: 'POST',
             url: url,
             data: {
                 id: id,
                 subject: $('#autoanswer-subject').val(),
-                messageTemplate:Number($('#autoanswer-template').val()),
+                messageTemplate: Number($('#autoanswer-template').val()),
                 status: Number($('#autoanswer-status').val())
             },
             success: function (response) {
@@ -40,8 +40,7 @@ $("#create_autoanswer").click(function () {
 });
 
 //Edit autoanswer by id modal button
-$(".button_edit_autoanswer").click( function () {
-
+$(".button_edit_autoanswer").click(function () {
     let id = this.value;
     $.ajax({
         type: 'GET',
@@ -60,8 +59,10 @@ $(".button_edit_autoanswer").click( function () {
 
 });
 //Delete autoanswer by id modal button
-$(".button_delete_autoanswer").click( function () {
-    if(!confirm("Вы уверены, что хотите удалить запись?")) {return}
+$(".button_delete_autoanswer").click(function () {
+    if (!confirm("Вы уверены, что хотите удалить запись?")) {
+        return
+    }
     let id = this.value;
     $.ajax({
         type: 'POST',
@@ -77,11 +78,11 @@ $(".button_delete_autoanswer").click( function () {
     });
 });
 
-function deselectOptions(){
-    $('#autoanswer-template option:selected').each(function(){
-        this.selected=false;
+function deselectOptions() {
+    $('#autoanswer-template option:selected').each(function () {
+        this.selected = false;
     });
-    $('#autoanswer-status option:selected').each(function(){
-        this.selected=false;
+    $('#autoanswer-status option:selected').each(function () {
+        this.selected = false;
     });
 }
