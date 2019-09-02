@@ -66,4 +66,9 @@ public class AutoAnswersServiceImpl implements AutoAnswersService {
     public void delete(AutoAnswer entity) {
         autoAnswerRepository.delete(entity);
     }
+
+    @Override
+    public Status findBySubjectEquals(String subject){
+        return autoAnswerRepository.findBySubjectEquals(subject).getStatus();
+    }
 }

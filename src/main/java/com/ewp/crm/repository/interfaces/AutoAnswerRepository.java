@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AutoAnswerRepository extends CommonGenericRepository<AutoAnswer> {
 
+    AutoAnswer findBySubjectEquals(String subject);
+
 }
