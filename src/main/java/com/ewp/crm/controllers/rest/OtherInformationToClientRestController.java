@@ -1,10 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.ClientOtherInformation;
-import com.ewp.crm.models.OtherInformationMultipleCheckboxes;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientOtherInformationService;
-import com.ewp.crm.service.interfaces.OtherInformationMultipleCheckboxesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,12 +18,10 @@ import java.util.Optional;
 @RestController
 public class OtherInformationToClientRestController {
     private final ClientOtherInformationService clientOtherInformationService;
-    private final OtherInformationMultipleCheckboxesService otherInformationMultipleCheckboxesService;
 
     @Autowired
-    public OtherInformationToClientRestController(ClientOtherInformationService clientOtherInformationService, OtherInformationMultipleCheckboxesService otherInformationMultipleCheckboxesService) {
+    public OtherInformationToClientRestController(ClientOtherInformationService clientOtherInformationService) {
         this.clientOtherInformationService = clientOtherInformationService;
-        this.otherInformationMultipleCheckboxesService = otherInformationMultipleCheckboxesService;
     }
 
     @GetMapping(value = "/otherInformation")
@@ -40,9 +36,6 @@ public class OtherInformationToClientRestController {
 
     @RequestMapping(value = "/otherInformation/create", method = RequestMethod.POST)
     public ResponseEntity createClientOtherInformation(@RequestBody ClientOtherInformation clientOtherInformation) {
-        for (OtherInformationMultipleCheckboxes oimc: clientOtherInformation.getOimc()) {
-            otherInformationMultipleCheckboxesService.save(oimc);
-        }
         clientOtherInformationService.addClientOtherInformation(clientOtherInformation);
         return new ResponseEntity(HttpStatus.CREATED);
     }
@@ -56,26 +49,15 @@ public class OtherInformationToClientRestController {
 
     @RequestMapping(value = "/otherInformation/update/{id}", method = RequestMethod.PUT)
     public ResponseEntity<ClientOtherInformation> updateClientOtherInformation(@PathVariable("id") Long id, @RequestBody ClientOtherInformation clientOtherInformation) {
-        ClientOtherInformation coi = clientOtherInformationService.getClientOtherInformationById(id).get();
-        List<OtherInformationMultipleCheckboxes> oimcOriginal = coi.getOimc();
-        for (OtherInformationMultipleCheckboxes oimc : oimcOriginal) {
-            otherInformationMultipleCheckboxesService
-                    .deleteOtherInformationMultipleCheckboxesByNameField(oimc.getNameField());
-        }
-        List<OtherInformationMultipleCheckboxes> oimcForUpdate = clientOtherInformation.getOimc();
-        for (OtherInformationMultipleCheckboxes oimc : oimcForUpdate) {
-            otherInformationMultipleCheckboxesService.save(oimc);
-        }
         clientOtherInformation.setId(id);
-        clientOtherInformation.setOimc(oimcForUpdate);
         clientOtherInformationService.updateClientOtherInformation(clientOtherInformation);
         return new ResponseEntity<>(clientOtherInformation, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/otherInformation/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteClientOtherInformation(@PathVariable("id") Long id) {
+    public ResponseEntity<Long> deleteVkRequestFormById(@PathVariable("id") Long id) {
         clientOtherInformationService.deleteClientOtherInformationById(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

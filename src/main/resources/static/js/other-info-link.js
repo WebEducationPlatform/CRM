@@ -28,68 +28,27 @@ function createOtherInformationLink() {
 function createListOtherInformation() {
     let hash = document.getElementById('hiddenHash').value;
     let list = [];
-    $('.onecheckbox').each(function () {
-        let oimcList = [];
-        let input = $(this);
+    $('form#other-information-form :input').each(function () {
+        var input = $(this);
         let name = input.attr('id');
-        if ($(input).is(":checked")) {
-            oimcList.push({
-                value: true,
-                name: name
-            })
-        } else {
-            oimcList.push({
-                value: false,
-                name: name
-            })
-        }
-        list.push({
-            name: oimcList
-        });
-    });
-
-
-    $('.textquestionall').each(function () {
-        let oimcList = [];
-        let name = $(this).find('.textquestion').attr('id');
-        let cardField = $(this).find('.cardfield').attr('id');
-        let value = $(this).find('.textquestion').val();
-        oimcList.push({
-            value: value,
-            name: name,
-            cardField: cardField
-        });
-        list.push({
-            name: oimcList
-        });
-    });
-
-    $('.multi').each(function () {
-        let oimcList = [];
-        let name = $(this).children('input').attr('id');
-        let nameList = [];
-        nameList.push({
-            name: name
-        });
-        $(this).find('.variant').each(function () {
-            let input = $(this).children('input');
-            let name = input.attr('id');
+        if (input.attr('type') === 'checkbox') {
             if ($(input).is(":checked")) {
-                oimcList.push({
+                list.push({
                     value: true,
                     name: name
                 })
             } else {
-                oimcList.push({
+                list.push({
                     value: false,
                     name: name
                 })
             }
-        });
-        list.push({
-            oimcList: oimcList,
-            name: nameList
-        })
+        } else {
+            list.push({
+                value: input.val(),
+                name: name
+            })
+        }
     });
     let inputValueAndHash = {};
     inputValueAndHash['hash'] = hash;

@@ -21,8 +21,6 @@
         <th style="display:none;"></th>
         <th>Название вопроса</th>
         <th>Тип вопроса</th>
-        <th>Варианты чекбоксов</th>
-        <th>Поле в карточке</th>
         <th data-type="number" style="display:none;"></th>
         </thead>
         <tbody id="other-information-body">
@@ -31,11 +29,6 @@
                 <td style="display:none;" th:text="${info.id}"></td>
                 <td th:text="${info.nameField}"></td>
                 <td th:text="${info.typeField}"></td>
-                <td>
-                    <th:block th:each="variant : ${info.oimc}" th:text="${variant.nameField}">
-                    </th:block>
-                </td>
-                <td th:text="${info.cardField}"></td>
                 <td class="fit">
                     <button class="btn btn-info" data-toggle="modal" data-target="#myModal"
                             th:onclick="'getOtherInformationById('+ ${info.id} +')'"
@@ -52,11 +45,10 @@
         </th:block>
         </tbody>
     </table>
-    <button class="btn btn-info" data-toggle="modal" data-target="#createModalCheckbox">Создать вопрос с типом checkbox
+    <button class="btn btn-info" data-toggle="modal" data-target="#createModalCheckbox">Создать вопрос с типом
+        checkbox
     </button>
     <button class="btn btn-info" data-toggle="modal" data-target="#createModalText">Создать вопрос с типом текст
-    </button>
-    <button class="btn btn-info" data-toggle="modal" data-target="#createModalSeveralCheckboxes">Создать вопрос с несколькими checkbox
     </button>
 
     <div class="modal fade" id="createModalText">
@@ -78,22 +70,8 @@
                             <div class="form-group">
                                 <input id="app-name-create-text" type="text" class="form-control"/>
                             </div>
-                            <div class="form-group">
-                                <label for="app-field">Поле в карточке:</label>
-                                <select class="form-control" id="app-field">
-                                    <option selected="selected">-</option>
-                                    <option>Email</option>
-                                    <option>Номер телефона</option>
-                                    <option>Skype</option>
-                                    <option>Дата рождения</option>
-                                    <option>Возраст</option>
-                                    <option>Пол</option>
-                                    <option>Страна</option>
-                                    <option>Город</option>
-                                    <option>Университет</option>
-                                </select>
-                            </div>
                         </div>
+
                     </form>
                 </div>
                 <!-- Modal footer -->
@@ -141,51 +119,13 @@
         </div>
     </div>
 
-    <div class="modal fade" id="createModalSeveralCheckboxes">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Вопрос с несколькими checkbox</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <!-- Modal body -->
-                <div class="modal-body">
-                    <form class="form">
-                        <div class="form-group">
-                            <label for="app-name-create-checkbox">Вопрос:</label>
-                            <button type="button" class="glyphicon glyphicon-question-sign"
-                                    title="Вопрос с несколькими checkbox">
-                            </button>
-                            <div id="app-name-create-multiple" class="form-group">
-                                <input id="app-name-create-several-checkboxes" type="text" class="form-control"/>
-                                <label for="app-name-create-several-checkboxes-1">Варианты чекбоксов</label>
-                                <button class="btn btn-info btn-sm" type="button" onclick="addVariant()">Добавить еще один чекбокс</button>
-                                <button class="btn btn-danger btn-sm" type="button" onclick="removeVariant()">Удалить последний чекбокс</button>
-                                <input id="app-name-create-several-checkboxes-1" type="text" class="form-control" />
-                                <input id="app-name-create-several-checkboxes-2" type="text" class="form-control" />
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-info" data-dismiss="modal"
-                            onclick="createCheckboxes()">Создать
-                    </button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="myModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <!-- Modal Header -->
                 <div class="modal-header">
                     <h4 class="modal-title">Изменение поля</h4>
-                    <button type="button" class="close" data-dismiss="modal" onclick="removeEmptyVariants()">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <!-- Modal body -->
                 <div class="modal-body">
@@ -197,13 +137,12 @@
                         </div>
                         <div class="form-group">
                             <label for="app-type">Тип :</label>
-                            <select class="form-control" id="app-type" disabled="disabled">
-                                <option id="option0" value="0">Чекбокс</option>
-                                <option id="option1" value="1">Несколько чекбоксов</option>
-                                <option id="option2" value="2">Текст</option>
+                            <select class="form-control" id="app-type">
+                                <option value="1">Чекбокс</option>
+                                <option value="2">Текст</option>
                             </select>
                         </div>
-                        <div id="app-name-edit-multiple" class="form-group">
+                        <div class="form-group">
                             <label for="app-label">Вопрос:</label>
                             <input id="app-label" type="text" class="form-control"/>
                         </div>
@@ -214,7 +153,7 @@
                     <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="updateOtherInformation()">
                         Сохранить
                     </button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="removeEmptyVariants()">Закрыть</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
                 </div>
             </div>
         </div>

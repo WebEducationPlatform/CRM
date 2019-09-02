@@ -3,8 +3,6 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "client_other_information")
@@ -12,14 +10,17 @@ import java.util.List;
 public class ClientOtherInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coi_id")
+    @Column(name = "id")
     private Long id;
 
+    /**
+     * Название поля
+     */
     @Column(name = "name_field")
     private String nameField;
 
     /**
-     * Тип поля: текст, checkbox или checkboxes
+     * Тип поля, на данный момент просто текст или checkbox
      */
     @Column(name = "type_field")
     private String typeField;
@@ -42,33 +43,12 @@ public class ClientOtherInformation {
     @Column(name = "client_id")
     private Long clientId;
 
-    /**
-     * Поле в карточке клиента (опционально)
-     */
-    @Column(name = "card_field")
-    private String cardField;
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @JoinTable(
-            name = "questions",
-            joinColumns = { @JoinColumn(name = "coi_id") },
-            inverseJoinColumns = { @JoinColumn(name = "oimc_id") })
-    private List<OtherInformationMultipleCheckboxes> oimc = new ArrayList<>();
-
     public ClientOtherInformation() {
     }
 
     public ClientOtherInformation(String nameField, String typeField) {
         this.nameField = nameField;
         this.typeField = typeField;
-    }
-
-    public List<OtherInformationMultipleCheckboxes> getOimc() {
-        return oimc;
-    }
-
-    public void setOimc(List<OtherInformationMultipleCheckboxes> oimc) {
-        this.oimc = oimc;
     }
 
     public Long getId() {
@@ -117,13 +97,5 @@ public class ClientOtherInformation {
 
     public void setClientId(Long clientId) {
         this.clientId = clientId;
-    }
-
-    public String getCardField() {
-        return cardField;
-    }
-
-    public void setCardField(String cardField) {
-        this.cardField = cardField;
     }
 }
