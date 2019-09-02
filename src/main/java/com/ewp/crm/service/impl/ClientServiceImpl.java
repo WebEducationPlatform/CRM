@@ -775,5 +775,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public List<ClientDto.ClientTransformer> getClientsDtoByEmails(List<String> emails){
         return clientRepository.getClientsDtoByEmails(emails);
     }
+
+    @Override
+    public List<String> getClientsCities(){
+        return clientRepository.getClientsCities();
+    }
+
+    @Override
+    public List<String> getClientsCountries(){
+        return clientRepository.getClientsCountries();
+    }
 }
 

@@ -10,28 +10,13 @@ import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Пользователь CRM, менеджер, ментор и тд
@@ -519,6 +504,7 @@ public class User implements UserDetails {
         this.callRecords = callRecords;
     }
 
+
     public boolean getRowStatusDirection() {
         return isRowStatusDirection;
     }
@@ -526,4 +512,5 @@ public class User implements UserDetails {
     public void setRowStatusDirection(boolean rowStatusDirection) {
         isRowStatusDirection = rowStatusDirection;
     }
+
 }
