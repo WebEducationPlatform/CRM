@@ -186,6 +186,8 @@ public class ClientController {
         modelAndView.addObject("chooseUser", userService.getAll());
         modelAndView.addObject("mailingMessage", messageService.findAll());
         modelAndView.addObject("listMailingTypes", listMailingTypeService.getAll());
+        modelAndView.addObject("listCities", clientService.getClientsCities());
+        modelAndView.addObject("listCountries", clientService.getClientsCountries());
         return modelAndView;
     }
 
