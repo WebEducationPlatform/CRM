@@ -27,8 +27,9 @@
                 <thead id="thead-table-students-status">
                 <tr class="head-table">
                     <th class="col-md-1 fit">#</th>
-                    <th class="col-md-6">Тема сообщения</th>
+                    <th class="col-md-3">Тема сообщения</th>
                     <th class="col-md-3">Шаблон для ответа</th>
+                    <th class="col-md-3">Добавить в статус:</th>
                     <th class="col-md-3">Действия</th>
                 </tr>
                 </thead>
@@ -37,6 +38,7 @@
                     <td th:text="${template.id}"></td>
                     <td th:text="${template.subject}"></td>
                     <td ><a th:href="@{/template/edit/{id}(id=${template.messageTemplate.id}) } "  th:text="${template.messageTemplate.name}"></td>
+                    <td th:text="${template.status.name}">  </td>
                     <td class="fit" align='right'>
                         <button class="button_edit_autoanswer btn btn-info glyphicon glyphicon-pencil" th:value="${template.id}" title="Изменить"></button>
                         <button class="button_delete_autoanswer btn btn-danger glyphicon glyphicon-remove" th:value="${template.id}" title="Удалить"></button>
@@ -60,6 +62,7 @@
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row">
+                            <input id="autoanswer-id" type="hidden" value="-1" />
                             <h5 id="autoanswer-create-modal-err" class="modal-title" style="color: red; text-align: center"></h5>
                             <label for="autoanswer-subject">Тема входящего сообщения</label>
                             <input id="autoanswer-subject" class="form-control" type="text"/>
