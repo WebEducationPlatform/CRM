@@ -5,13 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
@@ -64,6 +58,7 @@ public class GoogleEmailConfig {
     private final ProjectPropertiesService projectPropertiesService;
     private final SendNotificationService sendNotificationService;
     private final UserService userService;
+    private final AutoAnswersService autoAnswersService;
     
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
     private final Environment env;
@@ -74,7 +69,7 @@ public class GoogleEmailConfig {
                              IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService,
                              ProjectPropertiesService projectPropertiesService,
                              SendNotificationService sendNotificationService, Environment env,
-                             UserService userService) {
+                             UserService userService, AutoAnswersService autoAnswersService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
@@ -96,6 +91,7 @@ public class GoogleEmailConfig {
         this.clientHistoryService = clientHistoryService;
         this.projectPropertiesService = projectPropertiesService;
         this.env = env;
+        this.autoAnswersService = autoAnswersService;
     }
 
     private Properties javaMailProperties() {
@@ -152,6 +148,14 @@ public class GoogleEmailConfig {
                         }
                         addClient = !parser.getHtmlContent().contains("javabootcamp.ru"); // не создавать карточку для клиента из заявки на буткемп
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
+                        //get status by subject request
+                        autoAnswersService.getStatusBySubject(parser.getSubject()).ifPresent(client::setStatus);
+                        //Auto answer to client by subject get templateMessage
+                        if (client.getEmail().isPresent()){
+                            MessageTemplate messageTemplate = autoAnswersService.getMesssageTemplateBySubject(parser.getSubject());
+                            prepareAndSend.sendMessage(messageTemplate.getTheme(),messageTemplate.getTemplateText(),client.getEmail().get());
+                        }
+
                         if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                             sendAutoAnswer = false; // Для клиентов из javalearn временно отключаем автоответ
                             

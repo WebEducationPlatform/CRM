@@ -68,7 +68,12 @@ public class AutoAnswersServiceImpl implements AutoAnswersService {
     }
 
     @Override
-    public Status findBySubjectEquals(String subject){
-        return autoAnswerRepository.findBySubjectEquals(subject).getStatus();
+    public Optional<Status> getStatusBySubject(String subject){
+        return Optional.of(autoAnswerRepository.findBySubjectEquals(subject).getStatus());
+    }
+
+    @Override
+    public MessageTemplate getMesssageTemplateBySubject(String subject){
+        return autoAnswerRepository.findBySubjectEquals(subject).getMessageTemplate();
     }
 }

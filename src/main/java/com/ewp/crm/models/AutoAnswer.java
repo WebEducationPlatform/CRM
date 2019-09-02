@@ -12,11 +12,11 @@ public class AutoAnswer implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "subject", unique = true)
+    @Column(name = "subject", unique = true, nullable = false)
     private String subject;
 
     @OneToOne
-    @JoinColumn(name = "messagetemplate_id")
+    @JoinColumn(name = "messagetemplate_id" , nullable = false)
     private MessageTemplate messageTemplate;
 
     @OneToOne
