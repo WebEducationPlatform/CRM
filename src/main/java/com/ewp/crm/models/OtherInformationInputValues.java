@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 public class OtherInformationInputValues {
-    String hash;
-    List<Map<String, String>> otherInformationInputValues;
+
+    private String hash;
+    private List<Map<String, List<Map<String, String>>>> otherInformationInputValues;
 
     public String getHash() {
         return hash;
@@ -15,11 +16,11 @@ public class OtherInformationInputValues {
         this.hash = hash;
     }
 
-    public List<Map<String, String>> getOtherInformationInputValues() {
+    public List<Map<String, List<Map<String, String>>>> getOtherInformationInputValues() {
         return otherInformationInputValues;
     }
 
-    public void setOtherInformationInputValues(List<Map<String, String>> otherInformationInputValues) {
+    public void setOtherInformationInputValues(List<Map<String, List<Map<String, String>>>> otherInformationInputValues) {
         this.otherInformationInputValues = otherInformationInputValues;
     }
 }
