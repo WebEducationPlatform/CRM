@@ -73,7 +73,7 @@ function getAllUrlParams(url) {
 
 $(function () {
     $(document).ready(function () {
-        // Указываем ендпоинты которые надо проверять, на которых возможено открытие модального диалога карточки по ID
+        // Указываем ендпоинты которые надо проверять, на которых возможно открытие модального диалога карточки по ID
         var enpointsWithId = ['client', 'client/allClients', 'student/all'];
 
         for (var i = 0; i < enpointsWithId.length; i++) {
@@ -1203,7 +1203,7 @@ $(function () {
                 case ('slack'):
                     url = '/slack/send/client';
                     break;
-                //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
+                //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу метода
                 case ('facebook'):
                     url = '/temporary blank';
                     break;
@@ -1398,7 +1398,7 @@ function unassignMentor(id) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id);
-            info_client.find("p[style*='display:none']").remove();
+            info_client.find("span[style*='display:none']").remove();
             info_client.find(".mentor-icon_card").remove();
             info_client.find(".ownerMentorId").remove();
             if (unassignBtn.length !== 0) {
@@ -1439,10 +1439,10 @@ function assign(id) {
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                "<span class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
-                "</p>" +
-                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
+                "</span>" +
+                "<span style='display:none'>" + owner.firstName + " " + owner.lastName + "</span>"
             );
             fillFilterList()
         },
@@ -1451,6 +1451,7 @@ function assign(id) {
     });
 }
 
+//Заполняем список фильтрации в Меню на Доске
 function fillFilterList() {
     $("#client_filter").empty();
     var names = $("#status-columns").find($(".user-icon_card"));
@@ -1473,8 +1474,6 @@ function fillFilterList() {
         $("#client_filter").append("<input class='check'  type=\"checkbox\" id = checkbox_" + el.innerText + " value=" + el.innerText + " ><label for=checkbox_" + el.innerText + ">" + el.getAttribute("value") + "</label></br>");
     });
 }
-
-$(document).ready(fillFilterList);
 
 function getHash() {
     let urlParams = window.location.href.split("?");
@@ -1515,13 +1514,17 @@ function inviteSlack(clientEmail) {
     });
 }
 
+//Получаем текущего пользователя
 function getUserLoggedIn(asyncr) {
     $.ajax({
         async: asyncr,
         type: "GET",
         url: "/rest/client/getPrincipal",
-        success: function (user) {
+        success: function(user) {
             userLoggedIn = user;
+        },
+        error: function(error) {
+            console.log(error);
         }
     });
 }

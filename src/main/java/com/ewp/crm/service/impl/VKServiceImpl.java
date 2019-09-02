@@ -481,7 +481,7 @@ public class VKServiceImpl implements VKService {
             String result = EntityUtils.toString(httpResponse.getEntity());
             JSONObject json = new JSONObject(result);
             JSONObject responeJson = json.getJSONObject("response");
-            JSONArray jsonArray = responeJson.getJSONArray("users");
+            JSONArray jsonArray = responeJson.getJSONArray("items");
             List<VkMember> vkMembers = new LinkedList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 VkMember vkMember = new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId);
