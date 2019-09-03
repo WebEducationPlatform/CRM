@@ -1,10 +1,7 @@
 package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.MessageTemplate;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.Status;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
@@ -149,45 +146,17 @@ public class GoogleEmailConfig {
                         addClient = !parser.getHtmlContent().contains("javabootcamp.ru"); // не создавать карточку для клиента из заявки на буткемп
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
                         //get status by subject request
-                        autoAnswersService.getStatusBySubject(parser.getSubject()).ifPresent(client::setStatus);
+                        Optional<AutoAnswer> autoAnswer = autoAnswersService.getAutoAnswerBySubject(parser.getSubject());
+                        Status status = autoAnswer.get().getStatus() != null ? autoAnswer.get().getStatus(): statusService.get("Новые").get();
+                        client.setStatus(status);
                         //Auto answer to client by subject get templateMessage
                         if (client.getEmail().isPresent()){
-                            MessageTemplate messageTemplate = autoAnswersService.getMesssageTemplateBySubject(parser.getSubject());
+                            MessageTemplate messageTemplate = autoAnswer.get().getMessageTemplate();
                             prepareAndSend.sendMessage(messageTemplate.getTheme(),messageTemplate.getTemplateText(),client.getEmail().get());
-                        }
-
-                        if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
-                            sendAutoAnswer = false; // Для клиентов из javalearn временно отключаем автоответ
-                            
-                            // Если клиент пришёл только за рассылкой (в форме один емайл), то отправляем его в статус "рассылки постоплата"
-                            if (!client.getPhoneNumber().isPresent() &&
-                                    (client.getName().isEmpty() || IncomeStringToClient.UNKNOWN_NAME_DEFAULT.equals(client.getName()))) {
-                                // Если такого статуса нет то создаём, если нет назначаем пользователя на этот статус
-                                Optional<Status> mailingPostpay = statusService.get("Постоплата рассылки");
-                                
-                                if (!mailingPostpay.isPresent()) {
-                                    mailingPostpay = Optional.of(new Status("Постоплата рассылки"));
-                                    statusService.add(mailingPostpay.get());
-                                }
-                                
-                                client.getEmail().ifPresent(client::setName);
-                                mailingPostpay.ifPresent(client::setStatus);
-                            } else {
-                                statusService.get("Постоплата 3").ifPresent(client::setStatus);
-                            }
-                        } else {
-                            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
-                                Optional<Status> jsPostPayStatus = statusService.get("Постоплата JS");
-                                if (!jsPostPayStatus.isPresent()) {
-                                    statusService.add(new Status("Постоплата JS"));
-                                }
-                                statusService.get("Постоплата JS").ifPresent(client::setStatus);
-                                sendAutoAnswer = false;
-                                prepareAndSend.sendMessage(env.getProperty("messaging.mailing.set-subject-js-learn-autoanswer"), env.getProperty("messaging.mailing.set-message-js-learn-autoanswer"), client.getEmail().get());
-                            } else {
-                                sendAutoAnswer = true;
-                                statusService.getFirstStatusForClient().ifPresent(client::setStatus);
-                            }
+                        }else{
+                            //Шаблон по умолчанию для автоответа - заменить бы на что!?
+                            prepareAndSend.sendMessage(env.getProperty("messaging.mailing.set-subject-js-learn-autoanswer"),
+                                    env.getProperty("messaging.mailing.set-message-js-learn-autoanswer"), client.getEmail().get());
                         }
                         if (addClient) {
                             userService.getUserToOwnCard().ifPresent(client::setOwnerUser);

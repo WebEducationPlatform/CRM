@@ -53,7 +53,11 @@ public class AutoAnswersRestController {
 
         HttpStatus status = HttpStatus.OK;
         AutoAnswer autoAnswer = autoAnswersService.add(subject, messageTemplate_id, status_id);
-        logger.info("{} has added autoanswer theme: {}", currentAdmin.getFullName(), autoAnswer.getSubject());
+        if (autoAnswer != null){
+            logger.info("{} has added autoanswer theme: {}", currentAdmin.getFullName(), autoAnswer.getSubject());
+        }else{
+            status = HttpStatus.CONFLICT;
+        }
         return status;
     }
 

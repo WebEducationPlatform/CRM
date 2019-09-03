@@ -26,11 +26,11 @@ $("#create_autoanswer").click(function () {
                 status: Number($('#autoanswer-status').val())
             },
             success: function (response) {
+                if (response ==='CONFLICT'){
+                    alert('Тема с таким текстом уже задана');
+                    return;
+                }
                 location.reload();
-            },
-            error: function () {
-                alert("Шаблон с таким именем " + name + " уже существует!");
-
             }
         });
     } else {

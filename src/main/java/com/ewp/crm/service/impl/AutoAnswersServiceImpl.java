@@ -42,6 +42,10 @@ public class AutoAnswersServiceImpl implements AutoAnswersService {
 
         MessageTemplate messageTemplate = messageTemplateService.get(messageTemplate_id);
         Optional<Status> status = statusService.get(status_id);
+        AutoAnswer autoAnswerFromDB = autoAnswerRepository.findBySubjectEquals(subject);
+        if (autoAnswerFromDB != null){
+            return null;
+        }
         AutoAnswer entity = new AutoAnswer(subject, messageTemplate,status.get());
         autoAnswerRepository.saveAndFlush(entity);
         return entity;
@@ -68,12 +72,8 @@ public class AutoAnswersServiceImpl implements AutoAnswersService {
     }
 
     @Override
-    public Optional<Status> getStatusBySubject(String subject){
-        return Optional.of(autoAnswerRepository.findBySubjectEquals(subject).getStatus());
+    public Optional<AutoAnswer> getAutoAnswerBySubject(String subject){
+        return Optional.ofNullable(autoAnswerRepository.findBySubjectEquals(subject));
     }
 
-    @Override
-    public MessageTemplate getMesssageTemplateBySubject(String subject){
-        return autoAnswerRepository.findBySubjectEquals(subject).getMessageTemplate();
-    }
 }
