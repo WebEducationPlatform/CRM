@@ -6,17 +6,7 @@ import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ListMailingService;
-import com.ewp.crm.service.interfaces.ListMailingTypeService;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +48,7 @@ public class ClientController {
     private final ListMailingTypeService listMailingTypeService;
     private final SlackService slackService;
     private final StatusController statusController;
+    private final UserStatusService userStatusService;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -74,7 +65,8 @@ public class ClientController {
                             MailingMessageRepository messageService,
                             StudentStatusService studentStatus,
                             ListMailingTypeService listMailingTypeService,
-                            SlackService slackService, StatusController statusController) {
+                            SlackService slackService, StatusController statusController,
+                            UserStatusService userStatusService) {
         this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
@@ -88,6 +80,7 @@ public class ClientController {
         this.studentStatus = studentStatus;
         this.listMailingTypeService = listMailingTypeService;
         this.statusController = statusController;
+        this.userStatusService = userStatusService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -139,7 +132,7 @@ public class ClientController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+        List<StatusDtoForBoard> statuses = userStatusService.getStatusesForBoard(userFromSession.getId(), sessionRoles);
         modelAndView.addObject("statuses", statuses);
 
         modelAndView.addObject("counter", new AtomicInteger(0));

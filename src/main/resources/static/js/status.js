@@ -169,7 +169,7 @@ function hideStatus() {
         url = '/admin/rest/status/visible/change',
         formData = {
             statusId: val,
-            invisible: true
+            invisible: false
         };
 
     $.ajax({
@@ -192,7 +192,7 @@ $(document).ready(function () {
             url = '/admin/rest/status/visible/change',
             formData = {
                 statusId: $(this).attr("value"),
-                invisible: false
+                invisible: true
             };
 
         $.ajax({
@@ -200,7 +200,7 @@ $(document).ready(function () {
             url: url,
             data: formData,
             success: function (status) {
-                location.reload();
+                $('#invisibleStatuses' + status.id).remove();
             },
             error: function (error) {
                 console.log(error);
@@ -290,9 +290,11 @@ $(function () {
                 var row = table.rows[i];
                 var id = row.cells[0].textContent;
                 let position = row.cells[1].textContent;
+                let name = row.cells[2].textContent;
                 let dto = {
                     id: id,
-                    position:position
+                    position:position,
+                    statusName:name
                 }
                 dtos.push(dto);
             }
@@ -309,7 +311,7 @@ $(function () {
                     console.log(error);
                 }
             });
-            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Сохранить</button>');
+            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Обновить главную страницу</button>');
         }
     }).disableSelection();
 });
