@@ -308,7 +308,10 @@ ul.nav a:hover {
 	margin: -40px 0 0 0;
 	overflow: hidden;
 	height: 90%;
-	z-index: 200;
+	z-index:  1100; /* Изменен на 1100 для того, чтобы кнопка "меню" отображалась поверх всего остального
+					  так как при увеличении масштаба съежала из-за нивигационного бара!
+					  [Азамат 01.09.2019]
+					 */
 }
 
 #panel-content {
@@ -328,7 +331,8 @@ ul.nav a:hover {
 	opacity:0.7;
 	padding: 3px 20px 3px 5px;
 	cursor: pointer;
-	margin-top: 7%;
+	margin-top:  16%; /* [Азамат]: Значение установлено в 16%, так как т.о. не перекрывает карточки! */
+
 }
 
 #panel-sticker:hover {
