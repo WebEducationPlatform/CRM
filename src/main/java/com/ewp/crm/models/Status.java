@@ -128,7 +128,15 @@ public class Status implements Serializable {
 		this.nextPaymentOffset = 0;
 	}
 
+	public Status(Long statusId, String statusName, Boolean isInvisible, Long position) {
+		this.id = statusId;
+		this.name = statusName;
+		this.isInvisible = isInvisible;
+		this.position = position;
+	}
+
 	public Status() {
+
 	}
 
 	public Long getPosition() {
