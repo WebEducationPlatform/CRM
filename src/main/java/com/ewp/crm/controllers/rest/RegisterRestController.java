@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.UserStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class RegisterRestController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserStatusService userStatusService;
+
 
     @PostMapping(value = "/user/register")
     public ResponseEntity addUser(@Valid @RequestBody User user) {
@@ -27,7 +31,13 @@ public class RegisterRestController {
             logger.warn("CRM been attempt of hacking");
             return ResponseEntity.status(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS).build();
         }
-        userService.add(user);
+        try {
+            userService.add(user);
+            userStatusService.addUserAllStatus(user);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+
         logger.info("{} has register user: email {}", user.getFullName(), user.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
