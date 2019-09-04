@@ -10,20 +10,7 @@ import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.Instant;
@@ -39,6 +26,8 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "user")
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 16)
+@DiscriminatorValue(value = "USER")
 @ApiModel(value = "user class")
 public class User implements UserDetails {
 
@@ -511,5 +500,9 @@ public class User implements UserDetails {
 
     public void setCallRecords(List<CallRecord> callRecords) {
         this.callRecords = callRecords;
+    }
+
+    public enum UserType {
+        USER, MENTOR
     }
 }

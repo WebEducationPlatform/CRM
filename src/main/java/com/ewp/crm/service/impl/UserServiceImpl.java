@@ -3,10 +3,12 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
+import com.ewp.crm.models.Mentor;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.models.dto.UserDtoForBoard;
+import com.ewp.crm.repository.interfaces.MentorDao;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
@@ -24,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -42,19 +43,22 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private Environment env;
     private final EntityManager entityManager;
     private final RoleService roleService;
+    private final MentorDao mentorDao;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator,
-                           Environment env,  EntityManager entityManager, RoleService roleService) {
+                           Environment env, EntityManager entityManager, RoleService roleService, MentorDao mentorDao) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
         this.env = env;
         this.entityManager = entityManager;
         this.roleService = roleService;
+        this.mentorDao = mentorDao;
     }
 
     @Override
@@ -108,9 +112,13 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         }
 
         logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
-        userDAO.saveAndFlush(user);
+        User.UserType userType = userDAO.getUserType(user.getId());
+        if (userType.equals(User.UserType.MENTOR)) {
+            mentorDao.saveAndFlush(new Mentor(user));
+        }else {
+            userDAO.saveAndFlush(user);
+        }
     }
-
     @Override
     public void addPhoto(MultipartFile file, User user) {
         logger.info("{}: adding of a photo...", UserServiceImpl.class.getName());

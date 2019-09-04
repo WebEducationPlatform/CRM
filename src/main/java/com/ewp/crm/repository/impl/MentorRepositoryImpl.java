@@ -13,7 +13,7 @@ import javax.persistence.Query;
 @Repository
 public class MentorRepositoryImpl implements MentorRepository {
 
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Autowired
     public MentorRepositoryImpl(EntityManager entityManager){
@@ -37,6 +37,7 @@ public class MentorRepositoryImpl implements MentorRepository {
     @Transactional
     @Override
     public void saveMentorShowAllFieldAndUserIdField(boolean showAll, Long userId) {
+        updateUserTypeAsMentor(userId);
         entityManager.createNativeQuery("INSERT INTO mentor (mentor_show_only_my_clients,user_id) VALUES (" + showAll + "," + userId + ")").executeUpdate();
     }
 
@@ -65,20 +66,17 @@ public class MentorRepositoryImpl implements MentorRepository {
         updateQuery.executeUpdate();
     }
 
-    @Override
-    @Transactional
-    public void updateUserAsMentorWithQuantityStudents(long id, int quantityStudents){
-        Query updateQuery = entityManager.createNativeQuery("INSERT INTO mentor (quantity_students,user_id) VALUES (:quantityStudents, :id)");
-        updateQuery.setParameter("quantityStudents",quantityStudents);
-        updateQuery.setParameter("id", id);
-        updateQuery.executeUpdate();
-    }
     
-    @Override
     @Transactional
-    public void updateUserAsMentorWithDefaultValues(long id){
+    private void updateUserAsMentorWithDefaultValues(long id){
         Query updateQuery = entityManager.createNativeQuery("INSERT INTO mentor (user_id) VALUES (:id)");
         updateQuery.setParameter("id", id);
         updateQuery.executeUpdate();
+        updateUserTypeAsMentor(id);
+    }
+    private void updateUserTypeAsMentor(Long id){
+        Query nativeQuery = entityManager.createNativeQuery("UPDATE user u SET user_type = 'MENTOR' where u.user_id = :id");
+        nativeQuery.setParameter("id", id);
+        nativeQuery.executeUpdate();
     }
 }

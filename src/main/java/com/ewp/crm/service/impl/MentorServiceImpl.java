@@ -47,13 +47,4 @@ public class MentorServiceImpl implements MentorService {
         mentorRepository.updateQuantityStudentsByMentorId(id, quantityStudents);
     }
 
-    @Override
-    public void updateUserAsMentorWithQuantityStudents(long id, int quantityStudents){
-        mentorRepository.updateUserAsMentorWithQuantityStudents(id, quantityStudents);
-    }
-
-    @Override
-    public void updateUserAsMentorWithDefaultValues(long id) {
-        mentorRepository.updateUserAsMentorWithDefaultValues(id);
-    }
 }

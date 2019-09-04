@@ -108,6 +108,7 @@ function changeUser(id, authId) {
                 }
             }
             sendPhoto(id, authId);
+            updateQuantityStudents();
             window.location.replace("/client")
         },
         error: function (e) {
@@ -115,23 +116,7 @@ function changeUser(id, authId) {
             console.log(e.responseText);
         }
     });
-    // if (isUpdatedUserMentor){
-    //     let mentorUrl = '/mentor/rest/mentor/update/' + updatedUserId;
-    //     $.ajax({
-    //         url: mentorUrl,
-    //         type: 'POST',
-    //         dataType: 'json',
-    //         data: {
-    //             id: updatedUserId,
-    //             quantityStudents: $("#quantity-students").val(),
-    //             success: function (resp) {
-    //
-    //             }
-    //
-    //         }
-    //
-    //     })
-    // }
+
 }
 
 $(document).on('click', '#editUser', function editUserBtn() {
@@ -392,31 +377,46 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
 }
 
 $(document).ready(function () {
-    let quantity = $("#quantity-students");
+    let studentQuantity = $("#quantity-students");
     let studentsQuantityDiv = $("#students-quantity");
     if (isUpdatedUserMentor) {
         studentsQuantityDiv.show();
+        let url = "/admin/rest/mentor/student/quantity/"+updatedUserId;
+        $.ajax({
+                url: url,
+                type: 'GET',
+                contentType: 'application/json; charset=UTF-8',
+                complete: function (result) {
+                    studentQuantity.val(result.responseText);
+                },
+                error: function (data) {
+                    console.log('Something went wrong, could not get quantity students')
+                }
+            }
+        )
     }else {
         studentsQuantityDiv.hide();
     }
-    let url = "/admin/rest/mentor/student/quantity/"+updatedUserId;
-    $.ajax({
-            url: url,
-            type: 'GET',
-            contentType: 'application/json; charset=UTF-8',
-            complete: function (result) {
-                quantity.val(result.responseText);
-                alert(result.responseText);
-            },
-            error: function (data) {
-                console.log('Something went wrong, couldn`t get quantity students')
-            }
-        }
-    )
 
 });
+function updateQuantityStudents() {
+    if (isUpdatedUserMentor){
+        let mentorUrl = '/mentor/rest/user/update';
+        let quantity = $("#quantity-students").val();
+        console.log(quantity);
+        $.ajax({
+            url: mentorUrl,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                id: updatedUserId,
+                quantityStudents: quantity,
+                success: function (resp) {
+                    console.log(quantity);
+                }
 
-function updateUserAsMentor() {
+            }
 
-
+        })
+    }
 }

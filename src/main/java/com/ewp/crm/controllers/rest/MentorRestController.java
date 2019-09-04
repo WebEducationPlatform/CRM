@@ -9,19 +9,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MentorRestController {
     private final MentorService mentorService;
-    private final UserService userService;
     private static Logger logger = LoggerFactory.getLogger(MentorRestController.class);
 
     @Autowired
-    public MentorRestController(MentorService mentorService, UserService userService){
+    public MentorRestController(MentorService mentorService){
         this.mentorService = mentorService;
-        this.userService = userService;
     }
 
     @PostMapping(value = "/mentor/showOnlyMyClients")
@@ -41,16 +40,16 @@ public class MentorRestController {
         return  ResponseEntity.ok(mentorShowAllClients);
     }
 
+    @PreAuthorize("hasAnyAuthority('OWNER')")
     @GetMapping(value = "/admin/rest/mentor/student/quantity/{id}")
     public int getQuantityStudentsForMentor(@PathVariable long id){
         return mentorService.getQuantityStudentsByMentorId(id);
     }
 
-//    @PreAuthorize("hasAnyAuthority('OWNER')")
-    @PostMapping(value = "/mentor/rest/user/update/{id}")
-    public ResponseEntity updateUser(@PathVariable long id) {
-//        mentorService.updateQuantityStudentsByMentorId(id,20);
-        mentorService.updateUserAsMentorWithQuantityStudents(id,20);
+    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PostMapping(value = "/mentor/rest/user/update")
+    public ResponseEntity updateUser(@RequestParam long id, @RequestParam int quantityStudents) {
+        mentorService.updateQuantityStudentsByMentorId(id,quantityStudents);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }

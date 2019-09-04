@@ -27,4 +27,8 @@ public interface UserDAO extends CommonGenericRepository<User>, UserDAOCustom {
 			"LEFT JOIN role r ON p.role_id = r.id " +
 			"WHERE r.role_name = 'MENTOR'")
     List<MentorDtoForMentorsPage> getAllMentors();
+
+	@Query(nativeQuery = true, value = "SELECT user_type FROM user WHERE user_id = :id")
+
+	User.UserType getUserType(long id);
 }

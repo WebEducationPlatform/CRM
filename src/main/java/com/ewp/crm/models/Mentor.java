@@ -4,13 +4,15 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.List;
 
-@Entity
+@Entity(name = "mentor")
 @Table(name = "mentor")
-@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue(value = "MENTOR")
 public class Mentor extends User {
     /**
-     *Ддя ментора показывать ли только свои пользователей
+     * Ддя ментора показывать ли только свои пользователей
      */
     @Column(name = "mentor_show_only_my_clients")
     @ColumnDefault("1")
@@ -27,6 +29,12 @@ public class Mentor extends User {
     public Mentor(boolean showOnlyMyClients) {
         super();
         this.showOnlyMyClients = showOnlyMyClients;
+    }
+
+    public Mentor(User user) {
+        super(user.getFirstName(), user.getLastName(), user.getBirthDate(), user.getPhoneNumber(), user.getEmail(), user.getPassword(),
+                user.getVk(), user.getSex(), user.getCity(), user.getCountry(), user.getRole(), user.isIpTelephony(), user.isVerified());
+    super.setId(user.getId());
     }
 
     public int getQuantityStudents() {

@@ -17,9 +17,4 @@ public interface MentorRepository {
 
     void updateQuantityStudentsByMentorId(long id, int quantityStudents);
 
-    @Transactional
-    void updateUserAsMentorWithQuantityStudents(long id, int quantityStudents);
-
-    @Transactional
-    void updateUserAsMentorWithDefaultValues(long id);
 }

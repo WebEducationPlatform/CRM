@@ -15,7 +15,4 @@ public interface MentorService {
 
     void updateQuantityStudentsByMentorId(long id, int quantityStudents);
 
-    void updateUserAsMentorWithQuantityStudents(long id, int quantityStudents);
-
-    void updateUserAsMentorWithDefaultValues(long id);
 }
