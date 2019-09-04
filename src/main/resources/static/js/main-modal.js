@@ -145,14 +145,12 @@ $(function () {
             type: "POST",
             url: "/user/notification/postpone/getAll",
             data: formData,
-
             success: function (result) {
                 if(result.length > 0) {
                     $.ajax({
                         type: "POST",
                         url: "rest/client/postpone/getComment",
                         data: formData,
-
                         success: function (result) {
                             let currentModal = $('#postponeCommentModal');
                             currentModal.modal('show');
@@ -167,13 +165,11 @@ $(function () {
                         }
                     });
                 }
-
             },
             error: function (e) {
                 console.log(e)
             }
         });
-
     });
 });
 
@@ -202,9 +198,58 @@ function dropRepeatedFlag(clientId, repeated) {
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
 
+        var cardFieldEmail;
+        var cardFieldPhone;
+        var cardFieldSkype;
+        var cardFieldBirthday;
+        var cardFieldAge;
+        var cardFieldGender;
+        var cardFieldCountry;
+        var cardFieldCity;
+        var cardFieldUniver;
+
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         $('#slackLinkModal').data('clientId', clientId);
+
+        $.ajax({
+            type: 'GET',
+            url: "/otherInformation/client/" + clientId,
+            success: function (listInfo) {
+                for (let i = 0; i < listInfo.length; i++) {
+                    if (listInfo[i].cardField === "EMAIL") {
+                        cardFieldEmail = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "PHONE") {
+                        cardFieldPhone = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "SKYPE") {
+                        cardFieldSkype = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "BIRTHDAY") {
+                        cardFieldBirthday = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "AGE") {
+                        cardFieldAge = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "GENDER") {
+                        cardFieldGender = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "COUNTRY") {
+                        cardFieldCountry = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "CITY") {
+                        cardFieldCity = listInfo[i].textValue;
+                    }
+                    if (listInfo[i].cardField === "UNIVER") {
+                        cardFieldUniver = listInfo[i].textValue;
+                    }
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
 
         $.ajax({
             async: true,
@@ -248,10 +293,24 @@ $(function () {
                 currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
                 currentModal.find('#client-set-status-button').text(client.status.name);
 
-                $('#client-email').text(client.clientEmails[0]);
-                $('#client-phone').text(client.clientPhones[0]);
+                if (cardFieldEmail) {
+                    $('#client-email').text(cardFieldEmail);
+                } else {
+                    $('#client-email').text(client.clientEmails[0]);
+                }
 
-                $('#client-skype').text(client.skype);
+                if (cardFieldPhone) {
+                    $('#client-phone').text(cardFieldPhone);
+                } else {
+                    $('#client-phone').text(client.clientPhones[0]);
+                }
+
+                if (client.skype) {
+                    $('#client-skype').text(client.skype);
+                } else {
+                    $('#client-skype').text(cardFieldSkype);
+                }
+
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
                         .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.clientPhones[0] + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
@@ -261,12 +320,24 @@ $(function () {
                     $('#btn-mic-off').hide();
                     $('#btn-call-off').hide();
                 }
-                if (client.age > 0) {
-                    $('#client-age').text(client.age);
+
+
+                if (cardFieldAge) {
+                    $('#client-age').text(cardFieldAge);
                 } else {
-                    $('#client-age').text('');
+                    if (client.age > 0) {
+                        $('#client-age').text(client.age);
+                    } else {
+                        $('#client-age').text('');
+                    }
                 }
-                $('#client-sex').text(client.sex);
+
+                if (cardFieldGender) {
+                    $('#client-sex').text(cardFieldGender);
+                } else {
+                    $('#client-sex').text(client.sex);
+                }
+
                 if (client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
                     $('#client-label').text(client.clientDescriptionComment);
                 } else {
@@ -277,15 +348,34 @@ $(function () {
                 } else {
                     $('#email-href').show();
                 }
-                if (client.birthDate) {
+
+                if (cardFieldBirthday) {
+                    $('#client-date-of-birth').text(cardFieldBirthday);
+                } else if (client.birthDate) {
                     let bDate = client.birthDate.split('-');
                     $('#client-date-of-birth').text(bDate[2] + '.' + bDate[1] + '.' + bDate[0]);
                 } else {
                     $('#client-date-of-birth').text('');
                 }
-                $('#client-country').text(client.country);
-                $('#client-city').text(client.city);
-                $('#client-university').text(client.university);
+
+                if (cardFieldCountry) {
+                    $('#client-country').text(cardFieldCountry);
+                } else {
+                    $('#client-country').text(client.country);
+                }
+
+                if (cardFieldCity) {
+                    $('#client-city').text(cardFieldCity);
+                } else {
+                    $('#client-city').text(client.city);
+                }
+
+                if (cardFieldUniver) {
+                    $('#client-university').text(cardFieldUniver);
+                } else {
+                    $('#client-university').text(client.university);
+                }
+
                 if (client.requestFrom !== null) {
                     $('#client-request-button').show();
                     $('#client-request').text(client.requestFrom);
@@ -434,9 +524,10 @@ $(function () {
                 $('#other-information-btn').empty();
 
                 if (client.otherInformationLinkData != null) {
-                    $('#other-information-btn').empty().append('<button class="btn btn-info btn-sm" id="get-other-info-btn" ' +
+                    $('#other-information-btn').append('<button class="btn btn-info btn-sm" id="get-other-info-btn" ' +
                         'data-toggle="modal" data-target="#other-information-value-modal" >Дополнительная информация</button>');
                     $.ajax({
+                        async: true,
                         type: 'GET',
                         url: "/otherInformation/client/" + client.id,
                         success: function (listInfo) {
@@ -448,14 +539,20 @@ $(function () {
                                     if (listInfo[i].checkboxValue) {
                                         $('#' + id + ' tbody').append('<tr><td>' + name + '</td><td>ДА</td></tr>')
                                     } else {
-                                        $('#' + id + ' tbody').append('<tr><td>' + name + '</td>' +
-                                            '<td>НЕТ</td>' +
-                                            '</tr>')
+                                        $('#' + id + ' tbody').append('<tr><td>' + name + '</td><td>НЕТ</td></tr>')
+                                    }
+                                } else if (listInfo[i].typeField === "CHECKBOXES") {
+                                    $('#' + id + ' tbody').append('<tr><td colspan="2" align="center">' + listInfo[i].nameField + '</td></tr>')
+                                    for (let j = 0; j < listInfo[i].oimc.length; j++) {
+                                        if (listInfo[i].oimc[j].checkboxValue) {
+                                            $('#' + id + ' tbody').append('<tr><td>' + listInfo[i].oimc[j].nameField + '</td><td>ДА</td></tr>')
+                                        } else {
+                                            $('#' + id + ' tbody').append('<tr><td>' + listInfo[i].oimc[j].nameField + '</td><td>НЕТ</td></tr>')
+                                        }
                                     }
                                 } else {
                                     $('#' + id + ' tbody').append('<tr><td>' + name + '</td>' +
-                                        '<td>' + listInfo[i].textValue+ '</td>' +
-                                        '</tr>')
+                                        '<td>' + listInfo[i].textValue + '</td>' + '</tr>');
                                 }
                             }
                         }
