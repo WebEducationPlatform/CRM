@@ -3,6 +3,13 @@ package com.ewp.crm.configs;
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
@@ -45,6 +52,7 @@ public class GoogleEmailConfig {
     private String imapServer;
     private String mailJavaLearn;
     private String mailBootCamp;
+	private boolean autoSetUser = false;
 
     private final BeanFactory beanFactory;
     private final ClientService clientService;
@@ -56,7 +64,7 @@ public class GoogleEmailConfig {
     private final SendNotificationService sendNotificationService;
     private final UserService userService;
     private final AutoAnswersService autoAnswersService;
-    
+
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
     private final Environment env;
 
@@ -105,7 +113,7 @@ public class GoogleEmailConfig {
     public ImapIdleChannelAdapter mailAdapter() {
         // Если стоит пароль по умолчанию * (из gmail.properties), то не зпускаем службу слежки за почтой
         if (password.equals("*")) return null;
-        
+
         ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
         mailReceiver.setJavaMailProperties(javaMailProperties());
         mailReceiver.setShouldDeleteMessages(false);
@@ -124,7 +132,7 @@ public class GoogleEmailConfig {
 
         return imapIdleChannelAdapter;
     }
-    
+
     @Bean
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
@@ -159,7 +167,15 @@ public class GoogleEmailConfig {
                                     env.getProperty("messaging.mailing.set-message-js-learn-autoanswer"), client.getEmail().get());
                         }
                         if (addClient) {
-                            userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
+							if (autoSetUser) {
+								userService.getUserToOwnCard().ifPresent(client::setOwnerUser);
+							}
+                            UserRoutes.UserRouteType routeType = null;
+                            if (parser.getSubject().contains("java-mentor")){
+                                routeType = UserRoutes.UserRouteType.FROM_JM_EMAIL;
+                            }
+                            userService.getUserToOwnCard(routeType).ifPresent(client::setOwnerUser);
+
                             clientService.addClient(client, null);
                             if (parser.getSubject().contains("java-mentor")) {
                                 sendNotificationService.sendNewClientNotification(client, "Java-mentor");

@@ -45,13 +45,14 @@ public class StatusRestController {
     private final StudentStatusService studentStatusService;
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private final RoleService roleService;
+    private final UserStatusService userStatusService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
                                 ClientHistoryService clientHistoryService, NotificationService notificationService,
                                 StudentService studentService, StudentStatusService studentStatusService,
                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService,
-                                RoleService roleService) {
+                                RoleService roleService, UserStatusService userStatusService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -60,6 +61,7 @@ public class StatusRestController {
         this.studentStatusService = studentStatusService;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.roleService = roleService;
+        this.userStatusService = userStatusService;
     }
 
     @GetMapping
@@ -95,8 +97,9 @@ public class StatusRestController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
-        return ResponseEntity.ok(statuses.stream().filter(StatusDtoForBoard::getInvisible).collect(Collectors.toList()));
+        List<StatusDtoForBoard> statuses = userStatusService.getStatusesForBoard(userFromSession.getId(), sessionRoles);
+
+        return ResponseEntity.ok(statuses.stream().filter(statusDtoForBoard -> !statusDtoForBoard.getInvisible()).collect(Collectors.toList()));
     }
 
     @RequestMapping(value = "lost", method = {RequestMethod.POST}, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -111,7 +114,12 @@ public class StatusRestController {
                                        @AuthenticationPrincipal User currentAdmin) {
 
         final Status status = new Status(statusName);
-        statusService.add(status, currentAdmin.getRole());
+        try {
+            statusService.add(status, currentAdmin.getRole());
+            userStatusService.addStatusAllUsers(status);
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+        }
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
         return ResponseEntity.ok("Успешно добавлено");
     }
@@ -220,32 +228,27 @@ public class StatusRestController {
     }
 
     @GetMapping("/all/dto-position-id")
-    public ResponseEntity<List<StatusPositionIdNameDTO>> getAllStatusPositions() {
-        List<StatusPositionIdNameDTO> statusPositionIdNameDTOList = statusService.getAllStatusesMinDTOWhichAreNotInvisible();
+    public ResponseEntity<List<StatusPositionIdNameDTO>> getAllStatusPositions(@AuthenticationPrincipal User currentUser) {
+        List<StatusPositionIdNameDTO> statusPositionIdNameDTOList = userStatusService.getAllStatusVisibleTrue(currentUser.getId());
         statusPositionIdNameDTOList.sort(Comparator.comparingLong(StatusPositionIdNameDTO::getPosition));
         return ResponseEntity.ok(statusPositionIdNameDTOList);
     }
 
     @RequestMapping(value = "/position/change", method = RequestMethod.PUT)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity updateStatusesPositions(@RequestBody List<StatusPositionIdNameDTO> statusesPositionIdsNameDTO) {
-        for (int out = statusesPositionIdsNameDTO.size() - 1; out >= 1; out--){
-            for (int in = 0; in < out; in++){
-                if(statusesPositionIdsNameDTO.get(in).getPosition() > statusesPositionIdsNameDTO.get(in + 1).getPosition())    {
-                    Long postitonFirst =   statusesPositionIdsNameDTO.get(in).getPosition();
-                    Long postitonSecond =   statusesPositionIdsNameDTO.get(in + 1).getPosition();
-                    Long idFirst = statusesPositionIdsNameDTO.get(in).getId();
-                    Long idSecond = statusesPositionIdsNameDTO.get(in + 1).getId();
-                    statusesPositionIdsNameDTO.get(in).setPosition(postitonSecond);
-                    statusesPositionIdsNameDTO.get(in + 1).setPosition(postitonFirst);
-                    Optional<Status> first = statusService.get(idFirst);
-                    Optional<Status> second = statusService.get(idSecond);
-                    first.get().setPosition(postitonSecond);
-                    second.get().setPosition(postitonFirst);
-                    statusService.update(first.get());
-                    statusService.update(second.get());
-                }
-            }
+    public ResponseEntity updateStatusesPositions(@RequestBody List<StatusPositionIdNameDTO> statusesPositionIdsNameDTOList,
+                                                  @AuthenticationPrincipal User currentUser) {
+        int in = 1;
+        for (StatusPositionIdNameDTO statusPositionIdNameDTO : statusesPositionIdsNameDTOList){
+                userStatusService.updateUserStatus(
+                        new Status(
+                                statusPositionIdNameDTO.getId(),
+                                statusPositionIdNameDTO.getStatusName(),
+                                true,
+                                Long.valueOf(in)
+                        ),
+                        currentUser);
+                in++;
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
