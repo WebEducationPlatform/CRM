@@ -26,7 +26,7 @@
         <div th:id="'status-column'+${status.id}"
              class="column" th:each="status : ${statuses}"
              th:value="${status.id}"
-             th:if="${!status.invisible}">
+             th:if="${status.invisible}">
             <div id="column-header" class="column-header">
                 <div class="btn-group">
                     <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn"
@@ -130,7 +130,7 @@
         <div id="panel-content">
             <div class="panel-group">
                 <div class="panel-title">
-                    <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
+                    <a id="close-panel-icon" class="glyphicon glyphicon-remove" onclick="closeMenu()"></a>
                     <h2>Меню</h2>
                 </div>
                 <div id="showOnlyMyClientsDiv" sec:authorize="hasAnyAuthority('MENTOR')">

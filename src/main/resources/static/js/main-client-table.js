@@ -27,6 +27,10 @@ $(document).ready(function renderMainClientTable () {
 
 });
 
+function closeMenu() {
+    location.reload();
+}
+
 //Получаем список всех скрытых статусов
 function getInvisibleStatuses() {
     let url = "/rest/status/all/invisible";
@@ -123,6 +127,36 @@ function getAllWithoutMentors() {
     });
 }
 
+//Получаем направление вывода статусов на Доске и переключаем вид
+function getRowStatusDirection() {
+    let url = "/rest/user/isRowStatusDirection";
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: true,
+        success: function (direction) {
+            statusViewSwitch(direction);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//Запоминаем направление вывода статусов на Доске
+function setRowStatusDirection(direction) {
+    let url = "/rest/user/isRowStatusDirection";
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {direction : direction},
+        async: true,
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
 //Заполняем таблицу всех скрытых статусов
 function drawHiddenStatusesTable() {
     getInvisibleStatuses();
@@ -133,9 +167,9 @@ function drawHiddenStatusesTable() {
     if (invisibleStatuses.length !=0) {
         for (let i = 0; i < invisibleStatuses.length; i++) {
             if (invisibleStatuses[i].name != 'deleted') {
-                trHTML += "<tr><td width='70%'>" + invisibleStatuses[i].name + "</td>" +
+                trHTML += "<tr id='invisibleStatuses" + invisibleStatuses[i].id + "'><td width='70%'>" + invisibleStatuses[i].name + "</td>" +
                     "<td>" +
-                        "<button type='button' class='show-status-btn btn' " +
+                        "<button id='" + invisibleStatuses[i].id + "' type='button' class='show-status-btn btn' " +
                             "value='" + invisibleStatuses[i].id + "'>Показать</button>" +
                     "</td></tr>";
             }
@@ -285,5 +319,33 @@ function drawClientCardMenu(clientId) {
         liHTML += divider;
 
         element.before(liHTML);
+    }
+}
+
+$(document).ready(function() {
+    $('#status-as-columns').on('click', function() {
+        statusViewSwitch(false);
+        setRowStatusDirection(false);
+    });
+
+    $('#status-as-rows').on('click', function() {
+        statusViewSwitch(true);
+        setRowStatusDirection(true);
+    });
+
+    getRowStatusDirection();
+});
+
+function statusViewSwitch(is_row_status_direction) {
+    if (is_row_status_direction) {
+        $(".status-columns").css("flex-direction", "row");
+        $(".clients-cards").css({'padding-right' : 'inherit', 'flex-direction' : 'column'});
+        $("#status-as-columns").css("background-color", "white");
+        $("#status-as-rows").css("background-color", "red");
+    } else {
+        $(".status-columns").css("flex-direction", "column");
+        $(".clients-cards").css({'padding-right' : '50px', 'flex-direction' : 'row'});
+        $("#status-as-rows").css("background-color", "white");
+        $("#status-as-columns").css("background-color", "red");
     }
 }
