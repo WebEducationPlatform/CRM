@@ -55,9 +55,17 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 					"FROM client c " +
 					"JOIN client_emails ce ON c.client_id = ce.client_id " +
 					"WHERE LOWER(ce.client_email) IN :emails " /*+
-                    "OR LOWER(c.email) IN :emails"*/
-	)
-	List<ClientDto.ClientTransformer> getClientsDtoByEmails(@Param("emails") List<String> emails);
+                    "OR LOWER(c.email) IN :emails"*/    )
+    List<ClientDto.ClientTransformer> getClientsDtoByEmails(@Param("emails") List<String> emails);
+
+    @Query(nativeQuery = true,
+            value = "SELECT city FROM client GROUP BY city ORDER BY city")
+    List<String> getClientsCities();
+
+    @Query(nativeQuery = true,
+            value = "SELECT country FROM client GROUP BY country ORDER BY country")
+    List<String> getClientsCountries();
+
 
 	@Query(nativeQuery = true,
 			value = "SELECT c.* FROM client c" +
@@ -68,4 +76,5 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 
 	@Query("SELECT c.id FROM Client c WHERE c.name = ?1 AND c.lastName = ?2")
 	Long getClientByFirstAndLastName(String firstName, String lastName);
+
 }

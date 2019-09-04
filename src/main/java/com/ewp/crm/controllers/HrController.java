@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.models.dto.HrDtoForBoard;
@@ -97,11 +98,13 @@ public class HrController {
 	public ModelAndView showAllManagers() {
 		final ModelAndView modelAndView = new ModelAndView("hr-table");
 
-		modelAndView.addObject("hrManagers",
-				userService.getByRole(roleService.getRoleByName("HR"))
-						.stream().map(HrDtoForBoard::new)
-						.collect(Collectors.toList()));
+        modelAndView.addObject("hrManagers",
+                userService.getByRole(roleService.getRoleByName("HR"))
+                        .stream().map(HrDtoForBoard::new)
+                        .collect(Collectors.toList()));
+        modelAndView.addObject("userRoutesTypes", UserRoutes.UserRouteType.values());
 
-		return modelAndView;
-	}
+        return modelAndView;
+    }
+
 }

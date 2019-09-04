@@ -238,6 +238,39 @@
                             Все e-mail из Slack
                         </button>
                         <br /><br />
+                        <div class="form-group" id="filterinsertinto" >
+                            <div>Параметры фильтра</div>
+                            <label for="filter-mailing-list-countries">Страна:</label>
+                            <select id="filter-mailing-list-countries" class="form-control" >
+                                <option th:each="country:${listCountries}" th:value="${country}" th:text="${country}">country</option>
+                            </select>
+                            <label for="filter-mailing-list-cities">Город:</label>
+                            <select id="filter-mailing-list-cities" class="form-control">
+                                <option th:each="city:${listCities}" th:value="${city}" th:text="${city}">Город</option>
+                            </select>
+                            <label for="filter-mailing-list-age">Возраст:</label>
+                            <div id="filter-mailing-list-age">
+                                <label for="filter-mailing-list-age-min">от</label>
+                                <input id="filter-mailing-list-age-min" type="text"/>
+                                <label for="filter-mailing-list-age-max">до</label>
+                                <input id="filter-mailing-list-age-max" type="text"/>
+                            </div>
+                            <label for="filter-mailing-list-sex">Пол:</label>
+                            <div id="filter-mailing-list-sex">
+                                <div>
+                                    <label for="filter-mailing-list-male">Мужской</label>
+                                    <input type="checkbox" name="filter-mailing-list-sex" id="filter-mailing-list-male" value="MALE"/>
+                                </div>
+                                <div>
+                                    <label for="filter-mailing-list-female">Женский</label>
+                                    <input  type="checkbox" name="filter-mailing-list-sex" id="filter-mailing-list-female" value="FEMALE"/>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+                        <button class="btn btn-primary" id="fromFiltersImportButton">
+                            Добавить по фильтрам
+                        </button>
                         <button class="btn btn-primary" id="fromStatusesImportButton">
                             Заполнить из статусов
                         </button>

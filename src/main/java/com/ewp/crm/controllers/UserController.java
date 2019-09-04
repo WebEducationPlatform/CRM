@@ -54,7 +54,9 @@ public class UserController {
 	public ModelAndView clientInfo(@PathVariable Long id,
 								   @AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
-		modelAndView.addObject("user", userService.get(id));
+		User userFromDB = userService.get(id);
+		userFromDB.setPassword("");
+		modelAndView.addObject("user", userFromDB);
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));

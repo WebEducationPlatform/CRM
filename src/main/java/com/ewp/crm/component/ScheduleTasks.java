@@ -129,6 +129,7 @@ public class ScheduleTasks {
 	private String adReportTemplate;
 
 	private final UserService userService;
+	private final boolean autoSetUser = false;
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
@@ -185,7 +186,10 @@ public class ScheduleTasks {
             if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
                 newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
             }
-            userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
+
+           if (autoSetUser){
+           	userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
+		}
             clientService.addClient(newClient, null);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
             logger.info("New client with id {} has added from VK", newClient.getId());
