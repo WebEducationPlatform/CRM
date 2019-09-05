@@ -39,7 +39,7 @@ public class StatusApiRestController {
     @PutMapping(value = "/update")
     public ResponseEntity updateStatus(@RequestBody Status status) {
 
-        if (status != null) {
+        if (status.getId() != null) {
             statusService.update(status);
             logger.info("Status {} was updated...", status.getName());
         } else {
