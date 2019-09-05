@@ -1,9 +1,10 @@
 package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
+import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
@@ -72,10 +73,22 @@ public class AdminRestStatusController {
 
 	@PostMapping(value = "/visible/change")
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId,
-											  @RequestParam("invisible") boolean bool) {
+											  @RequestParam("invisible") boolean bool,
+											  @AuthenticationPrincipal User currentAdmin) {
 		Optional<Status> status = statusService.get(statusId);
 		if (status.isPresent()) {
-			if (status.get().getInvisible() == bool) {
+			SortedStatuses sortedStatuses = statusService.getSordedStatusBuId(status.get(), currentAdmin);
+			if (sortedStatuses.getInvisible() == null){
+				if (bool) {
+					sortedStatuses.setInvisible(false);
+				} else {
+					sortedStatuses.setInvisible(true);
+				}
+			}
+			if (sortedStatuses.getPosition() == null){
+				sortedStatuses.setPosition(Long.valueOf(0));
+			}
+			if (sortedStatuses.getInvisible() == bool) {
 				String reason = "Статус уже " + (bool ? "невидимый" : "видимый");
 				logger.error(reason);
 				return ResponseEntity.badRequest().body(reason);
@@ -86,6 +99,7 @@ public class AdminRestStatusController {
 			}
 			status.get().setInvisible(bool);
 			statusService.update(status.get());
+			statusService.updateSortStatuses(status.get(), currentAdmin, bool, sortedStatuses.getPosition());
 			return ResponseEntity.ok().body(status);
 		}
 		return new ResponseEntity(HttpStatus.NOT_FOUND);
