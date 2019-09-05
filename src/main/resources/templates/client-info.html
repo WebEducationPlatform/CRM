@@ -226,7 +226,7 @@
                     Добавить работу
                 </button>
                 <div class="btn-group client-info-edit-save-back-btns">
-                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR')" type="submit" class="btn btn-primary"
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR','HR')" type="submit" class="btn btn-primary"
                             id="saveChanges"
                             th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                     </button>

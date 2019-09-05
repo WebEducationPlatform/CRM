@@ -109,20 +109,24 @@ body {
 }
 .column {
 	min-width: 240px;
-    max-width: 240px;
+    max-width: 100%;
 	margin: 5px;
 	float: left;
 }
 
 /*Отступ снизу нужен для работы перетаскивания карточек в пустой статус*/
 .clients-cards {
-    padding-bottom: 100px;
+	min-height: 50px;
+    padding-bottom: 50px;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
 }
 
 .portlet {
-	min-width: 120px;
+	min-width: 240px;
 	max-width: 240px;
-	max-height:50px;
+	max-height: 50px;
 	margin: 0 1em 1em 0;
 	padding: 0.01em;
 	cursor: pointer;
@@ -199,6 +203,7 @@ ul.nav a:hover {
 }
 
 .column-header {
+	max-width: 240px;
 	border-bottom: 5px solid #ff00001a;
 	margin-right: 5%;
 	position: relative;
@@ -303,7 +308,10 @@ ul.nav a:hover {
 	margin: -40px 0 0 0;
 	overflow: hidden;
 	height: 90%;
-	z-index: 200;
+	z-index:  1100; /* Изменен на 1100 для того, чтобы кнопка "меню" отображалась поверх всего остального
+					  так как при увеличении масштаба съежала из-за нивигационного бара!
+					  [Азамат 01.09.2019]
+					 */
 }
 
 #panel-content {
@@ -323,7 +331,8 @@ ul.nav a:hover {
 	opacity:0.7;
 	padding: 3px 20px 3px 5px;
 	cursor: pointer;
-	margin-top: 7%;
+	margin-top:  16%; /* [Азамат]: Значение установлено в 16%, так как т.о. не перекрывает карточки! */
+
 }
 
 #panel-sticker:hover {
@@ -1026,4 +1035,13 @@ textarea[class*="feedback-video-url"] {
 
 #table-hidden-statuses tr td {
 	vertical-align: middle;
+}
+
+#status-as-rows {
+	height: 10px;
+	margin-right: 5px;
+}
+
+#status-as-columns {
+	height: 10px;
 }

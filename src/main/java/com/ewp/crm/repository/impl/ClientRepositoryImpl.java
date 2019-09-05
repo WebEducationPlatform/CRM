@@ -460,12 +460,12 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         if (filteringCondition.getAgeFrom() != null) {
             LocalDate dateAgeTo = LocalDate.now().minusYears(filteringCondition.getAgeFrom());
             String dateTo = dateAgeTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            query.append(" and cl.birthDate <= '").append(dateTo).append("'");
+            query.append(" and cl.birth_date <= '").append(dateTo).append("'");
         }
         if (filteringCondition.getAgeTo() != null) {
             LocalDate dateAgeFrom = LocalDate.now().minusYears(filteringCondition.getAgeTo());
             String dateFrom = dateAgeFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            query.append(" and cl.birthDate >= '").append(dateFrom).append("'");
+            query.append(" and cl.birth_date >= '").append(dateFrom).append("'");
         }
 
         if (filteringCondition.getCity() != null) {

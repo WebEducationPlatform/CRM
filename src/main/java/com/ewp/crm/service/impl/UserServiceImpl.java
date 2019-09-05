@@ -6,11 +6,14 @@ import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.Mentor;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.models.dto.UserDtoForBoard;
+import com.ewp.crm.models.dto.UserRoutesDto;
 import com.ewp.crm.repository.interfaces.MentorDao;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.UserRoutesService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.slf4j.Logger;
@@ -21,7 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -43,6 +45,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private Environment env;
     private final EntityManager entityManager;
     private final RoleService roleService;
+    private final UserRoutesService userRoutesService;
     private final MentorDao mentorDao;
 
 
@@ -51,13 +54,14 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
 
     @Autowired
     public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator,
-                           Environment env, EntityManager entityManager, RoleService roleService, MentorDao mentorDao) {
+                           Environment env, EntityManager entityManager, RoleService roleService, UserRoutesService userRoutesService, MentorDao mentorDao) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
         this.env = env;
         this.entityManager = entityManager;
         this.roleService = roleService;
+        this.userRoutesService = userRoutesService;
         this.mentorDao = mentorDao;
     }
 
@@ -101,22 +105,32 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 user.getRole().toString(),
                 Arrays.toString(new Throwable().getStackTrace()));
         user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
-        User currentUserByEmail;
-        if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
-            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
-            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
-        }
-
-        if (!user.getPassword().equals(userDAO.getOne(user.getId()).getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
-        logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
-        User.UserType userType = userDAO.getUserType(user.getId());
-        if (userType.equals(User.UserType.MENTOR)) {
-            mentorDao.saveAndFlush(new Mentor(user));
-        }else {
-            userDAO.saveAndFlush(user);
+        User userFromDb = userDAO.getOne(user.getId());
+        if (userFromDb != null) {
+            userFromDb.setFirstName(user.getFirstName());
+            userFromDb.setLastName(user.getLastName());
+            userFromDb.setEmail(user.getEmail());
+            userFromDb.setBirthDate(user.getBirthDate());
+            userFromDb.setPhoneNumber(user.getPhoneNumber());
+            userFromDb.setVk(user.getVk());
+            userFromDb.setSex(user.getSex());
+            userFromDb.setCountry(user.getCountry());
+            userFromDb.setCity(user.getCity());
+            userFromDb.setIpTelephony(user.isIpTelephony());
+            userFromDb.setRole(user.getRole());
+            userFromDb.setEnableMailNotifications(user.isEnableMailNotifications());
+            userFromDb.setEnableSmsNotifications(user.isEnableSmsNotifications());
+            userFromDb.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
+            if (user.getPassword().length() > 0) {
+                userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
+            User.UserType userType = userDAO.getUserType(user.getId());
+            if (userType.equals(User.UserType.MENTOR)) {
+                mentorDao.saveAndFlush(new Mentor(userFromDb));
+            }else {
+                userDAO.saveAndFlush(userFromDb);
+            }
         }
     }
     @Override
@@ -163,38 +177,37 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     }
 
     @Override
-    @Transactional
     public Optional<User> getUserToOwnCard() {
+        return getUserToOwnCard(null) ;
+    }
+
+    @Override
+    public Optional<User> getUserToOwnCard(UserRoutes.UserRouteType routetype) {
         User userToOwnClient = null;
-        long roleId = roleService.getRoleByName("HR").getId();
-        try {
-            String query =
-                    "SELECT u.*, p.*, 1 AS clazz_, FALSE AS mentor_show_only_my_clients " +
-                            "   FROM  user u " +
-                            "       LEFT JOIN permissions p ON u.user_id = p.user_id " +
-                            "   WHERE " +
-                            "       u.user_id = p.user_id AND " +
-                            "       p.role_id = :roleId " +
-                            "   ORDER BY u.last_client_date " +
-                            "   LIMIT 1;";
-                userToOwnClient = (User) entityManager.createNativeQuery(query, User.class)
-                        .setParameter("roleId", roleId)
-                        .getSingleResult();
-                logger.info("Coordinator for new client card to own found: " + userToOwnClient.getFullName());
+        if (routetype == null) {
+            long roleId = roleService.getRoleByName("HR").getId();
+            userToOwnClient = userDAO.getUserByRoleIdAndLastClientDate(roleId);
+            userToOwnClient.setLastClientDate(Instant.now());
+            update(userToOwnClient);
+
+        } else {
+            if (routetype == UserRoutes.UserRouteType.FROM_JM_EMAIL){
+                List<UserRoutesDto> userRoutes = userRoutesService.getUserByRoleAndUserRoutesType("HR", UserRoutes.UserRouteType.FROM_JM_EMAIL.name());
+                Long userId = userRoutesService.getUserIdByPercentChance(userRoutes);
+                userToOwnClient = userDAO.getUserById(userId);
                 userToOwnClient.setLastClientDate(Instant.now());
                 update(userToOwnClient);
-        } catch (Exception e) {
-            logger.error("Can't find coordinator for new client card to own roleId = {}", roleId, e);
+            }
         }
         return Optional.ofNullable(userToOwnClient);
     }
+
 
     @Override
     public List<MentorDtoForMentorsPage> getAllMentors() {
         return userDAO.getAllMentors();
     }
 
-    @Override
     public Optional<List<UserDtoForBoard>> getAllMentorsForDto() {
         return Optional.ofNullable(userDAO.getAllMentorsForDto());
     }

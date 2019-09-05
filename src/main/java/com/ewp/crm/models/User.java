@@ -13,12 +13,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Пользователь CRM, менеджер, ментор и тд
@@ -179,6 +177,12 @@ public class User implements UserDetails {
 
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
+
+    /**
+     * Индивидуальная настройка направления отображения статусов на Доске
+     */
+    @Column(name = "is_row_status_direction", columnDefinition = "BIT(1) DEFAULT 1", nullable = false)
+    private boolean isRowStatusDirection;
 
     public User() {
         this.isEnabled = false;
@@ -501,6 +505,16 @@ public class User implements UserDetails {
     public void setCallRecords(List<CallRecord> callRecords) {
         this.callRecords = callRecords;
     }
+
+
+    public boolean getRowStatusDirection() {
+        return isRowStatusDirection;
+    }
+
+    public void setRowStatusDirection(boolean rowStatusDirection) {
+        isRowStatusDirection = rowStatusDirection;
+    }
+
 
     public enum UserType {
         USER, MENTOR
