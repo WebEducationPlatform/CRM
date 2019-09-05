@@ -1,6 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
@@ -59,4 +60,8 @@ public interface StatusService {
     List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role);
 
     List<StatusDto> getStatusesForMailing();
+
+    SortedStatuses getSordedStatusBuId(Status status, User user);
+
+    void updateSortStatuses(Status status, User user, boolean isInvisible, Long position);
 }
