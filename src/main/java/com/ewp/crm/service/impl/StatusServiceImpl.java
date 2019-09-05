@@ -320,4 +320,14 @@ public class StatusServiceImpl implements StatusService {
     public List<StatusDto> getStatusesForMailing() {
         return statusDAO.getStatusesForMailing();
     }
+
+    @Override
+    public SortedStatuses getSordedStatusBuId(Status status, User user) {
+        return statusDAO.getSordedStatusBuId(status, user);
+    }
+
+    @Override
+    public void updateSortStatuses(Status status, User user, boolean isInvisible, Long position) {
+        statusDAO.updateSortStatuses(status, user, isInvisible, position);
+    }
 }
