@@ -200,7 +200,7 @@ $(document).ready(function () {
             url: url,
             data: formData,
             success: function (status) {
-                location.reload();
+                $('#invisibleStatuses' + formData.statusId).remove();
             },
             error: function (error) {
                 console.log(error);

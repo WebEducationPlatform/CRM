@@ -37,7 +37,7 @@ public interface StatusRepository extends JpaRepository<Status, Long>, StatusRep
     @Query(value = "SELECT status_name FROM status WHERE status_id = ?1", nativeQuery = true)
     String getStatusNameById(Long id);
 
-    @Query(value = "SELECT position FROM status WHERE status_id = ?1", nativeQuery = true)
-    Long getStatusPositionById(Long id);
+    @Query(value = "SELECT ss.position FROM SortedStatuses ss WHERE ss.user = ?1 and ss.status = ?2")
+    Long getStatusPositionById(User user, Status status);
 
 }

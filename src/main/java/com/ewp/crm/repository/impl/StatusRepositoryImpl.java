@@ -31,12 +31,11 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
      *
      * @param userId id пользователя, для которого формируюся данные
      * @param roles список всех ролей необходим для передачи в дто
-     * @param roleId роль пользователя, для которой загружаем видимые для этой роли статусы
      * @return список DTO статусов со списком DTO клиентов в каждом статусе
      */
     @Override
-    public List<StatusDtoForBoard> getStatusesForBoard(long userId, List<Role> roles, long roleId) {
-        logger.debug("{} getStatusesForBoard({}, {}, {}) started", StatusRepositoryImpl.class.getName(), userId, roles, roleId);
+    public List<StatusDtoForBoard> getStatusesForBoard(long userId, List<Role> roles, long roleI) {
+        logger.debug("{} getStatusesForBoard({}, {}, {}) started", StatusRepositoryImpl.class.getName(), userId, roles);
         List<StatusDtoForBoard> result = new ArrayList<>();
 
         // Получаем все видимые статусы, которые доступны роли roleId, отсортированные по позиции
@@ -44,9 +43,9 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 "SELECT DISTINCT s.status_id AS id, s.status_name AS name, ss.is_invisible, " +
                         "s.create_student, ss.position, s.trial_offset, s.next_payment_offset, ss.sorting_type " +
                         " FROM status s" +
-                        " LEFT JOIN status_roles sr " +
+                        " inner JOIN status_roles sr " +
                         " ON sr.status_id = s.status_id " +
-                        " AND sr.role_id = :roleId " +
+                        " AND sr.role_id in :roleId " +
                         " LEFT JOIN permissions p " +
                         " ON p.role_id = sr.role_id " +
                         " AND p.user_id = :userId " +
@@ -56,7 +55,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                         " GROUP BY s.status_id,ss.position" +
                         " ORDER BY ss.position ASC;", Tuple.class)
                 .setParameter("userId", userId)
-                .setParameter("roleId", roleId)
+                .setParameter("roleId", roles)
                 .getResultList();
 
         for (Tuple tuple :tupleStatuses) {
@@ -168,7 +167,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
 
         }
 
-        logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);
+        logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles);
         return result;
     }
 
