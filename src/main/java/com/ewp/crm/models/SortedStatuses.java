@@ -23,6 +23,12 @@ public class SortedStatuses implements Serializable {
     @Enumerated(EnumType.STRING)
     private SortingType sortingType;
 
+    @Column(name = "is_invisible")
+    private Boolean isInvisible = false;
+
+    @Column(name = "position")
+    private Long position;
+
     public enum SortingType {
         NEW_FIRST,          //свежие клиенты выше в выдаче
         OLD_FIRST,          //старые клиенты выше в выдаче
@@ -70,6 +76,22 @@ public class SortedStatuses implements Serializable {
 
     public void setSortingType(SortingType sortingType) {
         this.sortingType = sortingType;
+    }
+
+    public Boolean getInvisible() {
+        return isInvisible;
+    }
+
+    public void setInvisible(Boolean invisible) {
+        isInvisible = invisible;
+    }
+
+    public Long getPosition() {
+        return position;
+    }
+
+    public void setPosition(Long position) {
+        this.position = position;
     }
 
     @Override
