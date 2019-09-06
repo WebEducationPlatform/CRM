@@ -44,4 +44,8 @@ public interface UserService extends CommonService<User> {
 
 	Optional<List<UserDtoForBoard>> getAllWithoutMentorsForDto();
 
+	void addUserAllStatuss(Long user_id);
+
+	void deleteUserInSortStatuses(Long user_id);
+
 }
