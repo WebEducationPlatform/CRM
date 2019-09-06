@@ -14,4 +14,8 @@ public interface UserDAOCustom {
 
 	@Transactional
 	User getUserByRoleIdAndLastClientDate(long roleId);
+
+	void addUserAllStatuss(Long user_id);
+
+	void deleteUserInSortStatuses(Long user_id);
 }

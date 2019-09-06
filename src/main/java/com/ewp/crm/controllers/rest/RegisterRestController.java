@@ -28,6 +28,7 @@ public class RegisterRestController {
             return ResponseEntity.status(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS).build();
         }
         userService.add(user);
+        userService.addUserAllStatuss(user.getId());
         logger.info("{} has register user: email {}", user.getFullName(), user.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }

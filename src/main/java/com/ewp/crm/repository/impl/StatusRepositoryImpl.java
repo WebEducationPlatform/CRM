@@ -38,24 +38,16 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
         logger.debug("{} getStatusesForBoard({}, {}, {}) started", StatusRepositoryImpl.class.getName(), userId, roles);
         List<StatusDtoForBoard> result = new ArrayList<>();
 
-        // Получаем все видимые статусы, которые доступны роли roleId, отсортированные по позиции
+        // Получаем все статусы, отсортированные по позиции
         List<Tuple> tupleStatuses = entityManager.createNativeQuery(
                 "SELECT DISTINCT s.status_id AS id, s.status_name AS name, ss.is_invisible, " +
                         "s.create_student, ss.position, s.trial_offset, s.next_payment_offset, ss.sorting_type " +
-                        " FROM status s" +
-                        " inner JOIN status_roles sr " +
-                        " ON sr.status_id = s.status_id " +
-                        " AND sr.role_id in :roleId " +
-                        " LEFT JOIN permissions p " +
-                        " ON p.role_id = sr.role_id " +
-                        " AND p.user_id = :userId " +
-                        " LEFT JOIN sorted_statuses ss" +
-                        " ON ss.status_status_id = s.status_id" +
-                        " AND ss.user_user_id = :userId" +
-                        " GROUP BY s.status_id,ss.position" +
-                        " ORDER BY ss.position ASC;", Tuple.class)
+                        "FROM status s, sorted_statuses ss " +
+                        "Where ss.status_status_id = s.status_id " +
+                        "AND ss.user_user_id = :userId " +
+                        "GROUP BY s.status_id,ss.position " +
+                        "ORDER BY ss.position ASC;", Tuple.class)
                 .setParameter("userId", userId)
-                .setParameter("roleId", roles)
                 .getResultList();
 
         for (Tuple tuple :tupleStatuses) {
@@ -228,6 +220,21 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 .setParameter("position", position)
                 .setParameter("user", user)
                 .setParameter("status", status)
+                .executeUpdate();
+    }
+
+    @Override
+    public void addStatusAllUsers(Long status_id) {
+        entityManager.createNativeQuery("insert into sorted_statuses (user_user_id, status_status_id, is_invisible, position, sorting_type)" +
+                "select u.user_id, :status_id, false, 0, 'NEW_FIRST' from user u")
+                .setParameter("status_id", status_id)
+                .executeUpdate();
+    }
+
+    @Override
+    public void deleteStatusInSortStatuses(Long status_id) {
+        entityManager.createNativeQuery("delete from sorted_statuses where status_status_id = :status_id")
+                .setParameter("status_id", status_id)
                 .executeUpdate();
     }
 }

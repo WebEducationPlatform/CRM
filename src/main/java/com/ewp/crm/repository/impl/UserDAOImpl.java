@@ -4,6 +4,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.UserDtoForBoard;
 import com.ewp.crm.repository.interfaces.UserDAOCustom;
 import com.ewp.crm.service.impl.UserServiceImpl;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -83,5 +84,21 @@ public class UserDAOImpl implements UserDAOCustom {
             logger.error("Can't find coordinator for new client card to own roleId = {}", roleId, e);
         }
         return userToOwnClient;
+    }
+
+    @Override
+    @Transactional
+    public void addUserAllStatuss(Long user_id) {
+        entityManager.createNativeQuery("insert into sorted_statuses (user_user_id, status_status_id, is_invisible, position, sorting_type)" +
+                "select :user_id, s.status_id, false, 0, 'NEW_FIRST' from status s")
+                .setParameter("user_id", user_id)
+                .executeUpdate();
+    }
+
+    @Override
+    public void deleteUserInSortStatuses(Long user_id) {
+        entityManager.createNativeQuery("delete from sorted_statuses where user_user_id = :user_id")
+                .setParameter("user_id", user_id)
+                .executeUpdate();
     }
 }

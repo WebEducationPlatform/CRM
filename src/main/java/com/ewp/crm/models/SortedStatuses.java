@@ -101,11 +101,13 @@ public class SortedStatuses implements Serializable {
         SortedStatuses that = (SortedStatuses) o;
         return Objects.equals(sortedStatusesId, that.sortedStatusesId) &&
                 Objects.equals(status, that.status) &&
-                Objects.equals(user, that.user);
+                Objects.equals(user, that.user)&&
+                Objects.equals(isInvisible, that.isInvisible)&&
+                Objects.equals(position, that.position);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sortedStatusesId, status, user);
+        return Objects.hash(sortedStatusesId, status, user, isInvisible, position);
     }
 }

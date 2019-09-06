@@ -609,19 +609,19 @@
                                            th:value="${status.nextPaymentOffset} - ${status.trialOffset}"/></td>
                             </tr>
                         </table>
-                        <div class="form-group" th:id="'checkbox_status_roles_' + ${status.id} "
-                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
-                            <label th:for="'checkbox_status_roles_' + ${status.id} ">Роли</label>
-                            <div th:id="'current_status_roles_' + ${status.id} ">
-                                <span th:each="role : ${status.role}" th:value="${role.id}"></span>
-                            </div>
-                            <div class="checkbox" th:each="role : ${roles}">
-                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}"
-                                       th:value="${role.id}"/>
-                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}"
-                                       th:text="${role.roleName}"></label>
-                            </div>
-                        </div>
+<!--                        <div class="form-group" th:id="'checkbox_status_roles_' + ${status.id} "-->
+<!--                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">-->
+<!--                            <label th:for="'checkbox_status_roles_' + ${status.id} ">Роли</label>-->
+<!--                            <div th:id="'current_status_roles_' + ${status.id} ">-->
+<!--                                <span th:each="role : ${status.role}" th:value="${role.id}"></span>-->
+<!--                            </div>-->
+<!--                            <div class="checkbox" th:each="role : ${roles}">-->
+<!--                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}"-->
+<!--                                       th:value="${role.id}"/>-->
+<!--                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}"-->
+<!--                                       th:text="${role.roleName}"></label>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"

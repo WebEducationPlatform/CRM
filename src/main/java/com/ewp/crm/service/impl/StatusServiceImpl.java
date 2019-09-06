@@ -236,11 +236,14 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible() {
-        List<BigInteger> ids = statusDAO.getAllIdsWhichNotInvisible();
+    public List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible(User user) {
+        List<SortedStatuses> sortedStatusesList = statusDAO.getAllIdsWhichNotInvisible(user);
         List<StatusPositionIdNameDTO> statusPositionIdNameDTOS = new ArrayList<>();
-        for (BigInteger id : ids) {
-            statusPositionIdNameDTOS.add(new StatusPositionIdNameDTO(id.longValue(), statusDAO.getStatusPositionById(id.longValue()), statusDAO.getStatusNameById(id.longValue())));
+        for (SortedStatuses sortedStatuses : sortedStatusesList) {
+            statusPositionIdNameDTOS.add(new StatusPositionIdNameDTO(
+                    sortedStatuses.getStatus().getId(),
+                    statusDAO.getStatusPositionById(user, statusDAO.getOne(sortedStatuses.getStatus().getId())),
+                    statusDAO.getStatusNameById(sortedStatuses.getStatus().getId())));
         }
         return statusPositionIdNameDTOS;
     }
@@ -329,5 +332,25 @@ public class StatusServiceImpl implements StatusService {
     @Override
     public void updateSortStatuses(Status status, User user, boolean isInvisible, Long position) {
         statusDAO.updateSortStatuses(status, user, isInvisible, position);
+    }
+
+    @Override
+    public Boolean getStatusInvisible(User user, Status status) {
+        return statusDAO.getStatusInvisible(user, status);
+    }
+
+    @Override
+    public Long getStatusPositionById(User user, Status status) {
+        return statusDAO.getStatusPositionById(user, status);
+    }
+
+    @Override
+    public void addStatusAllUsers(Long status_id) {
+        statusDAO.addStatusAllUsers(status_id);
+    }
+
+    @Override
+    public void deleteStatusInSortStatuses(Long status_id) {
+        statusDAO.deleteStatusInSortStatuses(status_id);
     }
 }

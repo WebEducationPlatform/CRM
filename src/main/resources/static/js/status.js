@@ -309,7 +309,7 @@ $(function () {
                     console.log(error);
                 }
             });
-            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Сохранить</button>');
+            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Обновить страницу</button>');
         }
     }).disableSelection();
 });

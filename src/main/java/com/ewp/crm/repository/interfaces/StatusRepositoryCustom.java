@@ -19,4 +19,8 @@ public interface StatusRepositoryCustom {
     SortedStatuses getSordedStatusBuId(Status status, User user);
 
     void updateSortStatuses(Status status, User user, boolean isInvisible, Long position);
+
+    void addStatusAllUsers(Long status_id);
+
+    void deleteStatusInSortStatuses(Long status_id);
 }

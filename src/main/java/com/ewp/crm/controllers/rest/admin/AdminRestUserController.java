@@ -123,6 +123,7 @@ public class AdminRestUserController {
         commentService.deleteAllCommentsByUserId(deleteId);
         smsInfoService.deleteAllSMSByUserId(deleteId);
         userService.delete(deleteId);
+        userService.deleteUserInSortStatuses(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), deletedUser.getId(), deletedUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -131,6 +132,7 @@ public class AdminRestUserController {
     public ResponseEntity deleteNewUser(@RequestParam Long deleteId,
                                         @AuthenticationPrincipal User currentAdmin) {
         User currentUser = userService.get(deleteId);
+        userService.deleteUserInSortStatuses(deleteId);
         userService.delete(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), currentUser.getId(), currentUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);

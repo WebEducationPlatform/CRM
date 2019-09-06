@@ -63,8 +63,8 @@ public class AdminRestStatusController {
 			for (Client client : clients) {
 				notificationService.deleteNotificationsByClient(client);
 			}
+			statusService.deleteStatusInSortStatuses(deleteId);
 			statusService.delete(deleteId);
-
 			logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
 			return ResponseEntity.ok().build();
 		}
