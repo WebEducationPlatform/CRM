@@ -46,7 +46,7 @@ public class StatusApiRestController {
             return (ResponseEntity) ResponseEntity.notFound();
         }
 
-        return ResponseEntity.ok("Status was updated successfully...");
+        return ResponseEntity.ok(statusService.getStatusByName(status.getName()));
     }
 
     @DeleteMapping(value = "/delete/{id}")
