@@ -200,7 +200,7 @@ $(document).ready(function () {
             url: url,
             data: formData,
             success: function (status) {
-                location.reload();
+                $('#invisibleStatuses' + formData.statusId).remove();
             },
             error: function (error) {
                 console.log(error);
@@ -309,7 +309,7 @@ $(function () {
                     console.log(error);
                 }
             });
-            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Сохранить</button>');
+            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Обновить страницу</button>');
         }
     }).disableSelection();
 });
