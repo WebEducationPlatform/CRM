@@ -64,7 +64,7 @@ public class StatusApiRestControllerTest {
 
         RestAssured.baseURI ="http://localhost:9999/rest/api/status";
 
-        Status status = statusService.get(73L).get();
+        Status status = statusService.get(74L).get();
         status.setName("TestName");
         status.setRole(Collections.emptyList()); // Без этого не работает!
 
