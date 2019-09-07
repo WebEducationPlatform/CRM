@@ -50,6 +50,8 @@
                     </li>
                     <li><a href="/template/all"
                            sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')">Шаблоны</a></li>
+                    <li><a href="/autoanswers/all"
+                           sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">АвтоОтветы</a></li>
                     <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a>
                     </li>
                     <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a>

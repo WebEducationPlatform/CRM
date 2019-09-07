@@ -2,13 +2,7 @@ package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
@@ -62,6 +56,7 @@ public class GoogleEmailConfig {
     private final ProjectPropertiesService projectPropertiesService;
     private final SendNotificationService sendNotificationService;
     private final UserService userService;
+    private final AutoAnswersService autoAnswersService;
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
     private final Environment env;
@@ -72,7 +67,7 @@ public class GoogleEmailConfig {
                              IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService,
                              ProjectPropertiesService projectPropertiesService,
                              SendNotificationService sendNotificationService, Environment env,
-                             UserService userService) {
+                             UserService userService, AutoAnswersService autoAnswersService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
@@ -94,6 +89,7 @@ public class GoogleEmailConfig {
         this.clientHistoryService = clientHistoryService;
         this.projectPropertiesService = projectPropertiesService;
         this.env = env;
+        this.autoAnswersService = autoAnswersService;
     }
 
     private Properties javaMailProperties() {
@@ -150,37 +146,23 @@ public class GoogleEmailConfig {
                         }
                         addClient = !parser.getHtmlContent().contains("javabootcamp.ru"); // не создавать карточку для клиента из заявки на буткемп
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
-                        if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
-                            sendAutoAnswer = false; // Для клиентов из javalearn временно отключаем автоответ
-
-                            // Если клиент пришёл только за рассылкой (в форме один емайл), то отправляем его в статус "рассылки постоплата"
-                            if (!client.getPhoneNumber().isPresent() &&
-                                    (client.getName().isEmpty() || IncomeStringToClient.UNKNOWN_NAME_DEFAULT.equals(client.getName()))) {
-                                // Если такого статуса нет то создаём, если нет назначаем пользователя на этот статус
-                                Optional<Status> mailingPostpay = statusService.get("Постоплата рассылки");
-
-                                if (!mailingPostpay.isPresent()) {
-                                    mailingPostpay = Optional.of(new Status("Постоплата рассылки"));
-                                    statusService.add(mailingPostpay.get());
-                                }
-
-                                client.getEmail().ifPresent(client::setName);
-                                mailingPostpay.ifPresent(client::setStatus);
-                            } else {
-                                statusService.get("Постоплата 3").ifPresent(client::setStatus);
+                        //get status by subject request
+                        Optional<AutoAnswer> autoAnswer = autoAnswersService.getAutoAnswerBySubject(parser.getSubject());
+                        if (autoAnswer.isPresent()){
+                            Status status = autoAnswer.get().getStatus() != null ? autoAnswer.get().getStatus(): statusService.get("Новые").get();
+                            client.setStatus(status);
+                            //Auto answer to client by subject get templateMessage
+                            if (client.getEmail().isPresent()){
+                                MessageTemplate messageTemplate = autoAnswer.get().getMessageTemplate();
+                                String subject = messageTemplate.getTheme().length() >0 ?
+                                        messageTemplate.getTheme() : env.getProperty("messaging.mailing.set-from-Java-Mentor");
+                                prepareAndSend.sendMessage(subject,messageTemplate.getTemplateText(),client.getEmail().get());
                             }
-                        } else {
-                            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
-                                Optional<Status> jsPostPayStatus = statusService.get("Постоплата JS");
-                                if (!jsPostPayStatus.isPresent()) {
-                                    statusService.add(new Status("Постоплата JS"));
-                                }
-                                statusService.get("Постоплата JS").ifPresent(client::setStatus);
-                                sendAutoAnswer = false;
-                                prepareAndSend.sendMessage(env.getProperty("messaging.mailing.set-subject-js-learn-autoanswer"), env.getProperty("messaging.mailing.set-message-js-learn-autoanswer"), client.getEmail().get());
-                            } else {
-                                sendAutoAnswer = true;
-                                statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                        }else{
+
+                            if (client.getEmail().isPresent()){
+                                prepareAndSend.sendMessage(env.getProperty("messaging.mailing.set-from-Java-Mentor"),
+                                        env.getProperty("messaging.mailing.set-message-js-learn-autoanswer"), client.getEmail().get());
                             }
                         }
                         if (addClient) {

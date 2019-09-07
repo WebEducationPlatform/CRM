@@ -117,7 +117,9 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             userFromDb.setEnableSmsNotifications(user.isEnableSmsNotifications());
             userFromDb.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
             if (user.getPassword().length() > 0) {
-                userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+                if (!user.getPassword().equals(userFromDb.getPassword())){
+                    userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+                }
             }
             logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
             userDAO.saveAndFlush(userFromDb);
@@ -177,9 +179,10 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         User userToOwnClient = null;
         if (routetype == null) {
             long roleId = roleService.getRoleByName("HR").getId();
-            userToOwnClient = userDAO.getUserByRoleIdAndLastClientDate(roleId);
+            Long id = userDAO.getUserByRoleIdAndLastClientDate(roleId).getId();
+            userToOwnClient = userDAO.getUserById(id);
             userToOwnClient.setLastClientDate(Instant.now());
-            update(userToOwnClient);
+            userDAO.saveAndFlush(userToOwnClient);
 
         } else {
             if (routetype == UserRoutes.UserRouteType.FROM_JM_EMAIL){
@@ -187,7 +190,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 Long userId = userRoutesService.getUserIdByPercentChance(userRoutes);
                 userToOwnClient = userDAO.getUserById(userId);
                 userToOwnClient.setLastClientDate(Instant.now());
-                update(userToOwnClient);
+                userDAO.saveAndFlush(userToOwnClient);
             }
         }
         return Optional.ofNullable(userToOwnClient);
