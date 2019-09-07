@@ -140,15 +140,16 @@ public class AdminRestClientController {
     
     @GetMapping(value = "/remove")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
-    public ResponseEntity removeClient(@RequestParam(name = "clientId") Long clientId,
-                                       @AuthenticationPrincipal User userFromSession) {
+    public ResponseEntity removeClient(@RequestParam(name = "clientId") Long clientId)
+//                                       @AuthenticationPrincipal User userFromSession)
+    {
         Client clientFromDB = clientService.get(clientId);
         if (Objects.isNull(clientFromDB)) {
             return ResponseEntity.notFound().build();
         }
         clientService.delete(clientId);
         
-        logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
+//        logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }
