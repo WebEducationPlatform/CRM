@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import static io.restassured.RestAssured.given;
 
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class StatusApiRestControllerTest {
@@ -22,18 +23,31 @@ public class StatusApiRestControllerTest {
     @Autowired
     private StatusService statusService;
 
-    @Test
-    public void testGetStatusWithHasCode200() {
 
-        int response = given().contentType(ContentType.JSON).accept(ContentType.JSON)
-                .when()
-                .baseUri("http://localhost:9999")
-                .get("/rest/api/status/72")
+    @Test
+    public void testAddStatusWithCode200() {
+
+        int response = given().baseUri("http://localhost:9999")
+                .contentType(ContentType.JSON).accept(ContentType.JSON)
+                .post("/rest/api/status/add?statusName=NameOfTestStatus")
                 .andReturn()
                 .statusCode();
 
 
+        if (response == 200) {
+            System.out.println("Test passed!");
+        } else {
+            System.out.println("Test failed!");
+        }
 
+    }
+
+    @Test
+    public void testGetStatusWithHasCode200() {
+
+        int response = given().get("http://localhost:9999/rest/api/status/73")
+                .andReturn()
+                .statusCode();
 
         if (response == 200) {
             System.out.println("Test passed!");
@@ -50,7 +64,7 @@ public class StatusApiRestControllerTest {
 
         RestAssured.baseURI ="http://localhost:9999/rest/api/status";
 
-        Status status = statusService.get(72L).get();
+        Status status = statusService.get(73L).get();
         status.setName("TestName");
         status.setRole(Collections.emptyList()); // Без этого не работает!
 
@@ -77,31 +91,13 @@ public class StatusApiRestControllerTest {
     }
 
     @Test
-    public void testAddStatusWithCode200() {
-
-        int response = given().baseUri("http://localhost:9999")
-                .contentType(ContentType.JSON).accept(ContentType.JSON)
-                .post("/rest/api/status/add?statusName=NameOfTestStatus")
-                .andReturn()
-                .statusCode();
-
-
-        if (response == 200) {
-            System.out.println("Test passed!");
-        } else {
-            System.out.println("Test failed!");
-        }
-
-    }
-
-    @Test
     public void testDeleteStatusCode200() {
 
         boolean response = given().baseUri("http://localhost:9999")
                 .contentType(ContentType.JSON).accept(ContentType.JSON)
-                .delete("/rest/api/status/delete/71")
+                .delete("/rest/api/status/delete/73")
                 .andReturn()
-                .equals(given().get("http://localhost:9999/rest/api/delete/71"));
+                .equals(given().get("http://localhost:9999/rest/api/delete/74"));
 
         if (response) {
             System.out.println("Test failed!");
