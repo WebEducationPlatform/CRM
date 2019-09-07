@@ -5,6 +5,23 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
                    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-
+    <changeSet author="Vladimir Nomokonov" id="824">
+        <sql>
+            CREATE TABLE `answers` (
+            `id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `subject` varchar(255) NOT NULL,
+            `messagetemplate_id` bigint(20) NOT NULL,
+            `status_id` bigint(20) DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `UK_l5g2oxrdmst1kvqayn8jpb4a2` (`subject`),
+            KEY `FKj4f1jesfy13tt1cpv3eh19uem` (`messagetemplate_id`),
+            KEY `FK75xl8s2qx7qq1vd4rayswm8q5` (`status_id`)
+            )
+        </sql>
+        <rollback>
+            DROP TABLE IF EXISTS `answers`;
+        </rollback>
+        <comment>table answers creation for AutoAnswers entity</comment>
+    </changeSet>
 
 </databaseChangeLog>
