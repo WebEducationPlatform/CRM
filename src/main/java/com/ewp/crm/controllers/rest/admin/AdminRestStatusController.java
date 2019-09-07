@@ -1,11 +1,9 @@
 package com.ewp.crm.controllers.rest.admin;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +26,15 @@ public class AdminRestStatusController {
 
 	private final StatusService statusService;
 	private final NotificationService notificationService;
+	private final UserStatusService userStatusService;
 
 	@Autowired
 	public AdminRestStatusController(StatusService statusService,
-									 NotificationService notificationService) {
+									 NotificationService notificationService,
+									 UserStatusService userStatusService) {
 		this.statusService = statusService;
 		this.notificationService = notificationService;
+		this.userStatusService = userStatusService;
 	}
 
 	@PostMapping(value = "/edit")
@@ -62,8 +63,8 @@ public class AdminRestStatusController {
 			for (Client client : clients) {
 				notificationService.deleteNotificationsByClient(client);
 			}
+			userStatusService.deleteStatus(deleteId);
 			statusService.delete(deleteId);
-
 			logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
 			return ResponseEntity.ok().build();
 		}
@@ -72,20 +73,27 @@ public class AdminRestStatusController {
 
 	@PostMapping(value = "/visible/change")
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId,
-											  @RequestParam("invisible") boolean bool) {
+											  @RequestParam("invisible") boolean bool,
+											  @AuthenticationPrincipal User currentAdmin) {
 		Optional<Status> status = statusService.get(statusId);
 		if (status.isPresent()) {
-			if (status.get().getInvisible() == bool) {
+			UserStatus userStatus = userStatusService.getUserStatus(currentAdmin.getId(), statusId);
+			if (userStatus.getInvisible() == bool) {
 				String reason = "Статус уже " + (bool ? "невидимый" : "видимый");
 				logger.error(reason);
 				return ResponseEntity.badRequest().body(reason);
 			}
 			List<Client> clients = status.get().getClients();
 			for (Client client : clients) {
-				notificationService.deleteNotificationsByClient(client);
+				try {
+					notificationService.deleteNotificationsByClient(client);
+				}catch (Exception e) {
+					logger.error(e.getMessage());
+				}
 			}
 			status.get().setInvisible(bool);
 			statusService.update(status.get());
+			userStatusService.updateUserStatus(currentAdmin.getId(), statusId, bool, userStatus.getPosition());
 			return ResponseEntity.ok().body(status);
 		}
 		return new ResponseEntity(HttpStatus.NOT_FOUND);
