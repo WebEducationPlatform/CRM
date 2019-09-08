@@ -29,38 +29,46 @@ public class StatusApiRestController {
     @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addStatus(@RequestParam("statusName") String statusName) {
 
+        if (statusName == null || statusName.equals("")) {
+            return (ResponseEntity) ResponseEntity.badRequest();
+        }
+
         Status status = new Status(statusName);
         statusService.add(status);
         logger.info("Was added new status with name: " + statusName);
-
         return ResponseEntity.ok(statusService.getStatusByName(statusName));
     }
 
     @PutMapping(value = "/update")
     public ResponseEntity updateStatus(@RequestBody Status status) {
-
         if (status.getId() != null) {
             statusService.update(status);
             logger.info("Status {} was updated...", status.getName());
         } else {
             return (ResponseEntity) ResponseEntity.notFound();
         }
-
         return ResponseEntity.ok(statusService.getStatusByName(status.getName()));
     }
 
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteStatus(@PathVariable Long id) {
-
         statusService.delete(id);
-
         return ResponseEntity.ok("Status was deleted successfully...");
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStatusById(@PathVariable Long id) {
-        statusService.get(id);
-        return ResponseEntity.ok(statusService.get(id));
+        if (statusService.get(id).get() == null) {
+            return (ResponseEntity) ResponseEntity.notFound();
+        }
+        return ResponseEntity.ok(statusService.get(id).get());
     }
 
+    @GetMapping(value = "/name/{name}")
+    public ResponseEntity getStatusByName(@PathVariable String name) {
+        if (statusService.getStatusByName(name).get() == null) {
+            return (ResponseEntity) ResponseEntity.notFound();
+        }
+        return ResponseEntity.ok(statusService.getStatusByName(name).get());
+    }
 }
