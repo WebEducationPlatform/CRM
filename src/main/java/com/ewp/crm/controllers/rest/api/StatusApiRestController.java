@@ -26,8 +26,8 @@ public class StatusApiRestController {
         this.statusService = statusService;
     }
 
-    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addStatus(@RequestParam("statusName") String statusName) {
+    @PostMapping(value = "/{statusName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity addStatus(@PathVariable String statusName) {
 
         if (statusName == null || statusName.equals("")) {
             return (ResponseEntity) ResponseEntity.badRequest();
@@ -39,7 +39,7 @@ public class StatusApiRestController {
         return ResponseEntity.ok(statusService.getStatusByName(statusName));
     }
 
-    @PutMapping(value = "/update")
+    @PutMapping
     public ResponseEntity updateStatus(@RequestBody Status status) {
         if (status.getId() != null) {
             statusService.update(status);
@@ -50,7 +50,7 @@ public class StatusApiRestController {
         return ResponseEntity.ok(statusService.getStatusByName(status.getName()));
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteStatus(@PathVariable Long id) {
         statusService.delete(id);
         return ResponseEntity.ok("Status was deleted successfully...");
@@ -66,7 +66,7 @@ public class StatusApiRestController {
 
     @GetMapping(value = "/name/{name}")
     public ResponseEntity getStatusByName(@PathVariable String name) {
-        if (statusService.getStatusByName(name).get() == null) {
+        if (statusService.get(name).get() == null) {
             return (ResponseEntity) ResponseEntity.notFound();
         }
         return ResponseEntity.ok(statusService.getStatusByName(name).get());
