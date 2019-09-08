@@ -59,8 +59,8 @@ public class RestApiControllerClientTest {
 	@org.junit.Test
 	public void whenRequestedPost_thenCreated() throws Exception {
 		JSONObject requestParams = new JSONObject();
-		requestParams.put("name", "51"); // Cast
-		requestParams.put("email", "51@gmail.com");
+		requestParams.put("name", "52"); // Cast
+		requestParams.put("email", "52@gmail.com");
 		this.mockMvc.perform(post(baseUri)
 				.contentType(APPLICATION_JSON_UTF8)
 				.content(String.valueOf(requestParams)))
@@ -101,10 +101,10 @@ public class RestApiControllerClientTest {
 
 	@org.junit.Test
 	public void deleteTest() throws Exception {
-		Assert.assertNotNull(clientService.get((long) 38451));
-		mockMvc.perform(delete(baseUri+"/38451"))
+		Assert.assertNotNull(clientService.get((long) 38452));
+		mockMvc.perform(delete(baseUri+"/38452"))
 				.andExpect(status().isOk());
-		Assert.assertNull(clientService.get((long) 38451));
+		Assert.assertNull(clientService.get((long) 38452));
 
 	}
 	@Test
