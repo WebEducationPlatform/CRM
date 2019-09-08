@@ -47,7 +47,7 @@ public class StatusApiRestControllerTest2 {
 
         String statusName = "TestNameForStatus"; //На всякий пожарный проверять, есть ли такое имя в базе!
 
-        int response = this.mockMvc.perform(post(baseUri + "/add?statusName=" + statusName))
+        int response = this.mockMvc.perform(post(baseUri + "/" + statusName))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -62,14 +62,14 @@ public class StatusApiRestControllerTest2 {
     @Test
     public void getStatusApi() throws Exception {
 
-        int status = this.mockMvc.perform(get(baseUri + "/59").contentType(MediaType.APPLICATION_JSON))
+        int status = this.mockMvc.perform(get(baseUri + "/64").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getStatus();
 
-        int desired = statusApiRestController.getStatusById(59L).getStatusCode().value();
+        int desired = statusApiRestController.getStatusById(64L).getStatusCode().value();
 
         Assert.assertEquals(status, desired);
 
@@ -78,13 +78,12 @@ public class StatusApiRestControllerTest2 {
     @Test
     public void updateStatusApi() throws Exception {
 
-        Status status = statusService.get(63L).get();
+        Status status = statusService.get(64L).get();
         status.setName("TestNameToo");
         status.setRole(Collections.emptyList()); // Без этого не работает!
 
         Response response = given()
                 .baseUri(baseUri)
-                .basePath("/update")
                 .contentType(ContentType.JSON)
                 .body(status)
                 .put();
@@ -102,7 +101,7 @@ public class StatusApiRestControllerTest2 {
     @Test
     public void deleteStatusApi() throws Exception {
 
-        int response = this.mockMvc.perform(delete(baseUri + "/delete/56"))
+        int response = this.mockMvc.perform(delete(baseUri + "/64"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
