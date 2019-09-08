@@ -64,7 +64,7 @@ public class StatusApiRestController {
         return ResponseEntity.ok(statusService.get(id).get());
     }
 
-    @GetMapping(value = "/name/{name}")
+    @GetMapping(value = "/name/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStatusByName(@PathVariable String name) {
         if (statusService.get(name).get() == null) {
             return (ResponseEntity) ResponseEntity.notFound();
