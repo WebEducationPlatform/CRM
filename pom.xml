@@ -268,22 +268,22 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-        <dependency>
-            <groupId>com.ibm.icu</groupId>
-            <artifactId>icu4j</artifactId>
-            <version>61.1</version>
-        </dependency>
-        <!-- Ads client library dependencies -->
-        <dependency>
-            <groupId>com.google.api-ads</groupId>
-            <artifactId>ads-lib</artifactId>
-            <version>4.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api-ads</groupId>
-            <artifactId>adwords-axis</artifactId>
-            <version>4.5.0</version>
-        </dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>61.1</version>
+		</dependency>
+		<!-- Ads client library dependencies -->
+		<dependency>
+			<groupId>com.google.api-ads</groupId>
+			<artifactId>ads-lib</artifactId>
+			<version>4.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.api-ads</groupId>
+			<artifactId>adwords-axis</artifactId>
+			<version>4.5.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
@@ -321,7 +321,7 @@
 			<scope>test</scope>
 		</dependency>
 
-	<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+		<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
@@ -334,14 +334,24 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
 		</dependency>
-
 		<dependency>
-			<groupId>org.hibernate.validator</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>6.0.17.Final</version>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>3.0.2</version>
+			<scope>test</scope>
 		</dependency>
-
-
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Для проверки тестов - Азамат -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -352,11 +362,11 @@
 					<executable>true</executable>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.1</version>
+			</plugin>
 		</plugins>
 	</build>
 
