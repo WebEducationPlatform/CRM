@@ -65,4 +65,14 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
     public List<CallRecord> findAllByDateBetween(ZonedDateTime from, ZonedDateTime to, Pageable pageable) {
         return callRecordRepository.findAllByDateBetweenOrderByDateDesc(from, to, pageable);
     }
+
+    @Override
+    public void delete(CallRecord entity) {
+        super.delete(entity);
+    }
+
+    @Override
+    public Optional<CallRecord> getByClientHistory_Id(Long id) {
+        return Optional.ofNullable(callRecordRepository.getByClientHistory_Id(id));
+    }
 }

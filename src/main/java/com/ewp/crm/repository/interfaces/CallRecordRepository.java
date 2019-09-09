@@ -18,4 +18,6 @@ public interface CallRecordRepository extends CommonGenericRepository<CallRecord
     List<CallRecord> findAllByCallingUserAndDateBetweenOrderByDateDesc(User user, ZonedDateTime from, ZonedDateTime to, Pageable pageable);
 
     List<CallRecord> findAllByDateBetweenOrderByDateDesc(ZonedDateTime from, ZonedDateTime to, Pageable pageable);
+
+    CallRecord getByClientHistory_Id(Long id);
 }
