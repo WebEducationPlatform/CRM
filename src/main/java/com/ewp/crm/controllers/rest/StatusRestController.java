@@ -2,8 +2,8 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusDto;
-import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
+import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -45,13 +38,14 @@ public class StatusRestController {
     private final StudentStatusService studentStatusService;
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private final RoleService roleService;
+    private final UserStatusService userStatusService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
                                 ClientHistoryService clientHistoryService, NotificationService notificationService,
                                 StudentService studentService, StudentStatusService studentStatusService,
                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService,
-                                RoleService roleService) {
+                                RoleService roleService, UserStatusService userStatusService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -60,6 +54,7 @@ public class StatusRestController {
         this.studentStatusService = studentStatusService;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.roleService = roleService;
+        this.userStatusService = userStatusService;
     }
 
     @GetMapping
@@ -67,7 +62,7 @@ public class StatusRestController {
         return ResponseEntity.ok(statusService.getAll());
     }
 
-    @GetMapping(value="/dto/for-mailing", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/dto/for-mailing", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StatusDto>> getAllStatusDtoForMailing() {
         return ResponseEntity.ok(statusService.getStatusesForMailing());
     }
@@ -112,6 +107,8 @@ public class StatusRestController {
 
         final Status status = new Status(statusName);
         statusService.add(status, currentAdmin.getRole());
+        Optional<Status> statusOptional = statusService.get(statusName);
+        userStatusService.addStatusForAllUsers(statusOptional.get().getId());
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
         return ResponseEntity.ok("Успешно добавлено");
     }
@@ -220,32 +217,20 @@ public class StatusRestController {
     }
 
     @GetMapping("/all/dto-position-id")
-    public ResponseEntity<List<StatusPositionIdNameDTO>> getAllStatusPositions() {
-        List<StatusPositionIdNameDTO> statusPositionIdNameDTOList = statusService.getAllStatusesMinDTOWhichAreNotInvisible();
+    public ResponseEntity<List<StatusPositionIdNameDTO>> getAllStatusPositions(@AuthenticationPrincipal User currentUser) {
+        List<StatusPositionIdNameDTO> statusPositionIdNameDTOList = statusService.getAllStatusesMinDTOWhichAreNotInvisible(currentUser);
         statusPositionIdNameDTOList.sort(Comparator.comparingLong(StatusPositionIdNameDTO::getPosition));
         return ResponseEntity.ok(statusPositionIdNameDTOList);
     }
 
     @RequestMapping(value = "/position/change", method = RequestMethod.PUT)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity updateStatusesPositions(@RequestBody List<StatusPositionIdNameDTO> statusesPositionIdsNameDTO) {
-        for (int out = statusesPositionIdsNameDTO.size() - 1; out >= 1; out--){
-            for (int in = 0; in < out; in++){
-                if(statusesPositionIdsNameDTO.get(in).getPosition() > statusesPositionIdsNameDTO.get(in + 1).getPosition())    {
-                    Long postitonFirst =   statusesPositionIdsNameDTO.get(in).getPosition();
-                    Long postitonSecond =   statusesPositionIdsNameDTO.get(in + 1).getPosition();
-                    Long idFirst = statusesPositionIdsNameDTO.get(in).getId();
-                    Long idSecond = statusesPositionIdsNameDTO.get(in + 1).getId();
-                    statusesPositionIdsNameDTO.get(in).setPosition(postitonSecond);
-                    statusesPositionIdsNameDTO.get(in + 1).setPosition(postitonFirst);
-                    Optional<Status> first = statusService.get(idFirst);
-                    Optional<Status> second = statusService.get(idSecond);
-                    first.get().setPosition(postitonSecond);
-                    second.get().setPosition(postitonFirst);
-                    statusService.update(first.get());
-                    statusService.update(second.get());
-                }
-            }
+    public ResponseEntity updateStatusesPositions(@RequestBody List<StatusPositionIdNameDTO> statusesPositionIdsNameDTO,
+                                                  @AuthenticationPrincipal User currentUser) {
+        Long in = Long.valueOf(1);
+        for(StatusPositionIdNameDTO statusPositionIdNameDTO : statusesPositionIdsNameDTO) {
+            userStatusService.updateUserStatus(currentUser.getId(), statusPositionIdNameDTO.getId(), false, in);
+            in++;
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
