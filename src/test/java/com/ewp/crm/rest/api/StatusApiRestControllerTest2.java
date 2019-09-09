@@ -3,7 +3,6 @@ package com.ewp.crm.rest.api;
 import com.ewp.crm.controllers.rest.api.StatusApiRestController;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.StatusService;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.junit.Assert;
@@ -13,11 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultHandler;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.util.Collections;
 
@@ -101,7 +97,7 @@ public class StatusApiRestControllerTest2 {
     @Test
     public void deleteStatusApi() throws Exception {
 
-        int response = this.mockMvc.perform(delete(baseUri + "/64"))
+        int response = this.mockMvc.perform(delete(baseUri + "/57"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
