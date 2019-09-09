@@ -1,13 +1,8 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientStatusChangingHistory;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SortedStatuses;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
@@ -236,11 +231,14 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible() {
-        List<BigInteger> ids = statusDAO.getAllIdsWhichNotInvisible();
+    public List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible(User user) {
+        List<UserStatus> userStatusList = statusDAO.getAllIdsWhichNotInvisible(user.getId());
         List<StatusPositionIdNameDTO> statusPositionIdNameDTOS = new ArrayList<>();
-        for (BigInteger id : ids) {
-            statusPositionIdNameDTOS.add(new StatusPositionIdNameDTO(id.longValue(), statusDAO.getStatusPositionById(id.longValue()), statusDAO.getStatusNameById(id.longValue())));
+        for (UserStatus userStatus : userStatusList) {
+            statusPositionIdNameDTOS.add(new StatusPositionIdNameDTO(
+                    userStatus.getStatus_id(),
+                    userStatus.getPosition(),
+                    statusDAO.getStatusNameById(userStatus.getStatus_id())));
         }
         return statusPositionIdNameDTOS;
     }

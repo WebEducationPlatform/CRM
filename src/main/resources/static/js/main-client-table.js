@@ -163,7 +163,7 @@ function drawHiddenStatusesTable() {
     if (invisibleStatuses.length !=0) {
         for (let i = 0; i < invisibleStatuses.length; i++) {
             if (invisibleStatuses[i].name != 'deleted') {
-                trHTML += "<tr><td width='70%'>" + invisibleStatuses[i].name + "</td>" +
+                trHTML += "<tr id = 'invisibleStatuses" + invisibleStatuses[i].id + "'><td width='70%'>" + invisibleStatuses[i].name + "</td>" +
                     "<td>" +
                         "<button type='button' class='show-status-btn btn' " +
                             "value='" + invisibleStatuses[i].id + "'>Показать</button>" +
