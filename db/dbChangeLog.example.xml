@@ -18,6 +18,7 @@
         <rollback>
             DROP TABLE `test`;
         </rollback>
+        <comment>table TEST creation for demonstration</comment>
     </changeSet>
 
     <changeSet author="Vladimir Yarovoy" id="1">
