@@ -27,7 +27,7 @@ public class UserStatusDAOImpl implements UserStatusDAO {
     @Override
     public void addUserForAllStatuses(Long user_id) {
         entityManager.createNativeQuery("insert into user_status (user_id, status_id, is_invisible, position)" +
-                "select s.status_id, :user_id, false, 0 from status s")
+                "select :user_id, s.status_id, false, 0 from status s")
                 .setParameter("user_id", user_id)
                 .executeUpdate();
     }
