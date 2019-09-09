@@ -21,4 +21,6 @@ public interface CallRecordService extends CommonService<CallRecord> {
 	List<CallRecord> findAllByCallingUserAndDateBetween(User user, ZonedDateTime from, ZonedDateTime to, Pageable pageable);
 
     List<CallRecord> findAllByDateBetween(ZonedDateTime from, ZonedDateTime to, Pageable pageable);
+
+	Optional<CallRecord> getByClientHistory_Id(Long id);
 }
