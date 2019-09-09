@@ -2,20 +2,28 @@ package com.ewp.crm.controllers.rest.api;
 
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/rest/api/user/")
+@Transactional
 public class UserApiRestController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserStatusService userService;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @GetMapping("/")
     public List<User> getAllUsers() {
