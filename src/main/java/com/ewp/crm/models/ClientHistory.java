@@ -85,6 +85,10 @@ public class ClientHistory {
         this.client = client;
     }
 
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
+    }
+
     public Long getId() {
         return id;
     }

@@ -10,14 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
-import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("/rest/api/client/history")
+@RequestMapping("/rest/client/history")
 public class ClientHistoryRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClientHistoryRestController.class);
@@ -38,14 +38,14 @@ public class ClientHistoryRestController {
 	@Autowired
 	CallRecordService callRecordService;
 
-	@GetMapping("/rest/getHistory/{clientId}")
+	@GetMapping("/{clientId}")
 	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page, @RequestParam("isAsc")boolean isAsc) {
 		List<ClientHistoryDto> clientHistory = clientHistoryService.getAllDtoByClientId(id, page, pageSize, isAsc);
 		return ResponseEntity.ok(clientHistory);
 	}
 
 	//Добавление записи по id клиента
-	@PostMapping("/rest/addHistory/{clientId}")
+	@PostMapping("/{clientId}")
 	public ResponseEntity addClientHistory(@PathVariable("clientId") long id, @RequestBody ClientHistory clientHistory) {
 		clientHistory.setClient(clientRepository.getClientById(id));
 		Optional<ClientHistory> result = clientHistoryService.addHistory(clientHistory);
@@ -53,7 +53,7 @@ public class ClientHistoryRestController {
 	}
 
 	//Удаление записи по id истории
-	@DeleteMapping("/rest/deleteHistory/{clientHistoryId}")
+	@DeleteMapping("/{clientHistoryId}")
 	public ResponseEntity deleteClientHistory(@PathVariable("clientHistoryId") long clientHistoryId) {
 		//Проверяем есть ли связанная с ClientHistory запись callRecord и если есть удаляем ее.
 		Optional<CallRecord> callRecord = callRecordService.getByClientHistory_Id(clientHistoryId);
@@ -62,11 +62,11 @@ public class ClientHistoryRestController {
 		}
 		//Удаляем запись ClientHistory по Id
 		clientHistoryService.deleteClientHistoryById(clientHistoryId);
-		return new ResponseEntity(OK);
+		return new ResponseEntity(HttpStatus.valueOf(204));
 	}
 
 	//Обновление записи по id клиента
-	@PutMapping("/rest/updateHistory/{clientId}")
+	@PutMapping("/{clientId}")
 	public ResponseEntity updateClientHistory(@PathVariable("clientId") long id, @RequestBody ClientHistory clientHistory) {
 		clientHistory.setClient(clientRepository.getClientById(id));
 		Optional<ClientHistory> result = clientHistoryService.addHistory(clientHistory);
