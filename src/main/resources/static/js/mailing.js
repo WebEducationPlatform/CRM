@@ -65,8 +65,9 @@ function sendMessages(sendnow) {
         },
         error: function (xhr) {
             if (xhr.status === 500) {
-                setErrorMessage("Что-то пошло не так, необходимо повторить отправку сообщений", "red");
+                setErrorMessage("Что-то пошло не так, необходимо повторить отправку сообщений\n " + xhr.responseText, "red");
             }
+
         }
     });
 }
