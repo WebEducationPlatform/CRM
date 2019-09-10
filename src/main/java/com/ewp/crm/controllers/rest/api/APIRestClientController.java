@@ -111,7 +111,7 @@ public class APIRestClientController {
 		}
 
 		clientService.updateClient(currentClient);
-        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
+                logger.info("{} has updated client: id {}, email {}", currentClient.getId(), currentClient.getEmail().orElse("not found"));
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -137,7 +137,7 @@ public class APIRestClientController {
 		}
 		clientService.delete(clientId);
 
- logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
+ 	        logger.info("{} has delete client: id {}, email {}", clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
