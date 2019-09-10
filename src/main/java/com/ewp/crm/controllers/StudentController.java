@@ -14,7 +14,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/student")
-@PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
 public class StudentController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientController.class);
