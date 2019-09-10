@@ -120,7 +120,10 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                                 "           GROUP BY c.client_id " +
                                 sortDirection + " ;", Tuple.class)
                         .setParameter("statusId", statusId)
-                        .getResultList();
+                        .getResultList();   // Если здесь возникает ошибка про GROUP BY, то в mysql сделай следующее:
+                                            // зайди в консоль мускула и пропиши ручками
+                                            // SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
+
 
                 for (Tuple userTuple : tupleClients) {
                     long clientId = ((BigInteger) userTuple.get("id")).longValue();
