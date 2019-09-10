@@ -1,4 +1,4 @@
-package com.ewp.crm.controllers.rest;
+package com.ewp.crm.controllers.rest.api;
 
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.repository.interfaces.ClientRepository;
@@ -24,9 +24,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
-public class ClientHistoryRestControllerTest {
+public class ClientHistoryApiRestControllerTest {
 
-    @Value("${uriRestClientHistoryController}")
+    @Value("${uriRestClientApiHistoryController}")
     private String baseUri;
 
     @Value("${clientId}")
