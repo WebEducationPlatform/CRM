@@ -5,43 +5,60 @@ import com.ewp.crm.repository.interfaces.ClientRepository;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 
 import static io.restassured.RestAssured.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
 public class ClientHistoryRestControllerTest {
 
-    private String baseUri = "http://localhost:9999/rest/api/client/history";
+    @Value("${uriRestClientHistoryController}")
+    private String baseUri;
+
+    @Value("${clientId}")
+    private Long clientId;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ClientHistoryRestController clientHistoryRestController;
 
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    private WebApplicationContext wac;
+
+    @Before
+    public void setup() {
+        this.mockMvc = webAppContextSetup(this.wac).build();
+    }
+
+    //Тестовые истории
     private static ClientHistory clientHistory = new ClientHistory();
     private static ClientHistory clientHistoryRes = new ClientHistory();
 
     @Test
-    public void addHistory() throws Exception {
+    public void addHistory() {
         //Создаем объект для добавления
-        clientHistory.setClient(clientRepository.getClientById(37465L));
+        clientHistory.setClient(clientRepository.getClientById(clientId));
         clientHistory.setLink("Add Autotest string");
         clientHistory.setTitle("Add Autotest string");
         clientHistory.setType(ClientHistory.Type.CALL);
@@ -49,7 +66,7 @@ public class ClientHistoryRestControllerTest {
         //Добавляем
         Response response = given()
                 .baseUri(baseUri)
-                .basePath("/rest/addHistory/37465")
+                .basePath("/" + clientId)
                 .contentType(ContentType.JSON)
                 .body(clientHistory)
                 .post();
@@ -58,17 +75,19 @@ public class ClientHistoryRestControllerTest {
         int responseStatusCode = response.getStatusCode();
         clientHistoryRes = response.getBody().as(ClientHistory.class);
 
+        clientHistory.setId(clientHistoryRes.getId());
+        clientHistory.setDate(clientHistoryRes.getDate());
+
         Assert.assertEquals(responseStatusCode, 200);
-        Assert.assertEquals(clientHistoryRes.getTitle(), clientHistory.getTitle());
-        Assert.assertEquals(clientHistoryRes.getLink(), clientHistory.getLink());
-        Assert.assertEquals(clientHistoryRes.getType(), clientHistory.getType());
+        Assert.assertEquals(clientHistoryRes, clientHistory);
+
     }
 
     @Test
-    public void updateHistory() throws Exception {
+    public void updateHistory() {
         //Меняем созданную историю
         clientHistory.setId(clientHistoryRes.getId());
-        clientHistory.setClient(clientRepository.getClientById(37465L));
+        clientHistory.setClient(clientRepository.getClientById(clientId));
         clientHistory.setLink("Update Autotest string");
         clientHistory.setTitle("Update Autotest string");
         clientHistory.setType(ClientHistory.Type.UPDATE);
@@ -76,7 +95,7 @@ public class ClientHistoryRestControllerTest {
         //Обновляем
         Response response = given()
                 .baseUri(baseUri)
-                .basePath("/rest/updateHistory/37465")
+                .basePath("/" + clientId)
                 .contentType(ContentType.JSON)
                 .body(clientHistory)
                 .put();
@@ -86,25 +105,22 @@ public class ClientHistoryRestControllerTest {
         clientHistoryRes = response.getBody().as(ClientHistory.class);
 
         Assert.assertEquals(statusCode, 200);
-        Assert.assertEquals(clientHistoryRes.getTitle(), clientHistory.getTitle());
-        Assert.assertEquals(clientHistoryRes.getLink(), clientHistory.getLink());
-        Assert.assertEquals(clientHistoryRes.getType(), clientHistory.getType());
+        Assert.assertEquals(clientHistoryRes, clientHistory);
     }
 
     @Test
     public void deleteHistory() throws Exception {
         //Удаляем созданную историю
-        int response = this.mockMvc.perform(delete(baseUri + "/rest/deleteHistory/"+clientHistory.getId()))
+        int response = this.mockMvc.perform(delete(baseUri + "/" + clientHistory.getId()))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andReturn()
                 .getResponse()
                 .getStatus();
 
         //Проверяем
-        Assert.assertEquals(response, 200);
+        Assert.assertEquals(response, 204);
 
     }
 
 }
-
