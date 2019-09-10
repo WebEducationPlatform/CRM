@@ -5,7 +5,6 @@ import com.ewp.crm.repository.interfaces.ClientRepository;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 
 import static io.restassured.RestAssured.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,19 +39,12 @@ public class ClientHistoryRestControllerTest {
     @Autowired
     private ClientRepository clientRepository;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Before
-    public void setup() {
-        this.mockMvc = webAppContextSetup(this.wac).build();
-    }
-
     //Тестовые истории
     private static ClientHistory clientHistory = new ClientHistory();
     private static ClientHistory clientHistoryRes = new ClientHistory();
 
     @Test
+//    @Ignore
     public void addHistory() {
         //Создаем объект для добавления
         clientHistory.setClient(clientRepository.getClientById(clientId));
@@ -84,6 +73,7 @@ public class ClientHistoryRestControllerTest {
     }
 
     @Test
+//    @Ignore
     public void updateHistory() {
         //Меняем созданную историю
         clientHistory.setId(clientHistoryRes.getId());
@@ -109,6 +99,7 @@ public class ClientHistoryRestControllerTest {
     }
 
     @Test
+//    @Ignore
     public void deleteHistory() throws Exception {
         //Удаляем созданную историю
         int response = this.mockMvc.perform(delete(baseUri + "/" + clientHistory.getId()))
