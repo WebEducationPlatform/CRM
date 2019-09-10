@@ -27,35 +27,24 @@ public class APIRestClientController {
 	StatusService statusService;
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-// @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
 	public ResponseEntity<List<Client>> getAll() {
 		return ResponseEntity.ok(clientService.getAll());
 	}
 
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-// @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.get(id));
 	}
 
-	// @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-// public void addUser(@RequestBody Client client) {
-//    clientService.add(client);
-// }
-	//
+	
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-// @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 	public ResponseEntity addClient(@RequestBody Client client) {
 		clientService.add(client);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	// @PutMapping(path = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-// public void updateUser(@PathVariable(name = "id") long id,@RequestBody Client client) {
-//    clientService.updateClient(client);
-// }
+	
 	@PutMapping(value = "/update")
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
 	public ResponseEntity updateClient(@RequestBody Client currentClient) {
 		Client clientFromDB = clientService.get(currentClient.getId());
 		currentClient.setWhatsappMessages(clientFromDB.getWhatsappMessages());
@@ -122,12 +111,11 @@ public class APIRestClientController {
 		}
 
 		clientService.updateClient(currentClient);
-//        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
+        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@PutMapping(value = "/updatestatus/{statusId}")
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
 	public ResponseEntity updateClientStatus(@RequestBody Client currentClient,
 											 @PathVariable Long statusId) {
 		Client clientFromDB = clientService.get(currentClient.getId());
@@ -139,14 +127,9 @@ public class APIRestClientController {
 
 	}
 
-	// @DeleteMapping("/{id}")
-// public void deleteClient(@PathVariable("id") Long id) {
-//    Client client = clientService.get(id);
-//    clientService.delete(client);
-// }
+
 	@DeleteMapping("/{clientId}")
 	public ResponseEntity removeClient(@PathVariable(name = "clientId") Long clientId) {
-//                        )
 
 		Client clientFromDB = clientService.get(clientId);
 		if (Objects.isNull(clientFromDB)) {
@@ -154,7 +137,7 @@ public class APIRestClientController {
 		}
 		clientService.delete(clientId);
 
-// logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
+ logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
