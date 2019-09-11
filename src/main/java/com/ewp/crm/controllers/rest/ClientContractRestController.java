@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/client/contract/rest")
+@RequestMapping("/rest/client/contract")
 public class ClientContractRestController {
     private static final Logger logger = LoggerFactory.getLogger(ClientContractRestController.class);
 
