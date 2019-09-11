@@ -48,7 +48,7 @@ $('.checkbox').click(function() {
     $.ajax({
         async: true,
         type: 'POST',
-        url: '/admin/rest/user/filters',
+        url: '/rest/admin/user/filters',
         data: {'filters' : json}
     });
     calc_info_values();
