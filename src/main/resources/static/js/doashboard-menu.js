@@ -27,7 +27,7 @@ function fillUsersTableForDelete(button) {
     $("#deleteUserForm").submit(function (event) {
         event.preventDefault();
         receiver = $("input[name='user']:checked").val();
-        var url = '/admin/rest/user/deleteWithTransfer';
+        var url = '/rest/admin/user/deleteWithTransfer';
         var formData = {
             deleteId: deleted,
             receiverId: receiver
@@ -55,7 +55,7 @@ $('#deleteUserModal').on('hide.bs.modal', function() {
 
 //Функция для удаления нового пользователя из меню на доске
 function deleteNewUser(deleteId) {
-    let url = '/admin/rest/user/delete';
+    let url = '/rest/admin/user/delete';
     let data = {
         deleteId: deleteId
     };
@@ -75,7 +75,7 @@ function deleteNewUser(deleteId) {
 
 
 function reAvailableUser(id) {
-    let url = '/admin/rest/user/reaviable';
+    let url = '/rest/admin/user/reaviable';
     let formData = {
         deleteId: id
     };

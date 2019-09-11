@@ -135,7 +135,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 String fileName = "user-" + user.getId() + "-avatar.png";
                 File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
                 ImageIO.write(image, "png", outputFile);
-                user.setPhoto("/admin/avatar/" + fileName);
+                user.setPhoto("/rest/admin/user/avatar/" + fileName);
                 update(user);
             } catch (Exception e) {
                 logger.error("Error during saving photo: " + e.getMessage());
