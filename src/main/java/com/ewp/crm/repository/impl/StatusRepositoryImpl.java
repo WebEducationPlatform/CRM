@@ -104,6 +104,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 }
 
                 // Для статуса получаем всех клиентов с нужной сортировкой
+
                 List<Tuple> tupleClients = entityManager.createNativeQuery(
                         "SELECT DISTINCT c.client_id AS id, c.first_name AS name, c.last_name, c.hide_card, ce.client_email AS email, cp.client_phone AS phone, c.skype, c.city, c.country, " +
                                 "   own.user_id AS own_user_id, own.first_name AS own_first_name, own.last_name AS own_last_name, " +
@@ -119,7 +120,10 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                                 "           GROUP BY c.client_id " +
                                 sortDirection + " ;", Tuple.class)
                         .setParameter("statusId", statusId)
-                        .getResultList();
+                        .getResultList();   // Если здесь возникает ошибка про GROUP BY, то в mysql сделай следующее:
+                                            // зайди в консоль мускула и пропиши ручками
+                                            // SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
+
 
                 for (Tuple userTuple : tupleClients) {
                     long clientId = ((BigInteger) userTuple.get("id")).longValue();
