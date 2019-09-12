@@ -1,5 +1,5 @@
 function getFeedback(user_id) {
-    var url = '/client/feedback/rest/' + user_id;
+    var url = '/rest/client/feedback/' + user_id;
     loadTable(user_id);
     $('#modal-client-feedback').modal('show');
 }
@@ -11,7 +11,7 @@ function loadTable(user_id) {
         "<button type='button' class='btn btn-primary' onclick='addFeedback(" + user_id + ")'>Добавить отзыв</button>"
     );
     $.ajax({
-        url: '/client/feedback/rest/' + user_id,
+        url: '/rest/client/feedback/' + user_id,
         type: 'GET',
         success: function (list) {
             $('#client-feedback-table').empty();
@@ -52,7 +52,7 @@ function disable(el) {
 
 function deleteFeedback(feedback_id) {
     $.ajax({
-        url: '/client/feedback/rest/' + feedback_id,
+        url: '/rest/client/feedback/' + feedback_id,
         type: 'DELETE',
         error: function (e) {
             console.log("Ошибка удаления отзыва" + e.responseText);
@@ -95,7 +95,7 @@ function updateFeedback(feedback_id) {
         videoUrl: $('#tr' + feedback_id + ' .feedback-video-url').val()
     };
     $.ajax({
-        url: '/client/feedback/rest/update',
+        url: '/rest/client/feedback/update',
         type: 'POST',
         data: JSON.stringify(feedback),
         contentType: 'application/json',
@@ -112,7 +112,7 @@ function saveNewFeedback(user_id) {
         videoUrl: $('#new-feedback-video-url').val()
     };
     $.ajax({
-        url: '/client/feedback/rest/add/' + user_id,
+        url: '/rest/client/feedback/add/' + user_id,
         type: 'POST',
         data: JSON.stringify(feedback),
         contentType: 'application/json',

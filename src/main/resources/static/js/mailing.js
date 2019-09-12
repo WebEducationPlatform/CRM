@@ -583,7 +583,7 @@ function sendImg(input) {
 
     var dataValue = new FormData();
     dataValue.append("0", file);
-    let url = '/admin/savePicture?templateID='+templateID;
+    let url = '/rest/admin/savePicture?templateID='+templateID;
     $.ajax({
         url: url,
         type: 'POST',
