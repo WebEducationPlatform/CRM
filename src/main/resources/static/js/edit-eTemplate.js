@@ -35,7 +35,7 @@ window.onbeforeunload = function () {
 };
 
 function saveTemplate(templateName) {
-    let url = '/admin/editMessageTemplate';
+    let url = '/rest/admin/editMessageTemplate';
     let text = $('#textTemplateArea').val();
     let themeTemplate = $('#template-theme-rename').val();
     let wrap = {
@@ -79,7 +79,7 @@ function sendImg(templateName, input) {
 
     var dataValue = new FormData();
     dataValue.append("0", file);
-    let url = '/admin/savePicture?templateName='+templateName;
+    let url = '/rest/admin/savePicture?templateName='+templateName;
     $.ajax({
         url: url,
         type: 'POST',
