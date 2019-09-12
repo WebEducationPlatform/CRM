@@ -129,8 +129,10 @@
     <div id="panel" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR','MENTOR')">
         <div id="panel-content">
             <div class="panel-group">
-                <div class="panel-title">
+                <div class="panel-title" style="position: fixed">
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove" onclick="reload()"></a>
+                </div>
+                <div class="panel-title">
                     <h2>Меню</h2>
                 </div>
                 <div id="showOnlyMyClientsDiv" sec:authorize="hasAnyAuthority('MENTOR')">
