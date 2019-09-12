@@ -106,7 +106,7 @@ function addClient() {
         name : $('#client-status').val(),
     };
 
-    let url = '/admin/rest/client/add';
+    let url = '/rest/admin/client/add';
     let wrap = {
         name: $('#edit-client-first-name').val(),
         lastName: $('#edit-client-last-name').val(),

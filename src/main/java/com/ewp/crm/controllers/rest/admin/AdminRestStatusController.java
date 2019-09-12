@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
-@RequestMapping("/admin/rest/status")
+@RequestMapping("/rest/admin/status")
 public class AdminRestStatusController {
 
 	private static Logger logger = LoggerFactory.getLogger(AdminRestStatusController.class);

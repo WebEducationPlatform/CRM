@@ -1,7 +1,7 @@
 $(function() {
     $('#message-history-modal').on('show.bs.modal', function ShowEmailMessages() {
         var clientId = getAllUrlParams(window.location.href).id;
-        let url = '/client/history/rest/getEmailHistory/' + clientId;
+        let url = '/rest/client/history/getEmailHistory/' + clientId;
         $.get(url, function (messageList) {
             $("#message-data").empty();
             for (var i = 0; i < messageList.length; i++) {
