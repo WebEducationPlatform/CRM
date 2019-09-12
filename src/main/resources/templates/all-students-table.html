@@ -54,7 +54,7 @@
         </div>
         <br />
 
-        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" class="row">
+        <div sec:authorize="hasAnyAuthority('OWNER')" class="row">
             <div class="col-md-12">
                 <button id="show-additional-info-button" type="button" class="btn btn-info">Показать данные</button>
             </div>
@@ -106,9 +106,9 @@
                 <th><button onclick="noteAndSort(this, 3, 'email')" type="button" class="btn btn-secondary">Email<i class="fa fa-fw fa-sort"></i></button></th>
                 <th><button onclick="noteAndSort(this, 4, 'date')" type="button" class="btn btn-secondary">Конец пробных<i class="fa fa-fw fa-sort"></i></button></th>
                 <th><button onclick="noteAndSort(this, 5, 'date')" type="button" class="btn btn-secondary">Следующая оплата<i class="fa fa-fw fa-sort"></i></button></th>
-                <th><button onclick="noteAndSort(this, 6)" type="button" class="btn btn-secondary fit">Цена<i class="fa fa-fw fa-sort"></i></button></th>
-                <th><button onclick="noteAndSort(this, 7)" type="button" class="btn btn-secondary fit">Сумма платежа<i class="fa fa-fw fa-sort"></i></button></th>
-                <th><button onclick="noteAndSort(this, 8)" type="button" class="btn btn-secondary fit">Оплата после<i class="fa fa-fw fa-sort"></i></button></th>
+                <th sec:authorize="hasAnyAuthority('OWNER')"><button onclick="noteAndSort(this, 6)" type="button" class="btn btn-secondary fit">Цена<i class="fa fa-fw fa-sort"></i></button></th>
+                <th sec:authorize="hasAnyAuthority('OWNER')"><button onclick="noteAndSort(this, 7)" type="button" class="btn btn-secondary fit">Сумма платежа<i class="fa fa-fw fa-sort"></i></button></th>
+                <th sec:authorize="hasAnyAuthority('OWNER')"><button onclick="noteAndSort(this, 8)" type="button" class="btn btn-secondary fit">Оплата после<i class="fa fa-fw fa-sort"></i></button></th>
                 <th width="240px"><button type="button" class="btn btn-secondary">Напоминание</button></th>
                 <th><button onclick="noteAndSort(this, 15, 'status')" type="button" class="btn btn-secondary fit">Статус учёбы<i class="fa fa-fw fa-sort"></i></button></th>
                 <th><button onclick="noteAndSort(this, 16, 'notes')" type="button" class="btn btn-secondary">Заметки<i class="fa fa-fw fa-sort"></i></button></th>
@@ -133,9 +133,9 @@
                     <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+15D</button>
                     <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+1M</button>
                 </td>
-                <td class="price-for-student" th:id="${'price_' + student.id}" th:text="${student.price}"></td>
-                <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}"></td>
-                <td th:id="${'payLater_' + student.id}" th:text="${student.payLater}"></td>
+                <td class="price-for-student" th:id="${'price_' + student.id}" th:text="${student.price}" sec:authorize="hasAnyAuthority('OWNER')"></td>
+                <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}" sec:authorize="hasAnyAuthority('OWNER')"></td>
+                <td th:id="${'payLater_' + student.id}" th:text="${student.payLater}" sec:authorize="hasAnyAuthority('OWNER')"></td>
                 <td>
                     <table width="160px">
                         <tr>
