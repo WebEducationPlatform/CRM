@@ -18,20 +18,19 @@ import java.util.Optional;
 public class ClientHistoryApiRestController {
 
     private final ClientHistoryService clientHistoryService;
+    private final CallRecordService callRecordService;
 
     @Autowired
     private ClientRepository clientRepository;
 
     @Autowired
-    CallRecordService callRecordService;
-
-    @Autowired
-    public ClientHistoryApiRestController(ClientHistoryService clientHistoryService) {
+    public ClientHistoryApiRestController(ClientHistoryService clientHistoryService, CallRecordService callRecordService) {
         this.clientHistoryService = clientHistoryService;
+        this.callRecordService = callRecordService;
     }
 
     //Добавление записи по id клиента
-    @PostMapping("/{clientId}")
+    @PostMapping("/add/{clientId}")
     public ResponseEntity addClientHistory(@PathVariable("clientId") long id, @RequestBody ClientHistory clientHistory) {
         clientHistory.setClient(clientRepository.getClientById(id));
         Optional<ClientHistory> result = clientHistoryService.addHistory(clientHistory);
@@ -39,20 +38,18 @@ public class ClientHistoryApiRestController {
     }
 
     //Удаление записи по id истории
-    @DeleteMapping("/{clientHistoryId}")
+    @PostMapping("/delete/{clientHistoryId}")
     public ResponseEntity deleteClientHistory(@PathVariable("clientHistoryId") long clientHistoryId) {
         //Проверяем есть ли связанная с ClientHistory запись callRecord и если есть удаляем ее.
-        Optional<CallRecord> callRecord = callRecordService.getByClientHistory_Id(clientHistoryId);
-        if (callRecord.isPresent()) {
-            callRecordService.delete(callRecord.get());
-        }
+        Optional<CallRecord> callRecord = callRecordService.getByClientHistoryId(clientHistoryId);
+        callRecord.ifPresent(callRecordService::delete);
         //Удаляем запись ClientHistory по Id
         clientHistoryService.deleteClientHistoryById(clientHistoryId);
         return new ResponseEntity(HttpStatus.valueOf(204));
     }
 
     //Обновление записи по id клиента
-    @PutMapping("/{clientId}")
+    @PostMapping("/update/{clientId}")
     public ResponseEntity updateClientHistory(@PathVariable("clientId") long id, @RequestBody ClientHistory clientHistory) {
         clientHistory.setClient(clientRepository.getClientById(id));
         Optional<ClientHistory> result = clientHistoryService.addHistory(clientHistory);
