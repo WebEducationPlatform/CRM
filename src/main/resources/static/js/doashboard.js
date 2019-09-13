@@ -241,7 +241,7 @@ function assignMentor(id, user, principalId) {
 //Change status button
 function changeStatusName(id) {
 
-    let url = '/admin/rest/status/edit';
+    let url = '/rest/admin/status/edit';
     let statusName = $("#change-status-name" + id).val();
     let trial_offset = parseInt($("#trial_offset_" + id).val());
     let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
