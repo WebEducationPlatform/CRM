@@ -7,6 +7,13 @@ function backUrl(url) {
     history.replaceState(state, title, url);
 }
 
+//Функция, что предназначена для перерисовки карточки! [Азамат/трелло-ид:890]
+//У меня есть некоторые подозрения по поводу ссылки. Надо будет спросить у Стаса!
+$('#close-user-modal').on( "click", function() {
+    location.replace("http://localhost:9999/client");
+    console.log("I done work!");
+});
+
 //Запрос: на главной модалке показать или скрыть
 $('#client-request-button').click( () => {
     var x = document.getElementById("client-request");
