@@ -72,7 +72,7 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
     }
 
     @Override
-    public Optional<CallRecord> getByClientHistory_Id(Long id) {
-        return Optional.ofNullable(callRecordRepository.getByClientHistory_Id(id));
+    public Optional<CallRecord> getByClientHistoryId(Long id) {
+        return Optional.ofNullable(callRecordRepository.getByClientHistoryId(id));
     }
 }
