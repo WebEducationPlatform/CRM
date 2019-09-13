@@ -8,7 +8,7 @@ $(document).ready(function () {
         let current = $(this);
         let clientId = current.attr("data-clientid");
         let page = current.attr("data-page");
-        let url = '/client/history/rest/getHistory/' + clientId;
+        let url = '/rest/client/history/getHistory/' + clientId;
 
         //Set sorting order and arrow direction.
         let arrow = $('#date').find('i');
@@ -44,7 +44,7 @@ $(document).ready(function () {
     collapseObject.on("show.bs.collapse", function () {
         let collapse = $(this);
         let client_id = collapse.attr("data-clientid");
-        let url = '/client/history/rest/getHistory/' + client_id;
+        let url = '/rest/client/history/getHistory/' + client_id;
         let isAsc = false;
         let data = {
             page: 0,
@@ -75,7 +75,7 @@ $(document).ready(function () {
 function resortClientHistory(button) {
     let uploadHistoryButton = $('.upload-more-history');
     let clientId = uploadHistoryButton.attr("data-clientid");
-    let url = '/client/history/rest/getHistory/' + clientId;
+    let url = '/rest/client/history/getHistory/' + clientId;
 
     //Set sorting order and change arrow direction.
     let arrow = $(button).find('i');

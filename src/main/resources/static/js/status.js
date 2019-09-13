@@ -116,7 +116,7 @@ $(".glyphicon-remove-circle").on("click", function dStatus() {
     });
 });
 function deleteStatus() {
-    let url = '/admin/rest/status/delete';
+    let url = '/rest/admin/status/delete';
     let formData = {
         deleteId: deleteStatusId
     };
@@ -166,7 +166,7 @@ $(".hide-status-btn").on("click", function hStatus() {
 function hideStatus() {
     let val = statusHideId;
     let
-        url = '/admin/rest/status/visible/change',
+        url = '/rest/admin/status/visible/change',
         formData = {
             statusId: val,
             invisible: true
@@ -189,7 +189,7 @@ function hideStatus() {
 $(document).ready(function () {
     $("#table-hidden-statuses").on("click", ".show-status-btn", function showStatus() {
         let
-            url = '/admin/rest/status/visible/change',
+            url = '/rest/admin/status/visible/change',
             formData = {
                 statusId: $(this).attr("value"),
                 invisible: false
