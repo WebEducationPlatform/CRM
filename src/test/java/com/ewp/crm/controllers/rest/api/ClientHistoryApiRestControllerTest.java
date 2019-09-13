@@ -55,7 +55,7 @@ public class ClientHistoryApiRestControllerTest {
         //Добавляем
         Response response = given()
                 .baseUri(baseUri)
-                .basePath("/" + clientId)
+                .basePath("/add/" + clientId)
                 .contentType(ContentType.JSON)
                 .body(clientHistory)
                 .post();
@@ -85,10 +85,10 @@ public class ClientHistoryApiRestControllerTest {
         //Обновляем
         Response response = given()
                 .baseUri(baseUri)
-                .basePath("/" + clientId)
+                .basePath("/update/" + clientId)
                 .contentType(ContentType.JSON)
                 .body(clientHistory)
-                .put();
+                .post();
 
         //Проверяем
         int statusCode = response.getStatusCode();
@@ -102,7 +102,7 @@ public class ClientHistoryApiRestControllerTest {
 //    @Ignore
     public void deleteHistory() throws Exception {
         //Удаляем созданную историю
-        int response = this.mockMvc.perform(delete(baseUri + "/" + clientHistory.getId()))
+        int response = this.mockMvc.perform(post(baseUri + "/delete/" + clientHistory.getId()))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andReturn()
