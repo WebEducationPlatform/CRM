@@ -145,9 +145,9 @@
             </thead>
 
             <tbody id="table-body">
-            <tr th:each="client : ${allClients}">
+            <tr style="cursor: pointer;" th:each="client : ${allClients}" th:onclick="'clientModal('+ ${client.id} +')'">
                 <td th:text="${client.id}"></td>
-                <td class="line-decoration"><a th:text="${client.name}" href="#" th:onclick="'clientModal('+ ${client.id} +')'" ></a></td>
+                <td th:text="${client.name}"></td>
                 <td th:text="${client.lastName}"></td>
                 <td th:text = "${!#arrays.isEmpty(client.clientPhones)} ? ${client.clientPhones[0]}"></td>
                 <td th:text= " ${!#arrays.isEmpty(client.clientEmails)} ? ${client.clientEmails[0]}"></td>
