@@ -182,7 +182,7 @@ function changeClient(id) {
     }
 
 
-    let url = '/admin/rest/client/update';
+    let url = '/rest/admin/client/update';
     let wrap = {
         id: id,
         name: $('#edit-client-first-name').val(),
@@ -226,7 +226,7 @@ function changeClient(id) {
 }
 
 function deleteClient(clientId) {
-    const url = '/admin/rest/client/remove';
+    const url = '/rest/admin/client/remove';
     const infoMsg = document.getElementById("message");
     $.ajax({
         type: "GET",

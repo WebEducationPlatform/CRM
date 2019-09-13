@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/admin/rest/client")
+@RequestMapping("/rest/admin/client")
 public class AdminRestClientController {
 
     private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);

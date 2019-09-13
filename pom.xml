@@ -341,6 +341,20 @@
 			<version>6.0.17.Final</version>
 		</dependency>
 
+		<!-- library for testing rest api-->
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>3.0.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Для проверки тестов - Азамат -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 	<build>

@@ -2,10 +2,7 @@ package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.CommentService;
-import com.ewp.crm.service.interfaces.SMSInfoService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +22,7 @@ import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
+@RequestMapping("/rest/admin/user")
 public class AdminRestUserController {
 
     private static Logger logger = LoggerFactory.getLogger(AdminRestUserController.class);
@@ -38,7 +36,9 @@ public class AdminRestUserController {
     @Autowired
     public AdminRestUserController(UserService userService,
                                    ImageConfig imageConfig,
-                                   ClientService clientService, SMSInfoService smsInfoService, CommentService commentService) {
+                                   ClientService clientService,
+                                   SMSInfoService smsInfoService,
+                                   CommentService commentService) {
         this.userService = userService;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
@@ -47,13 +47,13 @@ public class AdminRestUserController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/admin/avatar/{file}")
+    @GetMapping(value = "/avatar/{file}")
     public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
         Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file);
         return Files.readAllBytes(fileLocation);
     }
 
-    @PostMapping(value = "/admin/rest/user/update")
+    @PostMapping(value = "/update")
     public ResponseEntity updateUser(@Valid @RequestBody User user,
                                      @AuthenticationPrincipal User currentAdmin) {
         Optional<String> userPhoto = Optional.ofNullable(user.getPhoto());
@@ -66,7 +66,7 @@ public class AdminRestUserController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping(value = {"/admin/rest/user/update/photo"})
+    @PostMapping(value = {"/update/photo"})
     public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file,
                                     @RequestParam("id") Long id) {
         User user = userService.get(id);
@@ -74,7 +74,7 @@ public class AdminRestUserController {
         return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
     }
 
-    @PostMapping(value = "/admin/rest/user/filters")
+    @PostMapping(value = "/filters")
     public HttpStatus setFiltersForAllStudents(@RequestParam("filters") String filters, @AuthenticationPrincipal User currentAdmin) {
         User user = userService.get(currentAdmin.getId());
         user.setStudentPageFilters(filters);
@@ -83,7 +83,7 @@ public class AdminRestUserController {
         return HttpStatus.OK;
     }
 
-    @PostMapping(value = "/admin/rest/user/add")
+    @PostMapping(value = "/add")
     public ResponseEntity addUser(@Valid @RequestBody User user,
                                   @AuthenticationPrincipal User currentAdmin) {
         ResponseEntity result;
@@ -100,7 +100,7 @@ public class AdminRestUserController {
     }
 
     //Workers will be deactivated, not deleted
-    @PostMapping(value = "/admin/rest/user/reaviable")
+    @PostMapping(value = "/reaviable")
     public ResponseEntity reaviableUser(@RequestParam Long deleteId,
                                         @AuthenticationPrincipal User currentAdmin) {
         User currentUser = userService.get(deleteId);
@@ -111,7 +111,7 @@ public class AdminRestUserController {
     }
 
     // Delete user with clients transfer to receiver user
-    @RequestMapping(value = "/admin/rest/user/deleteWithTransfer", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleteWithTransfer", method = RequestMethod.POST)
     public ResponseEntity deleteUserWithClientTransfer(@RequestParam Long deleteId,
                                                        @RequestParam Long receiverId,
                                                        @AuthenticationPrincipal User currentAdmin) {
@@ -127,7 +127,7 @@ public class AdminRestUserController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/admin/rest/user/delete")
+    @PostMapping(value = "/delete")
     public ResponseEntity deleteNewUser(@RequestParam Long deleteId,
                                         @AuthenticationPrincipal User currentAdmin) {
         User currentUser = userService.get(deleteId);
