@@ -32,21 +32,18 @@ public class AdminRestUserController {
     private final ClientService clientService;
     private final SMSInfoService smsInfoService;
     private final CommentService commentService;
-    private final UserStatusService userStatusService;
 
     @Autowired
     public AdminRestUserController(UserService userService,
                                    ImageConfig imageConfig,
                                    ClientService clientService,
                                    SMSInfoService smsInfoService,
-                                   CommentService commentService,
-                                   UserStatusService userStatusService) {
+                                   CommentService commentService) {
         this.userService = userService;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
         this.smsInfoService = smsInfoService;
         this.commentService = commentService;
-        this.userStatusService = userStatusService;
     }
 
     @ResponseBody
@@ -126,7 +123,6 @@ public class AdminRestUserController {
         commentService.deleteAllCommentsByUserId(deleteId);
         smsInfoService.deleteAllSMSByUserId(deleteId);
         userService.delete(deleteId);
-        userStatusService.deleteUser(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), deletedUser.getId(), deletedUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -136,7 +132,6 @@ public class AdminRestUserController {
                                         @AuthenticationPrincipal User currentAdmin) {
         User currentUser = userService.get(deleteId);
         userService.delete(deleteId);
-        userStatusService.deleteUser(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), currentUser.getId(), currentUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }

@@ -22,6 +22,12 @@ public interface UserService extends CommonService<User> {
 	@Override
 	void update(User user);
 
+	@Override
+	void delete(User user);
+
+	@Override
+	void delete(Long user_id);
+
 	void addPhoto(MultipartFile file, User user);
 
 	List<User> getByRole(Role role);

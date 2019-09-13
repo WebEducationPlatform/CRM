@@ -63,7 +63,6 @@ public class AdminRestStatusController {
 			for (Client client : clients) {
 				notificationService.deleteNotificationsByClient(client);
 			}
-			userStatusService.deleteStatus(deleteId);
 			statusService.delete(deleteId);
 			logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
 			return ResponseEntity.ok().build();
@@ -83,16 +82,6 @@ public class AdminRestStatusController {
 				logger.error(reason);
 				return ResponseEntity.badRequest().body(reason);
 			}
-			List<Client> clients = status.get().getClients();
-			for (Client client : clients) {
-				try {
-					notificationService.deleteNotificationsByClient(client);
-				}catch (Exception e) {
-					logger.error(e.getMessage());
-				}
-			}
-			status.get().setInvisible(bool);
-			statusService.update(status.get());
 			userStatusService.updateUserStatus(currentAdmin.getId(), statusId, bool, userStatus.getPosition());
 			return ResponseEntity.ok().body(status);
 		}
