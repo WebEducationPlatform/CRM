@@ -1,6 +1,6 @@
 function createContractSetting() {
     var baseUrl = window.location.host;
-    var url = '/client/contract/rest/create';
+    var url = '/rest/client/contract/create';
 
     var clientId = getAllUrlParams(window.location.href).id;
     var hash = (+new Date).toString(36);
