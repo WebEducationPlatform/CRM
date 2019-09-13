@@ -19,7 +19,6 @@ public class UserApiRestController {
     private static Logger logger = LoggerFactory.getLogger(UserApiRestController.class);
 
     private final UserService userService;
-    private final UserStatusService userStatusService;
     private final ObjectMapper mapper;
     private final ClientService clientService;
     private final CommentService commentService;
@@ -27,13 +26,11 @@ public class UserApiRestController {
 
     @Autowired
     public UserApiRestController(UserService userService,
-                                 UserStatusService userStatusService,
                                  ObjectMapper mapper,
                                  ClientService clientService,
                                  CommentService commentService,
                                  SMSInfoService smsInfoService) {
         this.userService = userService;
-        this.userStatusService = userStatusService;
         this.mapper = mapper;
         this.clientService = clientService;
         this.commentService = commentService;
@@ -58,8 +55,6 @@ public class UserApiRestController {
     public ResponseEntity addUser(@RequestBody User user) {
         try {
             userService.add(user);
-            User userResult = userService.getUserByEmail(user.getEmail()).get();
-            userStatusService.addUserForAllStatuses(userResult.getId());
             logger.info("The user has been added: " + user.getFullName());
             return ResponseEntity.ok(HttpStatus.OK);
         }catch (Exception e) {
@@ -90,7 +85,6 @@ public class UserApiRestController {
             commentService.deleteAllCommentsByUserId(id);
             smsInfoService.deleteAllSMSByUserId(id);
             userService.delete(id);
-            userStatusService.deleteUser(id);
             logger.info("User deletion was successful: " + deletedUser.getFullName());
             return ResponseEntity.ok(HttpStatus.OK);
         }catch (Exception e) {
@@ -103,7 +97,6 @@ public class UserApiRestController {
     public ResponseEntity deleteUser(@PathVariable("id") Long id) {
         try {
             userService.delete(id);
-            userStatusService.deleteUser(id);
             logger.info("User deletion was successful: " + id);
             return ResponseEntity.ok(HttpStatus.OK);
         }catch (Exception e) {

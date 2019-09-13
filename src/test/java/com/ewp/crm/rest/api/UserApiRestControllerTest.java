@@ -1,5 +1,6 @@
 package com.ewp.crm.rest.api;
 
+import com.ewp.crm.service.interfaces.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,30 +27,16 @@ public class UserApiRestControllerTest {
     @LocalServerPort
     private int port;
 
-    private String url = "http://localhost:" + port + "/rest/api/user/";
+    private final String url = "http://localhost:" + port + "/rest/api/user/";
+    private String eMail = "sir.SidorenkoMV@yandex.ru";
+    private final MockMvc mockMvc;
+    private final UserService userService;
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Test
-    public void getAllUsers() throws Exception {
-        mockMvc.perform(get(url))
-                .andDo(print())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(status().isOk())
-                .andReturn();
-    }
-
-    @Test
-    public void getUserById() throws Exception {
-        mockMvc.perform(get(url + "9"))
-                .andDo(print())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(status().isOk())
-                .andReturn();
+    public UserApiRestControllerTest(MockMvc mockMvc,
+                                     UserService userService) {
+        this.mockMvc = mockMvc;
+        this.userService = userService;
     }
 
     @Test
@@ -59,7 +46,7 @@ public class UserApiRestControllerTest {
                 "\"lastName\":\"Sidorenko\"," +
                 "\"birthDate\":\"1982-03-02\"," +
                 "\"phoneNumber\":\"89885648715\"," +
-                "\"email\":\"sir.SidorenkoMV@yandex.ru\"," +
+                "\"email\":\"" + eMail + "\"," +
                 "\"password\":\"admin\"," +
                 "\"vk\":null," +
                 "\"sex\":\"MALE\"," +
@@ -93,10 +80,29 @@ public class UserApiRestControllerTest {
         assertTrue(result.getResponse().getContentAsString().equals("\"OK\""));
     }
 
-        @Test
-    public void updateUser() throws Exception {
+    @Test
+    public void getAllUsers() throws Exception {
+        mockMvc.perform(get(url))
+                .andDo(print())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
 
-            String json = "{\"id\":31," +
+    @Test
+    public void getUserById() throws Exception {
+        Long user_id = userService.getUserByEmail(eMail).get().getId();
+        mockMvc.perform(get(url + user_id))
+                .andDo(print())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
+    public void updateUser() throws Exception {
+            Long user_id = userService.getUserByEmail(eMail).get().getId();
+            String json = "{\"id\":" + user_id + "," +
                     "\"firstName\":\"Maksim\"," +
                     "\"lastName\":\"Sidorenko\"," +
                     "\"birthDate\":\"1982-03-02\"," +
@@ -137,7 +143,8 @@ public class UserApiRestControllerTest {
 
     @Test
     public void deleteUserTransferClients() throws Exception {
-        MvcResult result = mockMvc.perform(delete(url + "?id_delete=33&id_transfer=21"))
+        Long user_id = userService.getUserByEmail(eMail).get().getId();
+        MvcResult result = mockMvc.perform(delete(url + "?id_delete=" + user_id + "&id_transfer=21"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -146,30 +153,11 @@ public class UserApiRestControllerTest {
 
     @Test
     public void deleteUser() throws Exception {
-        MvcResult result = mockMvc.perform(delete(url + "32"))
+        Long user_id = userService.getUserByEmail(eMail).get().getId();
+        MvcResult result = mockMvc.perform(delete(url + user_id))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
         assertTrue(result.getResponse().getContentAsString().equals("\"OK\""));
     }
 }
-
-//        Не использую сериализацию, потому-что пароль закрыт на сериализацию
-//        User user = new User(
-//                "Maksim",
-//                "Sidorenko",
-//                LocalDate.of(1982, 03, 02),
-//                "89885648715",
-//                "sir.SidorenkoMV@yandex.ru",
-//                "admin",
-//                null,
-//                Client.Sex.MALE.toString(),
-//                "Taganrog",
-//                "Russia",
-//                Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
-//                        roleService.getRoleByName("OWNER")),
-//                true,
-//                true);
-//
-//        mapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
-//        String json = mapper.writeValueAsString(user);
