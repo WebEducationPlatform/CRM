@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/rest/admin")
 public class AdminEmailRestController {
 
     private final MessageTemplateServiceImpl messageTemplateService;
@@ -37,7 +38,7 @@ public class AdminEmailRestController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/admin/image/{file}")
+    @GetMapping(value = "/image/{file}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public byte[] getImage(@PathVariable("file") String file) throws IOException {
         Path fileLocation = Paths.get(imageConfig.getPathForImages() + file + ".png");
@@ -45,7 +46,7 @@ public class AdminEmailRestController {
     }
 
 
-    @PostMapping(value = {"/admin/editMessageTemplate"})
+    @PostMapping(value = {"/editMessageTemplate"})
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public HttpStatus editETemplate(@RequestParam("templateName") String templateName,
                                     @RequestParam("templateText") String templateText,
@@ -82,7 +83,7 @@ public class AdminEmailRestController {
     }
 
     @ResponseBody
-    @PostMapping(value = "/admin/savePicture")
+    @PostMapping(value = "/savePicture")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity savePicture(@RequestParam("0") MultipartFile file,
                                       @RequestParam String templateName,

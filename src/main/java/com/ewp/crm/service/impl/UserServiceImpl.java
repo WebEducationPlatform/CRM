@@ -116,6 +116,8 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             userFromDb.setEnableMailNotifications(user.isEnableMailNotifications());
             userFromDb.setEnableSmsNotifications(user.isEnableSmsNotifications());
             userFromDb.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
+            userFromDb.setIsVerified(user.isVerified());
+            userFromDb.setEnabled(user.isEnabled());
             if (user.getPassword().length() > 0) {
                 if (!user.getPassword().equals(userFromDb.getPassword())){
                     userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -135,7 +137,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 String fileName = "user-" + user.getId() + "-avatar.png";
                 File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
                 ImageIO.write(image, "png", outputFile);
-                user.setPhoto("/admin/avatar/" + fileName);
+                user.setPhoto("/rest/admin/user/avatar/" + fileName);
                 update(user);
             } catch (Exception e) {
                 logger.error("Error during saving photo: " + e.getMessage());
