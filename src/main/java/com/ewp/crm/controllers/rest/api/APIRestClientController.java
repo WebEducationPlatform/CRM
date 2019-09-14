@@ -21,10 +21,15 @@ import java.util.Objects;
 @RequestMapping("/rest/api/client")
 public class APIRestClientController {
 	private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);
-	@Autowired
-	ClientService clientService;
-	@Autowired
-	StatusService statusService;
+	private final ClientService clientService;
+	private final StatusService statusService;
+
+@Autowired
+public APIRestClientController(StatusService statusService,
+								 ClientService clientService) {
+	this.statusService = statusService;
+	this.clientService = clientService;
+}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAll() {
