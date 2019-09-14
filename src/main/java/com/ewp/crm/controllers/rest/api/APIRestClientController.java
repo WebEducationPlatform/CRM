@@ -118,8 +118,7 @@ public APIRestClientController(StatusService statusService,
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@PutMapping(value = "/updatestatus/{statusId}")
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
+	@PostMapping(value = "/updatestatus/{statusId}")
 	public ResponseEntity updateClientStatus(@RequestBody Client currentClient,
 											 @PathVariable Long statusId) {
 		Client clientFromDB = clientService.get(currentClient.getId());
@@ -131,12 +130,7 @@ public APIRestClientController(StatusService statusService,
 
 	}
 
-	// @DeleteMapping("/{id}")
-// public void deleteClient(@PathVariable("id") Long id) {
-//    Client client = clientService.get(id);
-//    clientService.delete(client);
-// }
-	@DeleteMapping("/{clientId}")
+	@PostMapping("/{clientId}")
 	public ResponseEntity removeClient(@PathVariable(name = "clientId") Long clientId) {
 		Client clientFromDB = clientService.get(clientId);
 		if (Objects.isNull(clientFromDB)) {
