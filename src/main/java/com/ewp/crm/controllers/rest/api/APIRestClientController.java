@@ -2,7 +2,10 @@ package com.ewp.crm.controllers.rest.api;
 
 import com.ewp.crm.controllers.rest.admin.AdminRestClientController;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
@@ -23,12 +27,15 @@ public class APIRestClientController {
 	private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);
 	private final ClientService clientService;
 	private final StatusService statusService;
+	private final ClientHistoryService clientHistoryService;
 
 	@Autowired
 	public APIRestClientController(StatusService statusService,
-								   ClientService clientService) {
+								   ClientService clientService,
+								   ClientHistoryService clientHistoryService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
+		this.clientHistoryService = clientHistoryService;
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,8 +54,8 @@ public class APIRestClientController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@PutMapping(value = "/update")
-	public ResponseEntity updateClient(@RequestBody Client currentClient) {
+	@PostMapping(value = "/update")
+	public ResponseEntity updateClient(@RequestBody Client currentClient,@AuthenticationPrincipal User userFromSession) {
 		Client clientFromDB = clientService.get(currentClient.getId());
 		if (currentClient.equals(clientFromDB)) {
 			logger.info("{} has no need to update client: id {}, email {}", currentClient.getId(), currentClient.getEmail().orElse("not found"));
@@ -56,6 +63,8 @@ public class APIRestClientController {
 		} else {
 			clientService.updateClient(currentClient);
 			logger.info("{} has updated client: id {}, email {}", currentClient.getId(), currentClient.getEmail().orElse("not found"));
+			clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
+
 			return ResponseEntity.ok(HttpStatus.OK);
 		}
 	}
