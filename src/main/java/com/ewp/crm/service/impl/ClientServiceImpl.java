@@ -549,8 +549,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		client.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
 		client.setState(clientFromDB.getState());
 
-//        clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
-
 		// Код ниже необходим чтобы задедектить изменение сущностей которые смапленны аннотацией @ElementCollection
 		// Относится к списку почты и телефона, ошибка заключается в том что когда пытаешься изменить порядок уже существующих данных
 		// Происходит ошибка уникальности (неправильны мердж сущности) в остальном всё ок
