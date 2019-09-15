@@ -47,7 +47,7 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/client/allClients">Все клиенты</a></li>
                             <li><a class="dropdown-item" href="/student/all">Все студенты</a></li>
-                            <li><a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/students">Пропавшие студенты</a></li>
+                            <li><a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')" class="dropdown-item" href="/hr/students">Пропавшие студенты</a></li>
                         </ul>
                     </li>
                     <li><a href="/firstCallClients" sec:authorize="hasAnyAuthority('OWNER', 'MENTOR', 'HR')">Первые</a></li>
