@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,7 +80,7 @@ public class CommentApiRestController {
                                                    @RequestParam(name = "commentId") Long commentId,
                                                    @RequestParam(name = "email") String email
 												  /* @AuthenticationPrincipal User userFromSession*/) {
-        //added 10.09.2019
+ //added 10.09.2019
         Optional<User> optionalUser = userService.getUserByEmail(email);
         User user;
         if (optionalUser.isPresent()) {
@@ -89,10 +90,20 @@ public class CommentApiRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 		User fromDB = userService.get(user.getId());
-		Comment comment = commentService.get(commentId);
-		Client client = comment.getClient();
+        Comment comment;
+        Client client;
+        CommentAnswer commentAnswer;
+//	15.09.2019 try{} catch{} NullPointerException added
+        try {
+			comment = commentService.get(commentId);
+			client = comment.getClient();
 //		sendNotificationService.sendNotification(content, client);
-		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
+			commentAnswer = new CommentAnswer(fromDB, content, client);
+		} catch (NullPointerException e){
+			logger.error("Can`t add comments answer, comment id {} or clien not found", commentId);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
 		if (answer.isPresent()) {
 			comment.addAnswer(answer.get());
@@ -115,10 +126,17 @@ public class CommentApiRestController {
             logger.error("Can`t delete comments answer, user with email {} not found", email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-		if (commentAnswerService.get(id).getUser().equals(user)) {
-			commentAnswerService.delete(id);
-			return ResponseEntity.ok(HttpStatus.OK);
-		} else {
+
+//Добавлена обработка ошибки - javax.persistence.EntityNotFoundException: Unable to find com.ewp.crm.models.User with id {} + NullPointerException commentAnswerService.get(id)
+        try {
+			if (commentAnswerService.get(id).getUser().equals(user)) {
+				commentAnswerService.delete(id);
+				return ResponseEntity.ok(HttpStatus.OK);
+			} else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			}
+		} catch (EntityNotFoundException | NullPointerException e) {
+			logger.error("Can`t delete comments answer, {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
