@@ -44,18 +44,25 @@
                     <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR','MENTOR')">Пропавшие
                         студенты</a></li>
                     <li><a href="/firstCallClients" sec:authorize="hasAnyAuthority('OWNER', 'MENTOR', 'HR')">Первые</a></li>
-                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы
-                        обучения</a></li>
-                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Рассылка</a>
-                    </li>
+<!--                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы-->
+<!--                        обучения</a></li>-->
+                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Рассылка</a></li>
                     <li><a href="/template/all"
                            sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')">Шаблоны</a></li>
-                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a>
+<!--                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>-->
+                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Сотрудники
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/mentors">Менторы</a>
+                            <div class="dropdown-divider"></div>
+                            <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/managers">Координаторы</a>
+                        </div>
                     </li>
-                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a>
-                    </li>
-                    <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Менторы</a></li>
-                    <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Координаторы</a></li>
+<!--                    <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Менторы</a></li>-->
+<!--                    <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Координаторы</a></li>-->
                     <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
