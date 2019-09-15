@@ -42,14 +42,13 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Клиенты
+                            <span class="caret"></span>
                         </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/client/allClients">Все клиенты</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/student/all">Все студенты</a>
-                            <div class="dropdown-divider"></div>
-                            <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/students">Пропавшие студенты</a>
-                        </div>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/client/allClients">Все клиенты</a></li>
+                            <li><a class="dropdown-item" href="/student/all">Все студенты</a></li>
+                            <li><a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/students">Пропавшие студенты</a></li>
+                        </ul>
                     </li>
                     <li><a href="/firstCallClients" sec:authorize="hasAnyAuthority('OWNER', 'MENTOR', 'HR')">Первые</a></li>
 <!--                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы-->
@@ -57,12 +56,12 @@
                     <li class="nav-item dropdown">
                         <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')"  class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Рассылка
+                            <span class="caret"></span>
                         </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/client/mailing">Списки рассылки</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/template/all">Шаблоны</a>
-                        </div>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/client/mailing">Списки рассылки</a></li>
+                            <li><a class="dropdown-item" href="/template/all">Шаблоны</a></li>
+                        </ul>
                     </li>
 
 <!--                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>-->
@@ -70,12 +69,12 @@
                     <li class="nav-item dropdown">
                         <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Сотрудники
+                            <span class="caret"></span>
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="/mentors">Менторы</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/hr/managers">Координаторы</a>
-                        </div>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="/mentors">Менторы</a></li>
+                            <li><a class="dropdown-item" href="/hr/managers">Координаторы</a></li>
+                        </ul>
                     </li>
                     <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
 
