@@ -39,30 +39,44 @@
 
                 <ul id="nav-bar-list" class="nav navbar-nav">
                     <li><a href="/client">Доска</a></li>
-                    <li><a href="/client/allClients">Все клиенты</a></li>
-                    <li><a href="/student/all">Все студенты</a></li>
-                    <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR','MENTOR')">Пропавшие
-                        студенты</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Клиенты
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/client/allClients">Все клиенты</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/student/all">Все студенты</a>
+                            <div class="dropdown-divider"></div>
+                            <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/students">Пропавшие студенты</a>
+                        </div>
+                    </li>
                     <li><a href="/firstCallClients" sec:authorize="hasAnyAuthority('OWNER', 'MENTOR', 'HR')">Первые</a></li>
 <!--                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы-->
 <!--                        обучения</a></li>-->
-                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Рассылка</a></li>
-                    <li><a href="/template/all"
-                           sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')">Шаблоны</a></li>
+                    <li class="nav-item dropdown">
+                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')"  class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Рассылка
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/client/mailing">Списки рассылки</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/template/all">Шаблоны</a>
+                        </div>
+                    </li>
+
 <!--                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>-->
                     <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Сотрудники
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/mentors">Менторы</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="/mentors">Менторы</a>
                             <div class="dropdown-divider"></div>
-                            <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/managers">Координаторы</a>
+                            <a class="dropdown-item" href="/hr/managers">Координаторы</a>
                         </div>
                     </li>
-<!--                    <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Менторы</a></li>-->
-<!--                    <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Координаторы</a></li>-->
                     <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
