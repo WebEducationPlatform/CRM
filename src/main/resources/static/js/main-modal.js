@@ -9,9 +9,10 @@ function backUrl(url) {
 
 // Эта функция закрывает карточку юзера и переводит на страницу | http://localhost:9999/client |
 // Относится к крестику в карточке, там два события на нем: backUrl() и это! [Трелло-ид:890]
-$('#close-user-modal').on( "click", function() {
-    location.replace("http://localhost:9999/client");
+$('#main-modal-window').on( "click", function() {
+    showUsersInStatuses();
 });
+
 
 //Запрос: на главной модалке показать или скрыть
 $('#client-request-button').click( () => {

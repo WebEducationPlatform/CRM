@@ -115,6 +115,7 @@ $(".glyphicon-remove-circle").on("click", function dStatus() {
         }
     });
 });
+
 function deleteStatus() {
     let url = '/rest/admin/status/delete';
     let formData = {
