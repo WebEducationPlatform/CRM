@@ -1,6 +1,8 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -38,6 +40,7 @@ public class ClientHistory {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
@@ -58,6 +61,10 @@ public class ClientHistory {
         this.type = type;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -76,6 +83,10 @@ public class ClientHistory {
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
     }
 
     public Long getId() {
