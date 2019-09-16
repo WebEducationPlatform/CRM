@@ -48,4 +48,6 @@ public interface ClientHistoryService {
 	List<ClientHistory> getAllByClientId(long id, Pageable pageable);
 
 	List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize, boolean isAsc);
+
+	void deleteClientHistoryById(Long historyId);
 }
