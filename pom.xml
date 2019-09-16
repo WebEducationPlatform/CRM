@@ -27,7 +27,7 @@
 		<guava.version>21.0</guava.version>
 		<scribejava.version>5.5.0</scribejava.version>
 		<!--<mysql-connector-java.version>5.1.39</mysql-connector-java.version>-->
-		<mysql-connector-java.version>5.1.36</mysql-connector-java.version>
+		<mysql-connector-java.version>5.1.46</mysql-connector-java.version>
 		<spring-integration-mail.version>4.3.14.RELEASE</spring-integration-mail.version>
 		<commons-email.version>1.4</commons-email.version>
 		<jquery.version>3.2.1</jquery.version>
