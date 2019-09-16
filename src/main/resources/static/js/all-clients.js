@@ -255,21 +255,22 @@ function drawClients(table, res) {
             ownerUsers = oUsers.fullName;
         }
         $("#table-body").append(
-            '    <tr>' +
-            '        <td>' + res[i].id + '</td>' +
-            '        <td class="line-decoration"><a href="#" onclick="clientModal('+ res[i].id +')" >' + res[i].name + '</a></td>' +
-            '        <td>' + res[i].lastName + '</td>' +
-            '        <td>' + phoneNumber + '</td>' +
-            '        <td>' + email + '</td>' +
-            '        <td>' + socLink + '</td>' +
-            '        <td>' + birthDate + ' </td>' +
-            '        <td>' + sex + ' </td>' +
-            '        <td>' + city + ' </td>' +
-            '        <td>' + country + ' </td>' +
-            '        <td>' + ownerUsers + '</td>' +
-            '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
-            '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
-            '        <td class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +
+            '    <tr style="cursor: pointer;">' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + res[i].id + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + res[i].name + '</td>' +
+            // '        <td class="line-decoration"><a href="#" onclick="clientModal('+ res[i].id +')" >' + res[i].name + '</a></td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + res[i].lastName + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + phoneNumber + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + email + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + socLink + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + birthDate + ' </td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + sex + ' </td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + city + ' </td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + country + ' </td>' +
+            '        <td onclick="clientModal('+ res[i].id +')">' + ownerUsers + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')" class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
+            '        <td onclick="clientModal('+ res[i].id +')" class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
+            '        <td onclick="clientModal('+ res[i].id +')" class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
             '    </tr>'
         );
