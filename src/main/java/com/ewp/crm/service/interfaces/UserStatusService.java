@@ -23,4 +23,6 @@ public interface UserStatusService {
     List<UserStatus> getUserByStatusId(Long status_id);
 
     List<UserStatus> getAll();
+
+    void addStatusForUser(Long id, Long id1, boolean b, Long l);
 }
