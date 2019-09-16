@@ -58,6 +58,11 @@ $(document).ready(function () {
 
 //Отрисовка карточек клиентов в статусах
 $(document).ready(function () {
+    showUsersInStatuses();
+});
+//Отрисовка карточек клиентов в статусах, как бы тоже самое, что и сверху,
+// вытащил изнутри, чтобы превратить в отдельную функцию!
+function showUsersInStatuses() {
     let statuses = $(".column");
     for (var i = 0; i < statuses.length; i++) {
         let statusId = $(statuses[i]).attr("value");
@@ -70,7 +75,7 @@ $(document).ready(function () {
             cardsMotion(this);
         });
     }
-});
+}
 
 //func responsible for the client's cards motion
 function cardsMotion(element) {
