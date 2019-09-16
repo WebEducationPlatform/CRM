@@ -33,6 +33,25 @@ public class UserStatusDAOImpl implements UserStatusDAO {
     }
 
     @Override
+    public void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position) {
+        int i = entityManager.createNativeQuery("insert into user_status values (0,"+ status_id+", 0, 0,"+ user_id+","+ is_invisible+","+ position+")")
+                .executeUpdate();
+    }
+
+//    @Override
+//    public void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position) {
+//        System.out.println(user_id+" "+ status_id+" "+ is_invisible+" "+  position);
+//
+//        int i = entityManager.createNativeQuery("insert into user_status values (0,"+ status_id+", 0, 0,"+ user_id+","+ is_invisible+","+ position+")")
+////                .setParameter("is_invisible", is_invisible)
+////                .setParameter("position", position)
+////                .setParameter("user_id", user_id)
+////                .setParameter("status_id", status_id)
+//                .executeUpdate();
+//
+//    }
+
+    @Override
     public void deleteStatus(Long status_id) {
         entityManager.createNativeQuery("delete from user_status where status_id = :status_id")
                 .setParameter("status_id", status_id)
@@ -91,4 +110,5 @@ public class UserStatusDAOImpl implements UserStatusDAO {
                 .getResultList();
         return userStatusList;
     }
+
 }
