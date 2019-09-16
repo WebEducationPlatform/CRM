@@ -1,3 +1,4 @@
+var isBlock;
 // удаление карточки и уведомлений (в статус deleted)
 function deleteClientStatus(deleteId) {
     let url = "/rest/status/client/delete";
@@ -139,6 +140,7 @@ function deleteStatus() {
 
 //скрытие статуса вместе с карточками
 var statusHideId;
+
 function hideStatusWithClients(element) {
     statusHideId = element.getAttribute("value");
     let formData = {clientId: statusHideId};
@@ -189,6 +191,10 @@ function hideStatus() {
 }
 
 function showStatus(statusId) {
+    if (isBlock) {
+        return;
+    }
+    isBlock = true;
     let url = '/rest/admin/status/visible/change',
         formData = {
             statusId: statusId,
@@ -200,6 +206,7 @@ function showStatus(statusId) {
         url: url,
         data: formData,
         success: function (status) {
+            $('#invisibleStatuses' + formData.statusId).remove();//скрываем кнопку "Показать"
             $.ajax({
                 type: 'GET',
                 url: "/status/get/" + statusId,
@@ -209,11 +216,12 @@ function showStatus(statusId) {
                     drawingClientsInStatus(statusId);
                 }
             })
-            $('#invisibleStatuses' + formData.statusId).remove();
         },
         error: function (error) {
             console.log(error);
         }
+    }).always(function () {
+        isBlock = false;
     })
 }
 
