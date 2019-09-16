@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+</head>
+<body>
+
+<th:block th:fragment="listStatus (statuses)">
+    <div th:id="'status-column'+${status.id}"
+         class="column" th:each="status : ${statuses}"
+         th:value="${status.id}"
+         th:if="${!status.invisible}">
+        <div id="column-header" class="column-header">
+            <div class="btn-group">
+                <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn"
+                        class="glyphicon glyphicon glyphicon-cog"
+                        data-toggle="dropdown">
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
+                           th:href="'/admin/client/add/' + ${status.name}"
+                           sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">&nbsp;Добавить клиента</a></li>
+                    <li class="glyphicon dropdown">
+                        <a class="link-cursor-pointer glyphicon-sort">&nbsp;Упорядочить клиентов:
+                            <i class="glyphicon glyphicon-chevron-right"></i>
+                        </a>
+                        <ul class="dropdown-menu sub-menu">
+                            <p style="margin-left: 20px;">Сначала:</p>
+                            <li class="divider"></li>
+                            <li class="link-cursor-pointer" th:id="'NEW_FIRST'+${status.id}">
+                                <a class="change-client-order" id="NEW_FIRST">Новые</a>
+                            </li>
+                            <li class="link-cursor-pointer" th:id="'OLD_FIRST'+${status.id}">
+                                <a class="change-client-order" id="OLD_FIRST">Старые</a>
+                            </li>
+                            <li class="link-cursor-pointer" th:id="'NEW_CHANGES_FIRST'+${status.id}">
+                                <a class="change-client-order" id="NEW_CHANGES_FIRST">Со свежей историей</a>
+                            </li>
+                            <li class="link-cursor-pointer" th:id="'OLD_CHANGES_FIRST'+${status.id}">
+                                <a class="change-client-order" id="OLD_CHANGES_FIRST">Со старой историей</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+                        <li th:if="${status.id!=1}" class="delete-status-icon">
+                            <a class="glyphicon glyphicon-remove-circle"
+                               data-toggle="modal" th:value="${status.id}">&nbsp;Удалить статус</a>
+                        </li>
+                        <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit"
+                               data-toggle="modal"
+                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">&nbsp;Изменить статус</a>
+                        </li>
+                        <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
+                               th:value="${status.id}">&nbsp;Скрыть</a>
+                        </li>
+                        <li><a class="link-cursor-pointer glyphicon glyphicon-user">&nbsp;Сделать студентом <input
+                                class="create_student_checkbox"
+                                type="checkbox"
+                                th:value="${status.id}"
+                                th:checked="${status.createStudent}"/></a>
+                        </li>
+                        <li>
+                            <a class="link-cursor-pointer glyphicon glyphicon-move"
+                               data-toggle="modal"
+                               data-target="#all-statuses-to-change-position"
+                               onclick="showAllStatuses()">&nbsp;Поменять позицию</a>
+                        </li>
+                    </th:block>
+                </ul>
+            </div>
+
+            <!--Изменение размера шрифта в зависимости от длины имени статуса-->
+            <div style="height: 25px">
+                        <span th:text="${status.name}" th:if="${status.name.length() &lt; 15}"
+                              style="font-size:20px"></span>
+                <span th:text="${status.name}"
+                      th:if="${status.name.length() &gt; 15 and status.name.length() &lt; 25}"
+                      style="font-size:15px"></span>
+                <span th:text="${status.name}" th:if="${status.name.length() &gt; 25}"
+                      style="font-size:13px"></span>
+            </div>
+        </div>
+        <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
+        <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
+        <div th:replace="fragments/htmlFragments::deleteNotifications"
+             sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')"></div>
+        <!--Блок для вывода карточек клиентов в doashboard.js-->
+        <div th:id="'clients-for-status'+${status.id}" class="clients-cards"></div>
+    </div>
+</th:block>
+</body>
+</html>
