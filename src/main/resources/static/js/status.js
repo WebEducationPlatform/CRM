@@ -139,8 +139,8 @@ function deleteStatus() {
 
 //скрытие статуса вместе с карточками
 var statusHideId;
-$(".hide-status-btn").on("click", function hStatus() {
-    statusHideId = $(this).attr("value");
+function hideStatusWithClients(element) {
+    statusHideId = element.getAttribute("value");
     let formData = {clientId: statusHideId};
     $.ajax({
         type: 'GET',
@@ -163,7 +163,7 @@ $(".hide-status-btn").on("click", function hStatus() {
             }
         }
     });
-});
+}
 
 function hideStatus() {
     let val = statusHideId;

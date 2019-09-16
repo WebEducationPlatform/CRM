@@ -51,7 +51,7 @@
                                th:attrappend="data-target='#renameStatusModal' + ${status.id}">&nbsp;Изменить статус</a>
                         </li>
                         <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
-                               th:value="${status.id}">&nbsp;Скрыть</a>
+                               th:value="${status.id}" onclick='hideStatusWithClients(this)'>&nbsp;Скрыть</a>
                         </li>
                         <li><a class="link-cursor-pointer glyphicon glyphicon-user">&nbsp;Сделать студентом <input
                                 class="create_student_checkbox"
