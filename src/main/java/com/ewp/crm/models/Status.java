@@ -104,6 +104,10 @@ public class Status implements Serializable {
 	@Fetch(value = FetchMode.SUBSELECT)
 	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
+	@OneToOne
+	@JoinColumn (name = "messageTemplate_id")
+	private MessageTemplate messageTemplate;
+
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;

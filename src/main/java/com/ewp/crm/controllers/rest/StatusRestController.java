@@ -15,11 +15,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ewp.crm.util.Constants.*;
@@ -39,13 +38,17 @@ public class StatusRestController {
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private final RoleService roleService;
     private final UserStatusService userStatusService;
+    private final SendMailsController sendMailsController;
+    private final MessageTemplateService messageTemplateService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
                                 ClientHistoryService clientHistoryService, NotificationService notificationService,
                                 StudentService studentService, StudentStatusService studentStatusService,
                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService,
-                                RoleService roleService, UserStatusService userStatusService) {
+                                RoleService roleService, UserStatusService userStatusService,
+                                SendMailsController sendMailsController,
+                                MessageTemplateService messageTemplateService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -55,6 +58,8 @@ public class StatusRestController {
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.roleService = roleService;
         this.userStatusService = userStatusService;
+        this.sendMailsController = sendMailsController;
+        this.messageTemplateService = messageTemplateService;
     }
 
     @GetMapping
@@ -132,12 +137,14 @@ public class StatusRestController {
                 currentClient,
                 userFromSession);
         clientStatusChangingHistoryService.add(clientStatusChangingHistory);
+
         if (!lastStatus.isCreateStudent() && currentClient.getStatus().isCreateStudent()) {
             Optional<Student> newStudent = studentService.addStudentForClient(currentClient);
             if (newStudent.isPresent()) {
                 clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
                 clientService.updateClient(currentClient);
                 notificationService.deleteNotificationsByClient(currentClient);
+                sendNotificationClientChangeStatus(currentClient, userFromSession);
                 logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
                 return ResponseEntity.ok().build();
             }
@@ -145,8 +152,27 @@ public class StatusRestController {
         }
         clientService.updateClient(currentClient);
         notificationService.deleteNotificationsByClient(currentClient);
+        sendNotificationClientChangeStatus(currentClient, userFromSession);
         logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
         return ResponseEntity.ok().build();
+    }
+
+    private void sendNotificationClientChangeStatus(Client currentClient,
+                                                    User userFromSession) {
+        List<String> emailList = currentClient.getClientEmails();
+        if (!emailList.isEmpty()) {
+            Optional<MessageTemplate> messageTemplateOpt = messageTemplateService.getByName("Изменение статуса");
+            for (String email : emailList) {
+                sendMailsController.sendMails(
+                        "email",
+                        email,
+                        messageTemplateOpt.get().getOtherText(),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК").format(LocalDateTime.now()),
+                        "managerPage",
+                        "1",
+                        userFromSession);
+            }
+        }
     }
 
     @PostMapping(value = "/client/delete")
