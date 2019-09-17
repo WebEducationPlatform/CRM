@@ -82,6 +82,8 @@ public class AdminRestStatusController {
 				logger.error(reason);
 				return ResponseEntity.badRequest().body(reason);
 			}
+			status.get().setInvisible(bool);
+			statusService.update(status.get());
 			userStatusService.updateUserStatus(currentAdmin.getId(), statusId, bool, userStatus.getPosition());
 			return ResponseEntity.ok().body(status);
 		}

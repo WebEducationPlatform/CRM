@@ -149,4 +149,20 @@ public class StatusController {
         List<Notification> notificationsTypeNewUser;
     }
 
+    @GetMapping(value = "/get/{id}")
+    public String showStatus(
+            Model model,
+            @PathVariable("id") Long statusId,
+            @AuthenticationPrincipal User userFromSession) {
+
+        Optional<Status> optional = statusService.get(statusId);
+        if (!(optional.isPresent())) {
+            return "";
+        }
+        Status status = optional.get();
+        model.addAttribute("statuses", status);
+
+        return "fragments/list-status::listStatus";
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
@@ -32,18 +34,24 @@ public class AdminRestUserController {
     private final ClientService clientService;
     private final SMSInfoService smsInfoService;
     private final CommentService commentService;
+    private final UserStatusService userStatusService;
+    private final StatusService statusService;
 
     @Autowired
     public AdminRestUserController(UserService userService,
                                    ImageConfig imageConfig,
                                    ClientService clientService,
                                    SMSInfoService smsInfoService,
-                                   CommentService commentService) {
+                                   CommentService commentService,
+                                   UserStatusService userStatusService,
+                                   StatusService statusService) {
         this.userService = userService;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
         this.smsInfoService = smsInfoService;
         this.commentService = commentService;
+        this.userStatusService = userStatusService;
+        this.statusService = statusService;
     }
 
     @ResponseBody
@@ -62,6 +70,18 @@ public class AdminRestUserController {
             user.setPhoto(currentPhoto.get());
         }
         userService.update(user);
+
+        /*Когда нового пользователя верифицируют в системе, то ему, в соответствии с установленными ролями,
+        открываются статусы для просмотра. По умолчанию статусы открыты*/
+        List<Role> roles = user.getRole();
+        Set<Status> statuses = new HashSet<>();
+        for (Role r : roles) {
+            statuses.addAll(statusService.getAllByRole(r));
+        }
+        for (Status s:statuses) {
+            userStatusService.addStatusForUser(user.getId(), s.getId(), false, 0L);
+        }
+
         logger.info("{} has updated user: id {}, email {}", currentAdmin.getFullName(), user.getId(), user.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
