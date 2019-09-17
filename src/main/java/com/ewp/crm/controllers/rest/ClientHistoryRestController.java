@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/client/history/rest")
+@RequestMapping("/rest/client/history")
 public class ClientHistoryRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClientHistoryRestController.class);
