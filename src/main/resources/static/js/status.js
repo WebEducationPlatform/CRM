@@ -1,3 +1,4 @@
+var isBlock;
 // удаление карточки и уведомлений (в статус deleted)
 function deleteClientStatus(deleteId) {
     let url = "/rest/status/client/delete";
@@ -108,15 +109,16 @@ $(".glyphicon-remove-circle").on("click", function dStatus() {
                 let deleteModal = $('#delete-client-modal');
                 deleteModal.modal('show');
             } else {
-               $('#delete-status-btn').attr('onclick', 'deleteStatus()');
-               let deleteModal =  $('#deleteStatusModal');
-               deleteModal.modal('show');
+                $('#delete-status-btn').attr('onclick', 'deleteStatus()');
+                let deleteModal = $('#deleteStatusModal');
+                deleteModal.modal('show');
             }
         }
     });
 });
+
 function deleteStatus() {
-    let url = '/admin/rest/status/delete';
+    let url = '/rest/admin/status/delete';
     let formData = {
         deleteId: deleteStatusId
     };
@@ -135,10 +137,12 @@ function deleteStatus() {
         }
     });
 }
+
 //скрытие статуса вместе с карточками
 var statusHideId;
-$(".hide-status-btn").on("click", function hStatus() {
-    statusHideId = $(this).attr("value");
+
+function hideStatusWithClients(element) {
+    statusHideId = element.getAttribute("value");
     let formData = {clientId: statusHideId};
     $.ajax({
         type: 'GET',
@@ -152,21 +156,21 @@ $(".hide-status-btn").on("click", function hStatus() {
                     break;
                 }
             }
-             if (hasnotify) {
-                 $('#delete-client-btn').attr('onclick', 'hideStatus()');
-                 var deleteModal = $('#delete-client-modal');
-                 deleteModal.modal('show');
-             } else {
-                 hideStatus();
-             }
+            if (hasnotify) {
+                $('#delete-client-btn').attr('onclick', 'hideStatus()');
+                var deleteModal = $('#delete-client-modal');
+                deleteModal.modal('show');
+            } else {
+                hideStatus();
+            }
         }
     });
-});
+}
 
 function hideStatus() {
     let val = statusHideId;
     let
-        url = '/admin/rest/status/visible/change',
+        url = '/rest/admin/status/visible/change',
         formData = {
             statusId: val,
             invisible: true
@@ -186,28 +190,42 @@ function hideStatus() {
     })
 }
 
+function showStatus(statusId) {
+    if (isBlock) {
+        return;
+    }
+    isBlock = true;
+    let url = '/rest/admin/status/visible/change',
+        formData = {
+            statusId: statusId,
+            invisible: false
+        };
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (status) {
+            $('#invisibleStatuses' + formData.statusId).remove();//скрываем кнопку "Показать"
+            $.ajax({
+                type: 'GET',
+                url: "/status/get/" + statusId,
+                success: function (strHTML) {
+                    var statusListHtml = document.getElementById('status-columns');
+                    statusListHtml.insertAdjacentHTML('afterBegin', strHTML);
+                    drawingClientsInStatus(statusId);
+                }
+            })
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    }).always(function () {
+        isBlock = false;
+    })
+}
+
 $(document).ready(function () {
-    $("#table-hidden-statuses").on("click", ".show-status-btn", function showStatus() {
-        let
-            url = '/admin/rest/status/visible/change',
-            formData = {
-                statusId: $(this).attr("value"),
-                invisible: false
-            };
-
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: formData,
-            success: function (status) {
-                $('#invisibleStatuses' + formData.statusId).remove();
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        })
-    });
-
     // обработчик кнопок для возврата клиента из отложки
     //  в all-clients-table
     $(document).on('click', '.from-postpone', function returnClientFromPostpone() {
@@ -217,7 +235,7 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             url: url,
-            data: {clientId : clientId},
+            data: {clientId: clientId},
             success: function () {
                 button.parents('.button-return-from-postpone').children("button").addClass("btn btn-secondary").attr("disabled", "disabled").text("Выполнено");
             }
@@ -255,24 +273,24 @@ $(".create_student_checkbox").click(function () {
         type: 'POST',
         url: "/rest/status/create-student",
         data: {
-            id : this.value,
-            create : this.checked
+            id: this.value,
+            create: this.checked
         }
     });
 });
 
-function showAllStatuses(){
+function showAllStatuses() {
     let element = $('#all-statuses-positions-table tbody');
     $.ajax({
         type: 'GET',
         url: "/rest/status/all/dto-position-id",
         success: function (dtoes) {
             element.empty();
-            for (let i = 0; i <dtoes.length ; i++) {
+            for (let i = 0; i < dtoes.length; i++) {
                 element.append("<tr>" +
                     "<td hidden>" + dtoes[i].id + "</td>" +
                     "<td hidden>" + dtoes[i].position + "</td>" +
-                    "<td>" +dtoes[i].statusName +"</td>" +
+                    "<td>" + dtoes[i].statusName + "</td>" +
                     "</tr>")
             }
         }
@@ -292,7 +310,7 @@ $(function () {
                 let position = row.cells[1].textContent;
                 let dto = {
                     id: id,
-                    position:position
+                    position: position
                 }
                 dtos.push(dto);
             }

@@ -7,6 +7,13 @@ function backUrl(url) {
     history.replaceState(state, title, url);
 }
 
+// Эта функция закрывает карточку юзера и переводит на страницу | http://localhost:9999/client |
+// Относится к крестику в карточке, там два события на нем: backUrl() и это! [Трелло-ид:890]
+$('#main-modal-window').on( "click", function() {
+    showUsersInStatuses();
+});
+
+
 //Запрос: на главной модалке показать или скрыть
 $('#client-request-button').click( () => {
     var x = document.getElementById("client-request");
@@ -684,7 +691,7 @@ $(function () {
                 /* Client history first loading */
                 $.ajax({
                     method: 'GET',
-                    url: '/client/history/rest/getHistory/' + client.id,
+                    url: '/rest/client/history/getHistory/' + client.id,
                     data: {
                         page: 0,
                         isAsc: false

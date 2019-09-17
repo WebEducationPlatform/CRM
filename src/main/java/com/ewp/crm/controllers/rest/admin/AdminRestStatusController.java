@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
-@RequestMapping("/admin/rest/status")
+@RequestMapping("/rest/admin/status")
 public class AdminRestStatusController {
 
 	private static Logger logger = LoggerFactory.getLogger(AdminRestStatusController.class);
@@ -82,14 +82,6 @@ public class AdminRestStatusController {
 				String reason = "Статус уже " + (bool ? "невидимый" : "видимый");
 				logger.error(reason);
 				return ResponseEntity.badRequest().body(reason);
-			}
-			List<Client> clients = status.get().getClients();
-			for (Client client : clients) {
-				try {
-					notificationService.deleteNotificationsByClient(client);
-				}catch (Exception e) {
-					logger.error(e.getMessage());
-				}
 			}
 			status.get().setInvisible(bool);
 			statusService.update(status.get());

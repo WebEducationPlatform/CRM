@@ -23,4 +23,6 @@ public interface UserStatusDAO {
     List<UserStatus> getUserByStatusId(Long status_id);
 
     List<UserStatus> getAll();
+
+    void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position);
 }

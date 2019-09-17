@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/init/**", "/contract/**").permitAll()
                 .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER", "MENTOR", "HR")
                 .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER", "MENTOR", "HR")
-                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER", "HR")
+                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER", "HR", "MENTOR")
                 .and()
                 .httpBasic()
                 .and()
