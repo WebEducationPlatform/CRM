@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/hr")
-@PreAuthorize("hasAnyAuthority('OWNER','HR','MENTOR')")
+//@PreAuthorize("hasAnyAuthority('OWNER','HR','MENTOR')")
 @PropertySource("file:./slackbot.properties")
 public class HrController {
 
@@ -109,11 +109,10 @@ public class HrController {
         return modelAndView;
     }
 
-    @PostMapping("/refresh")
+    @GetMapping("/refresh")
 	public ResponseEntity refreshInfoInBot() {
 	    StringBuilder url = new StringBuilder(slackBotAccessProtocol + slackBotDomain + "/update-channels");
 	    ResponseEntity<String> fromBot = new RestTemplate().getForEntity(url.toString(), String.class);
 		return fromBot;
     }
-
 }
