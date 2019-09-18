@@ -16,9 +16,11 @@ public interface CallRecordService extends CommonService<CallRecord> {
 
 	Optional<CallRecord> addCallRecordTo(CallRecord callRecord, User user, String to);
 
-	public CallRecord updateCallRecord(CallRecord callRecord);
+	CallRecord updateCallRecord(CallRecord callRecord);
 
 	List<CallRecord> findAllByCallingUserAndDateBetween(User user, ZonedDateTime from, ZonedDateTime to, Pageable pageable);
 
     List<CallRecord> findAllByDateBetween(ZonedDateTime from, ZonedDateTime to, Pageable pageable);
+
+	Optional<CallRecord> getByClientHistoryId(Long id);
 }

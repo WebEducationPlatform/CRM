@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -42,6 +43,12 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	@Override
 	public Optional<ClientHistory> addHistory(ClientHistory history) {
 		return Optional.of(clientHistoryRepository.saveAndFlush(history));
+	}
+
+	@Override
+	@Transactional
+	public void deleteClientHistoryById(Long historyId) {
+		clientHistoryRepository.deleteClientHistoryById(historyId);
 	}
 
 	@Override
