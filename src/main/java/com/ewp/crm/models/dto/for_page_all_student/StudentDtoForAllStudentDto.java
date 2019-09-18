@@ -7,6 +7,8 @@ import com.ewp.crm.models.dto.StatusDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Данный класс предназначен для отображения информации о студенитах на вкладке "Все студенты"
@@ -15,7 +17,7 @@ public class StudentDtoForAllStudentDto {
 
     private long id;
     private ClientDtoForAllStudentsDto clientDtoForAllStudentsDto;
-    private StatusDto statusDto;
+//    private StatusDto statusDto;
     private String notes;
     private String color;
     private LocalDateTime trialEndDate;
@@ -34,7 +36,7 @@ public class StudentDtoForAllStudentDto {
 
     public StudentDtoForAllStudentDto(long id,
                                       ClientDtoForAllStudentsDto clientDtoForAllStudentsDto,
-                                      StatusDto statusDto,
+//                                      StatusDto statusDto,
                                       String notes,
                                       String color,
                                       LocalDateTime trialEndDate,
@@ -49,7 +51,7 @@ public class StudentDtoForAllStudentDto {
                                       StudentStatus studentStatus) {
         this.id = id;
         this.clientDtoForAllStudentsDto = clientDtoForAllStudentsDto;
-        this.statusDto = statusDto;
+//        this.statusDto = statusDto;
         this.notes = notes;
         this.color = color;
         this.trialEndDate = trialEndDate;
@@ -80,13 +82,13 @@ public class StudentDtoForAllStudentDto {
         this.clientDtoForAllStudentsDto = clientDtoForAllStudentsDto;
     }
 
-    public StatusDto getStatusDto() {
-        return statusDto;
-    }
-
-    public void setStatusDto(StatusDto statusDto) {
-        this.statusDto = statusDto;
-    }
+//    public StatusDto getStatusDto() {
+//        return statusDto;
+//    }
+//
+//    public void setStatusDto(StatusDto statusDto) {
+//        this.statusDto = statusDto;
+//    }
 
     public String getNotes() {
         return notes;
@@ -184,12 +186,45 @@ public class StudentDtoForAllStudentDto {
         this.studentStatus = studentStatus;
     }
 
+    /**
+     * Данный класс предназначен для работы со страницей "Все студенты"
+     * @param student - принимаемый студент,
+     * @return - возвращаемый студент.
+     */
     public static StudentDtoForAllStudentDto getStudentDtoForAllStudentDto(Student student) {
         StudentDtoForAllStudentDto studentDtoForAllStudentDto = new StudentDtoForAllStudentDto();
 
         studentDtoForAllStudentDto.id = student.getId();
-
+        studentDtoForAllStudentDto.clientDtoForAllStudentsDto =
+                ClientDtoForAllStudentsDto.getClientDtoForAllStudent(student.getClient());
+//        studentDtoForAllStudentDto.statusDto = StatusDto.getStatusDto(...);
+        studentDtoForAllStudentDto.notes = student.getNotes();
+        studentDtoForAllStudentDto.color = student.getColor();
+        studentDtoForAllStudentDto.trialEndDate = student.getTrialEndDate();
+        studentDtoForAllStudentDto.nextPaymentDate = student.getNextPaymentDate();
+        studentDtoForAllStudentDto.price = student.getPrice();
+        studentDtoForAllStudentDto.paymentAmount = student.getPaymentAmount();
+        studentDtoForAllStudentDto.payLater = student.getPayLater();
+        studentDtoForAllStudentDto.notifyEmail = student.isNotifyEmail();
+        studentDtoForAllStudentDto.notifySMS = student.isNotifySMS();
+        studentDtoForAllStudentDto.notifyVK = student.isNotifyVK();
+        studentDtoForAllStudentDto.notifySlack = student.isNotifySlack();
+        studentDtoForAllStudentDto.studentStatus = student.getStatus();
 
         return studentDtoForAllStudentDto;
     }
+
+    public static List<StudentDtoForAllStudentDto> getStudentDtoForAllStudentDto(List<Student> students) {
+        return students
+                .stream()
+                .map(StudentDtoForAllStudentDto::getStudentDtoForAllStudentDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * todo Все что выделено в комментарии, связанные со статусом
+     * надо будет посмотреть, работает ли без него и могу ли я получить
+     * имя статуса по StudentStatus заместо StatusDto.
+     * Мне кажется, что это одно и тоже в данном случае!
+     */
 }

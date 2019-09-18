@@ -1,10 +1,14 @@
 package com.ewp.crm.models.dto.for_page_all_student;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.Status;
+import com.ewp.crm.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ClientDtoForAllStudentsDto {
 
@@ -92,5 +96,36 @@ public class ClientDtoForAllStudentsDto {
 
         String getClient_email();
     }
+
+    /**
+     * Данный метод получает клиента и на выходе дает его же, необходим для работы с - StudentDtoForAllStudentsDto.java,
+     * @param client - получаемый клиент,
+     * @return - возвращаемый клиент.
+     */
+    public static ClientDtoForAllStudentsDto getClientDtoForAllStudent(Client client) {
+        ClientDtoForAllStudentsDto clientDtoForAllStudentsDto = new ClientDtoForAllStudentsDto();
+
+        clientDtoForAllStudentsDto.id = client.getId();
+        clientDtoForAllStudentsDto.name = client.getName();
+        clientDtoForAllStudentsDto.lastName = client.getLastName();
+
+        Optional<String> emailOptional = client.getEmail();
+        clientDtoForAllStudentsDto.email = emailOptional.orElse(Constants.EMPTY_STRING);
+        Optional<String> phoneNumberOptional = client.getPhoneNumber();
+        clientDtoForAllStudentsDto.phoneNumber = phoneNumberOptional.orElse(Constants.EMPTY_STRING);
+
+        clientDtoForAllStudentsDto.socialProfiles = client.getSocialProfiles();
+        clientDtoForAllStudentsDto.status = client.getStatus();
+
+        return clientDtoForAllStudentsDto;
+    }
+
+    public static List<ClientDtoForAllStudentsDto> getListClientDtoForAllStudentDto(List<Client> clients) {
+        return clients
+                .stream()
+                .map(ClientDtoForAllStudentsDto::getClientDtoForAllStudent)
+                .collect(Collectors.toList());
+    }
+
 
 }
