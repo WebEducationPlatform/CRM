@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 /*
 Направления
@@ -20,13 +21,13 @@ public class Course {
     @JoinTable(name = "courses_clients",
             joinColumns = {@JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
-    private List<Client> clients;
+    private List<Client> clients = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "courses_users",
             joinColumns = {@JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))},
             inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
-    private List<User> users;
+    private List<User> users  = new ArrayList<>();;
 
 //Конструкторы
     public Course() {
