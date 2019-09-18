@@ -34,7 +34,7 @@ public class UserStatusDAOImpl implements UserStatusDAO {
 
     @Override
     public void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position) {
-        entityManager.createNativeQuery("insert into user_status values (0, :status_id, 0, 0, :user_id, :is_invisible, :position);")
+        entityManager.createNativeQuery("insert into user_status(is_invisible,position,status_id,user_id) values ( :is_invisible, :position ,:status_id,:user_id);")
                 .setParameter("is_invisible", is_invisible)
                 .setParameter("position", position)
                 .setParameter("user_id", user_id)
