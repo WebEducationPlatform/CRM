@@ -1,10 +1,5 @@
 package com.ewp.crm.models.dto;
 
-import com.ewp.crm.models.SocialProfile;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class ClientDto {
 
     private long id;
@@ -17,8 +12,6 @@ public class ClientDto {
 
     private String email;
 
-    private List<SocialProfile> socialProfiles = new ArrayList<>();
-
     public ClientDto() {
     }
 
@@ -28,15 +21,6 @@ public class ClientDto {
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
-    }
-
-    public ClientDto(long id, String name, String lastName, String phoneNumber, String email, List<SocialProfile> socialProfiles) {
-        this.id = id;
-        this.name = name;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.socialProfiles = socialProfiles;
     }
 
     public long getId() {
@@ -77,14 +61,6 @@ public class ClientDto {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public List<SocialProfile> getSocialProfiles() {
-        return socialProfiles;
-    }
-
-    public void setSocialProfiles(List<SocialProfile> socialProfiles) {
-        this.socialProfiles = socialProfiles;
     }
 
     public static interface ClientTransformer {
