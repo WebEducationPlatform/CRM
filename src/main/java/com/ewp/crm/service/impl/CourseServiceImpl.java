@@ -6,6 +6,8 @@ import com.ewp.crm.service.interfaces.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CourseServiceImpl extends CommonServiceImpl<Course> implements CourseService {
     private final CourseRepository courseRepository;
@@ -28,5 +30,15 @@ public class CourseServiceImpl extends CommonServiceImpl<Course> implements Cour
     @Override
     public void delete(Long id) {
         courseRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Course> getAll() {
+        return courseRepository.findAll();
+    }
+
+    @Override
+    public Course getCourse(Long id) {
+        return courseRepository.getOne(id);
     }
 }
