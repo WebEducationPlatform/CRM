@@ -83,14 +83,6 @@ public class AdminRestStatusController {
 				logger.error(reason);
 				return ResponseEntity.badRequest().body(reason);
 			}
-			List<Client> clients = status.get().getClients();
-			for (Client client : clients) {
-				try {
-					notificationService.deleteNotificationsByClient(client);
-				}catch (Exception e) {
-					logger.error(e.getMessage());
-				}
-			}
 			status.get().setInvisible(bool);
 			statusService.update(status.get());
 			userStatusService.updateUserStatus(currentAdmin.getId(), statusId, bool, userStatus.getPosition());
