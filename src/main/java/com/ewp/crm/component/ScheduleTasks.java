@@ -175,24 +175,23 @@ public class ScheduleTasks {
 	}
 
 	private void addClientFromVk(Client newClient) {
-            statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
-            newClient.setState(Client.State.NEW);
-            if (!newClient.getSocialProfiles().isEmpty()) {
-                newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
-            }
-            clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
-            vkService.fillClientFromProfileVK(newClient);
-            Optional<String> optionalEmail = newClient.getEmail();
-            if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
-                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
-            }
-
-           if (autoSetUser){
-           	userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
+		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
+		newClient.setState(Client.State.NEW);
+		if (!newClient.getSocialProfiles().isEmpty()) {
+			newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
 		}
-            clientService.addClient(newClient, null);
-            sendNotificationService.sendNewClientNotification(newClient, "vk");
-            logger.info("New client with id {} has added from VK", newClient.getId());
+		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
+		vkService.fillClientFromProfileVK(newClient);
+		Optional<String> optionalEmail = newClient.getEmail();
+		if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
+			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
+		}
+
+	   	if (autoSetUser) {
+		   userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
+	   	}
+		clientService.addClient(newClient, null);
+		logger.info("New client with id {} has added from VK", newClient.getId());
 	}
 
     @Scheduled(cron = "0 0 7 * * *")

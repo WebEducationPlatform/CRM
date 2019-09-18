@@ -44,13 +44,6 @@ public class ProjectProperties {
     private MessageTemplate paymentMessageTemplate;
 
     /**
-     * Message template for scheduled payment notification.
-     */
-    @OneToOne
-    @JoinColumn(name = "new_client_message_template")
-    private MessageTemplate newClientMessageTemplate;
-
-    /**
      * Message template for birth day notification.
      */
     @OneToOne
@@ -296,14 +289,6 @@ public class ProjectProperties {
         this.bankIdentificationCode = bankIdentificationCode;
     }
 
-    public MessageTemplate getNewClientMessageTemplate() {
-        return newClientMessageTemplate;
-    }
-
-    public void setNewClientMessageTemplate(MessageTemplate newClientMessageTemplate) {
-        this.newClientMessageTemplate = newClientMessageTemplate;
-    }
-
     public Long getClientFirstPayStatus() {
         return clientFirstPayStatus;
     }
@@ -349,9 +334,28 @@ public class ProjectProperties {
         return "ProjectProperties{" +
                 "id=" + id +
                 ", technicalAccountToken='" + technicalAccountToken + '\'' +
+                ", repeatedDefaultStatusId=" + repeatedDefaultStatusId +
+                ", newClientStatus=" + newClientStatus +
+                ", clientRejectStudentStatus=" + clientRejectStudentStatus +
+                ", clientFirstPayStatus=" + clientFirstPayStatus +
+                ", firstSkypeCallAfterStatus=" + firstSkypeCallAfterStatus +
                 ", paymentMessageTemplate=" + paymentMessageTemplate +
+                ", birthDayMessageTemplate=" + birthDayMessageTemplate +
                 ", paymentNotificationTime=" + paymentNotificationTime +
                 ", paymentNotificationEnabled=" + paymentNotificationEnabled +
+                ", autoAnswerTemplate=" + autoAnswerTemplate +
+                ", statusColor='" + statusColor + '\'' +
+                ", defaultPricePerMonth=" + defaultPricePerMonth +
+                ", defaultPayment=" + defaultPayment +
+                ", defaultStudentStatus=" + defaultStudentStatus +
+                ", contractLastId=" + contractLastId +
+                ", contractTemplate=" + contractTemplate +
+                ", slackDefaultUsers='" + slackDefaultUsers + '\'' +
+                ", slackInviteLink='" + slackInviteLink + '\'' +
+                ", inn='" + inn + '\'' +
+                ", checkingAccount='" + checkingAccount + '\'' +
+                ", correspondentAccount='" + correspondentAccount + '\'' +
+                ", bankIdentificationCode='" + bankIdentificationCode + '\'' +
                 '}';
     }
 }

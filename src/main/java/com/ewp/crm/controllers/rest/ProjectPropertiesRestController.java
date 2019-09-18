@@ -44,8 +44,7 @@ public class ProjectPropertiesRestController {
     @PostMapping("/notifications")
     public HttpStatus setPaymentNotificationSettings(@RequestParam(name = "paymentMessageTemplate") Long templateId,
                                                      @RequestParam(name = "paymentNotificationTime") String time,
-                                                     @RequestParam(name = "paymentNotificationEnabled") Boolean enabled,
-                                                     @RequestParam(name = "newClientMessageTemplate") Long newClientTemplateId) {
+                                                     @RequestParam(name = "paymentNotificationEnabled") Boolean enabled) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (templateId == null) {
             current.setPaymentMessageTemplate(null);
@@ -54,11 +53,6 @@ public class ProjectPropertiesRestController {
         }
         current.setPaymentNotificationTime(LocalTime.parse(time));
         current.setPaymentNotificationEnabled(enabled);
-        if (newClientTemplateId == null) {
-            current.setNewClientMessageTemplate(null);
-        } else {
-            current.setNewClientMessageTemplate(messageTemplateService.get(newClientTemplateId));
-        }
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }

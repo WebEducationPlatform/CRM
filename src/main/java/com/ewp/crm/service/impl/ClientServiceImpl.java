@@ -27,7 +27,6 @@ import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
 import com.ewp.crm.service.interfaces.PassportService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -61,7 +60,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final ClientRepository clientRepository;
     private final SlackInviteLinkRepository slackInviteLinkRepository;
     private StatusService statusService;
-    private SendNotificationService sendNotificationService;
     private NotificationRepository notificationRepository;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
@@ -413,7 +411,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
             existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
             existClient.get().setRepeated(true);
-            sendNotificationService.sendNotificationsAllUsers(existClient.get());
             Status lastStatus = existClient.get().getStatus();
             if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                 statusService.get("Постоплата 3").ifPresent(existClient.get()::setStatus);
@@ -451,7 +448,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
 
         clientRepository.saveAndFlush(client);
-        sendNotificationService.sendNotificationsAllUsers(client);
 
         ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
                 client.getDateOfRegistration(),
@@ -600,11 +596,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
         return clientRepository.getClientsBySearchPhrase(search);
-    }
-
-    @Autowired
-    public void setSendNotificationService(SendNotificationService sendNotificationService) {
-        this.sendNotificationService = sendNotificationService;
     }
 
     @Autowired

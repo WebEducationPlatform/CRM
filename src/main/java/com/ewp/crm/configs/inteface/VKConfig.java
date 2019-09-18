@@ -21,5 +21,4 @@ public interface VKConfig {
     String getFirstSkypeMessageTemplate();
     String getFirstSkypeUpdateMessageTemplate();
     String getFirstSkypeDeleteMessageTemplate();
-    String getChatToSendNewClient();
 }

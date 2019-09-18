@@ -89,7 +89,6 @@ public class StatusController {
         model.addAttribute("notifications_type_sms", cachedStatusModelAttributes.notificationsTypeSms);
         model.addAttribute("notifications_type_comment", cachedStatusModelAttributes.notificationsTypeComment);
         model.addAttribute("notifications_type_postpone", cachedStatusModelAttributes.notificationsTypePostpone);
-        model.addAttribute("notifications_type_new_user", cachedStatusModelAttributes.notificationsTypeNewUser);
 
         return "fragments/htmlFragments::clientsForStatus";
     }
@@ -131,8 +130,6 @@ public class StatusController {
                 .getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT);
         cachedStatusModelAttributes.notificationsTypePostpone = notificationService
                 .getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE);
-        cachedStatusModelAttributes.notificationsTypeNewUser = notificationService
-                .getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER);
     }
 
     private final class CachedStatusModelAttributes {
@@ -146,7 +143,6 @@ public class StatusController {
         List<Notification> notificationsTypeSms;
         List<Notification> notificationsTypeComment;
         List<Notification> notificationsTypePostpone;
-        List<Notification> notificationsTypeNewUser;
     }
 
 }

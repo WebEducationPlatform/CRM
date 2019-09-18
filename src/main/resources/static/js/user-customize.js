@@ -42,15 +42,6 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
                 )
             });
 
-            $("#new-client-notification-template").empty().append(
-                $('<option>').val('').text('Не выбрано')
-            );
-            $.each(response, function (i, item) {
-                $("#new-client-notification-template").append(
-                    $('<option>').val(item.id).text(item.name)
-                )
-            });
-
             $.ajax({
                 type: 'GET',
                 url: '/rest/properties',
@@ -59,11 +50,6 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
                         $("#payment-notification-template option[value='']").prop('selected', true)
                     } else {
                         $("#payment-notification-template option[value=" + response.paymentMessageTemplate.id + "]").prop('selected', true);
-                    }
-                    if (response.newClientMessageTemplate == null) {
-                        $("#new-client-notification-template option[value='']").prop('selected', true)
-                    } else {
-                        $("#new-client-notification-template option[value=" + response.newClientMessageTemplate.id + "]").prop('selected', true);
                     }
                     $("#payment-notification-time").val(response.paymentNotificationTime);
                     $("#payment-notification-enable").prop('checked', response.paymentNotificationEnabled);
@@ -78,8 +64,7 @@ $("#update-payment-notification").click(function () {
     let data = {
         paymentMessageTemplate: $("#payment-notification-template").val(),
         paymentNotificationTime: $("#payment-notification-time").val(),
-        paymentNotificationEnabled: $("#payment-notification-enable").prop('checked'),
-        newClientMessageTemplate: $("#new-client-notification-template").val()
+        paymentNotificationEnabled: $("#payment-notification-enable").prop('checked')
     };
     if (!validate_input(data)) {
         return
