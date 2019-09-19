@@ -33,6 +33,14 @@
                 </div>
             </div>
             <br />
+            <!--checkboxes фильтра по направлениям-->
+            <div class="row" id="courses_filter">
+                <div class="col-xs-1" th:each="course : ${courses}" th:id="${course.name}">
+                    <label class="control-label" th:for="${course.name}" th:text="${course.name}"></label>
+                    <input th:id="'course_' + ${course.name}" th:value="${course.id}" class="checkbox" type="checkbox"/> <!--th:checked="${#strings.contains(filters,course.name)}"-->
+                </div>
+            </div>
+            <br />
             <div class="row">
                 <div class="col-xs-1">
                     <label class="control-label" for="filter-has-no-slack">Без Slack</label>
@@ -118,6 +126,8 @@
             <tbody id="table-body">
             <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="'display:none; '+${student.color != null ? 'background-color: ' + student.color : ''}">
                 <td th:id="${'status_' + student.id}" hidden="hidden" th:text="${student.client.status.name}"></td>
+                //Поле для фильтрациии по направлениям
+                <td th:each="course : ${student.client.getCourses()}" hidden="hidden" th:id="'course_' + ${course.getName()}" th:value="${course.id}" th:text="${course.getName()}" class="course_fltr"></td>
                 <td th:id="${'name_' + student.id}" th:text="${student.client.name}"></td>
                 <td th:id="${'lastName_' + student.id}" th:text="${student.client.lastName}"></td>
                 <td th:id="${'email_' + student.id}" th:text="${student.client.getEmail().orElse('')}"></td>
