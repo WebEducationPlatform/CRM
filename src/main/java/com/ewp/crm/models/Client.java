@@ -306,6 +306,9 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "minutes_to_first_call_with_hr")
     private Integer minutesToFirstCallWithHr;
 
+    @ManyToMany(mappedBy = "clients")
+    private List<Course> courses = new ArrayList<>();
+
     public Client() {}
 
     private Client(Builder builder) {
@@ -655,6 +658,9 @@ public class Client implements Serializable, Diffable<Client> {
         this.otherInformationLinkData = otherInformationLinkData;
     }
 
+    public List<Course> getCourses() {
+        return courses;
+    }
 
     @Override
     public boolean equals(Object o) {
