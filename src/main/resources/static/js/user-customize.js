@@ -28,7 +28,7 @@ $('#update-slack').on('click', function () {
 });
 
 //Fill values on notification status configuration modal show up.
-$('#payment-notification-modal').on('show.bs.modal', function () {
+$('#notification-modal').on('show.bs.modal', function () {
     $.ajax({
         type: 'GET',
         url: '/rest/message-template',
@@ -42,6 +42,15 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
                 )
             });
 
+            $("#trial-notification-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#trial-notification-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+
             $.ajax({
                 type: 'GET',
                 url: '/rest/properties',
@@ -51,8 +60,15 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
                     } else {
                         $("#payment-notification-template option[value=" + response.paymentMessageTemplate.id + "]").prop('selected', true);
                     }
+                    if (response.trialMessageTemplate == null) {
+                        $("#trial-notification-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#trial-notification-template option[value=" + response.trialMessageTemplate.id + "]").prop('selected', true);
+                    }
                     $("#payment-notification-time").val(response.paymentNotificationTime);
                     $("#payment-notification-enable").prop('checked', response.paymentNotificationEnabled);
+                    $("#trial-notification-time").val(response.trialNotificationTime);
+                    $("#trial-notification-enable").prop('checked', response.trialNotificationEnabled);
                 }
             })
         }
@@ -60,33 +76,43 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
 });
 
 //Set notification properties
-$("#update-payment-notification").click(function () {
+$("#update-notification").click(function () {
     let data = {
         paymentMessageTemplate: $("#payment-notification-template").val(),
         paymentNotificationTime: $("#payment-notification-time").val(),
-        paymentNotificationEnabled: $("#payment-notification-enable").prop('checked')
+        paymentNotificationEnabled: $("#payment-notification-enable").prop('checked'),
+        trialMessageTemplate: $("#trial-notification-template").val(),
+        trialNotificationTime: $("#trial-notification-time").val(),
+        trialNotificationEnabled: $("#trial-notification-enable").prop('checked'),
     };
-    if (!validate_input(data)) {
-        return
-    };
-    $.ajax({
-        type: 'POST',
-        url: '/rest/properties/notifications',
-        data: data,
-        success: function () {
-        }
-    });
+    if (!validate_notification_properties(data)) {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: '/rest/properties/notifications',
+            data: data,
+            success: function () {
+                console.log('Значения параметров оповещений обновлены');
+            }
+        });
+        $('#notification-modal').modal('hide');
+    }
 });
 
-//Validate input data
-function validate_input(data) {
+//Validate input data notification properties
+function validate_notification_properties(data) {
     console.log(data);
     if ((data.paymentNotificationEnabled == true) && (data.paymentMessageTemplate == '')) {
-        alert("Выберите шаблон или отключите оповещение!");
+        alert("Выберите шаблон или отключите оповещение об оплате!");
         return false;
     }
-    if (data.paymentNotificationTime == '') {
-        alert("Задайте время оповещения!");
+    if ((data.trialNotificationEnabled == true) && (data.trialMessageTemplate == '')) {
+        alert("Выберите шаблон или отключите оповещение о пробном периоде!");
+        return false;
+    }
+    if ((data.paymentNotificationTime == '') || (data.trialNotificationTime == '')) {
+        alert("Задайте время оповещений!");
         return false;
     }
     return true;

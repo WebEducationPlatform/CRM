@@ -42,17 +42,27 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/notifications")
-    public HttpStatus setPaymentNotificationSettings(@RequestParam(name = "paymentMessageTemplate") Long templateId,
-                                                     @RequestParam(name = "paymentNotificationTime") String time,
-                                                     @RequestParam(name = "paymentNotificationEnabled") Boolean enabled) {
+    public HttpStatus setNotificationSettings(@RequestParam(name = "paymentMessageTemplate") Long paymentTemplateId,
+                                              @RequestParam(name = "paymentNotificationTime") String paymentTime,
+                                              @RequestParam(name = "paymentNotificationEnabled") Boolean paymentEnabled,
+                                              @RequestParam(name = "trialMessageTemplate") Long trialTemplateId,
+                                              @RequestParam(name = "trialNotificationTime") String trialTime,
+                                              @RequestParam(name = "trialNotificationEnabled") Boolean trialEnabled) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
-        if (templateId == null) {
+        if (paymentTemplateId == null) {
             current.setPaymentMessageTemplate(null);
         } else {
-            current.setPaymentMessageTemplate(messageTemplateService.get(templateId));
+            current.setPaymentMessageTemplate(messageTemplateService.get(paymentTemplateId));
         }
-        current.setPaymentNotificationTime(LocalTime.parse(time));
-        current.setPaymentNotificationEnabled(enabled);
+        current.setPaymentNotificationTime(LocalTime.parse(paymentTime));
+        current.setPaymentNotificationEnabled(paymentEnabled);
+        if (trialTemplateId == null) {
+            current.setTrialMessageTemplate(null);
+        } else {
+            current.setTrialMessageTemplate(messageTemplateService.get(trialTemplateId));
+        }
+        current.setTrialNotificationTime(LocalTime.parse(trialTime));
+        current.setTrialNotificationEnabled(trialEnabled);
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }

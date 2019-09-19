@@ -3,7 +3,6 @@ package com.ewp.crm.controllers.rest.api;
 
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.UserStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +17,10 @@ public class StatusApiRestController {
     private static Logger logger = LoggerFactory.getLogger(StatusApiRestController.class);
 
     private final StatusService statusService;
-    private final UserStatusService userStatusService;
 
     @Autowired
-    public StatusApiRestController(StatusService statusService, UserStatusService userStatusService) {
+    public StatusApiRestController(StatusService statusService) {
         this.statusService = statusService;
-        this.userStatusService = userStatusService;
     }
 
     @PostMapping(value = "/{statusName}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,9 +33,6 @@ public class StatusApiRestController {
         Status status = new Status(statusName);
         statusService.add(status);
 
-        status = statusService.get(statusName).get();
-
-        userStatusService.addStatusForAllUsers(status.getId());
         logger.info("Was added new status with name: " + statusName);
         return ResponseEntity.ok(statusService.getStatusByName(statusName));
     }

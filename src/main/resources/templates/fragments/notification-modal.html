@@ -5,8 +5,8 @@
 </head>
 <body>
 
-<th:block th:fragment="paymentNotificationModal">
-    <div th:id="payment-notification-modal" class="modal fade payment-notification-modal" role="dialog" data-keyboard="false" sec:authorize="hasAnyAuthority('OWNER')">
+<th:block th:fragment="notificationModal">
+    <div th:id="notification-modal" class="modal fade notification-modal" role="dialog" data-keyboard="false" sec:authorize="hasAnyAuthority('OWNER')">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
@@ -33,9 +33,29 @@
                             </table>
                         </div>
                     </div>
+                    <div class="container-fluid" id="trial-notif-block">
+                        <label for="trial-notif-block">Оповещения о пробном периоде</label>
+                        <div class="row">
+                            <table class="table table-condensed font-size">
+                                <tr>
+                                    <td><label for="trial-notification-template">Выберите шаблон для рассылки</label></td>
+                                    <td><select id="trial-notification-template" class="form-control"></select></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="trial-notification-time">Выберите время рассылки</label></td>
+                                    <td><input id="trial-notification-time" class="form-control" type="time"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="trial-notification-enable">Включить оповещение</label></td>
+                                    <td><input id="trial-notification-enable" type="checkbox"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="update-payment-notification" type="button" class="btn btn-default" data-dismiss="modal">Применить</button>
+                    <button id="update-notification" type="button" class="btn btn-default">Применить</button>
+                    <!--<button id="update-notification" type="button" class="btn btn-default" data-dismiss="modal">Применить</button>-->
                 </div>
             </div>
         </div>

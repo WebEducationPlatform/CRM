@@ -5,6 +5,34 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
                    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
+    <changeSet author="Eduard Nabiev" id="834">
+        <sql>
+            ALTER TABLE `crm`.`project_properties`
+            ADD COLUMN `trial_notification_enabled` BIT(1) NOT NULL DEFAULT 0 AFTER `first_skype_call_after_status`,
+            ADD COLUMN `trial_notification_time` TIME NULL DEFAULT NULL AFTER `trial_notification_enabled`,
+            ADD COLUMN `trial_message_template` BIGINT(20) NULL DEFAULT NULL AFTER `trial_notification_time`,
+            ADD INDEX `fk9trialtemlp_idx` (`trial_message_template` ASC);
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD CONSTRAINT `fk9trialtemlp`
+            FOREIGN KEY (`trial_message_template`)
+            REFERENCES `crm`.`message_template` (`id`)
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT;
+        </sql>
+        <rollback>
+            ALTER TABLE `crm`.`project_properties`
+            DROP FOREIGN KEY `fk9trialtemlp`;
+            ALTER TABLE `crm`.`project_properties`
+            DROP COLUMN `trial_message_template`,
+            DROP COLUMN `trial_notification_time`,
+            DROP COLUMN `trial_notification_enabled`,
+            DROP INDEX `fk9trialtemlp_idx` ;
+            ;
+        </rollback>
+        <comment>table TEST creation for demonstration</comment>
+    </changeSet>
+
     <changeSet author="Eduard Nabiev" id="878">
         <sql>
             ALTER TABLE `crm`.`project_properties`
@@ -53,6 +81,5 @@
         </rollback>
         <comment>table TEST creation for demonstration</comment>
     </changeSet>
-
 
 </databaseChangeLog>

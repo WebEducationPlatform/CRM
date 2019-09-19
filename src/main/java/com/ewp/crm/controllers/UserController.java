@@ -83,7 +83,7 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/user/customize")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR','MENTOR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR', 'MENTOR')")
 	public ModelAndView getUserCustomize(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
