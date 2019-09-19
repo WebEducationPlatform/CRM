@@ -209,7 +209,7 @@ public class Client implements Serializable, Diffable<Client> {
      * OneToMany uses FetchType.LAZY by default.
      * We use BatchSize to control our queries and not request too many entities.
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(name = "client_job",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
@@ -668,8 +668,8 @@ public class Client implements Serializable, Diffable<Client> {
                 Objects.equals(city, client.city) &&
                 Objects.equals(country, client.country) &&
                 state == client.state &&
-                Objects.equals(socialProfiles, client.socialProfiles) &&
-                Objects.equals(jobs, client.jobs) &&
+                (Objects.equals(socialProfiles,client.socialProfiles)|| ((socialProfiles.size()==0)&&(client.socialProfiles.size()==0)))&&
+                (Objects.equals(jobs, client.jobs)|| ((jobs.size()==0)&&(client.jobs.size()==0)))&&
                 Objects.equals(skype, client.skype) &&
                 Objects.equals(postponeDate, client.postponeDate)&&
                 Objects.equals(birthDate, client.birthDate) &&

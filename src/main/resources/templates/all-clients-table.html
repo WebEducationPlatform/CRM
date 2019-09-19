@@ -145,13 +145,13 @@
             </thead>
 
             <tbody id="table-body">
-            <tr th:each="client : ${allClients}">
-                <td th:text="${client.id}"></td>
-                <td class="line-decoration"><a th:text="${client.name}" href="#" th:onclick="'clientModal('+ ${client.id} +')'" ></a></td>
-                <td th:text="${client.lastName}"></td>
-                <td th:text = "${!#arrays.isEmpty(client.clientPhones)} ? ${client.clientPhones[0]}"></td>
-                <td th:text= " ${!#arrays.isEmpty(client.clientEmails)} ? ${client.clientEmails[0]}"></td>
-                <td>
+            <tr id="user-list" style="cursor: pointer; " th:each="client : ${allClients}">
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${client.id}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${client.name}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${client.lastName}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text = "${!#arrays.isEmpty(client.clientPhones)} ? ${client.clientPhones[0]}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text= " ${!#arrays.isEmpty(client.clientEmails)} ? ${client.clientEmails[0]}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'">
                     <th:block th:each="soc : ${client.socialProfiles}">
                         <span th:if="${soc.socialNetworkType.name == 'vk' or soc.socialNetworkType.name == 'facebook'}" th:remove="tag">
                             <th:block th:if="${soc.socialNetworkType.link == null}" th:text="${soc.socialId}"></th:block>
@@ -160,19 +160,19 @@
                         </span>
                     </th:block>
                 </td>
-                <td th:if="${client.birthDate!=null}" th:text="${#strings.arraySplit(client.birthDate, '-')[2]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[1]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[0]}"></td>
-                <td th:if="${client.birthDate==null}" th:text="'-'"></td>
-                <td th:text="${client.sex}"></td>
-                <td th:text="${client.city}"></td>
-                <td th:text="${client.country}"></td>
-                <td th:if="${client.ownerUser == null}" th:text="''"></td>
-                <td th:if="${client.ownerUser != null}" th:text="${client.ownerUser.fullName}"></td>
-                <td class="colorTd" th:text="${client.status.name}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:if="${client.birthDate!=null}" th:text="${#strings.arraySplit(client.birthDate, '-')[2]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[1]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[0]}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:if="${client.birthDate==null}" th:text="'-'"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${client.sex}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${client.city}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${client.country}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:if="${client.ownerUser == null}" th:text="''"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:if="${client.ownerUser != null}" th:text="${client.ownerUser.fullName}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" class="colorTd" th:text="${client.status.name}"></td>
 
                 <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
-                <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
+                <td th:onclick="'clientModal('+ ${client.id} +')'" th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
 
-                <td><div th:switch="${client.comments.size() > 0 }">
+                <td th:onclick="'clientModal('+ ${client.id} +')'"><div th:switch="${client.comments.size() > 0 }">
                     <span th:case="true">
                         <div th:switch="${client.comments.get(client.comments.size() - 1).getDateFormat().isAfter(client.history.get(0).getDate())}">
                             <span th:case="false" th:text="${#temporals.format(client.history.get(0).getDate().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
@@ -182,21 +182,21 @@
                     <span th:case="false" th:text="${#temporals.format(client.history.get(0).getDate().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
                 </div></td>
                 <!--<td th:text="${client.dateOfRegistration}"></td>-->
-                <td class="no-fix">
-                    <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"
-                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
-                        <button type="button" class="btn btn-default" data-toggle="dropdown"
-                                th:attrappend="data-client=${client.id}"> Вернуть
-                        </button>
-                        <ul class="dropdown-menu statuses-content"></ul>
-                    </div>
-                    <div class="button-return-from-postpone" th:if="${client.postponeDate != null}"
-                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
-                        <button type="button" id="return-from-postpone" class="btn btn-default from-postpone"
-                                th:attrappend="data-client=${client.id}"> Вернуть
-                        </button>
-                    </div>
-                </td>
+                    <td class="no-fix">
+                        <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"
+                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
+                            <button type="button" class="btn btn-default" data-toggle="dropdown"
+                                    th:attrappend="data-client=${client.id}"> Вернуть
+                            </button>
+                            <ul class="dropdown-menu statuses-content"></ul>
+                        </div>
+                        <div class="button-return-from-postpone" th:if="${client.postponeDate != null}"
+                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
+                            <button type="button" id="return-from-postpone" class="btn btn-default from-postpone"
+                                    th:attrappend="data-client=${client.id}"> Вернуть
+                            </button>
+                        </div>
+                    </td>
             </tr>
             </tbody>
             <tfoot>
