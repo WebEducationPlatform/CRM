@@ -80,6 +80,10 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     }
 
     @Override
+    public List<Student> getStudentsWithTodayTrialNotificationsEnabled() {
+        return studentRepositoryCustom.getStudentsWithTodayTrialNotificationsEnabled();
+    }
+    @Override
     public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
         return studentRepositoryCustom.countActiveByDateAndStatuses(day, studentStatuses);
     }

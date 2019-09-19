@@ -78,6 +78,7 @@
 
 .head-padding {
 	padding-top: 15px;
+    font-size: 20px;
 }
 
 
@@ -469,7 +470,11 @@ input[id^="checkbox-role"] { display: none; }
 input[id^="checkbox-user"] { display: none; }
 input[id^="ipTel"] { display: none; }
 input[id^="client_filter"] { display: none; }
+#filter input[type="checkbox"] { display: none; }
 
+#filter input[type="checkbox"] + label {
+	margin-bottom: 3px;
+}
 
 input[type="checkbox"] + label {
 	display: block;
@@ -974,6 +979,10 @@ li.dropdown:hover .dropdown-menu {
 	width: 1%;
 }
 
+.fit button {
+	margin: 0 2px 0 2px;
+}
+
 /*Clearable search style*/
 .clearable{
 	background: #fff url(http://i.stack.imgur.com/mJotv.gif) no-repeat right -10px center;
@@ -1021,6 +1030,20 @@ textarea[class*="feedback-video-url"] {
 #divToFiltration {
     text-align: center;
     display: none;
+}
+
+#template-create-modal-err {
+	color: red;
+	text-align: center;
+}
+
+#additional-data {
+	margin-bottom: 10px;
+}
+
+#student-reject-modal table,
+#student-status-edit-modal table {
+	border-style: hidden;
 }
 
 .editUserButtons a:active {

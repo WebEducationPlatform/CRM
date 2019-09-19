@@ -31,7 +31,11 @@ public class StudentStatusRestController {
 
     @GetMapping
     public ResponseEntity<List<StudentStatus>> getAllStudentStatuses() {
-        return ResponseEntity.ok(studentStatusService.getAll());
+        List<StudentStatus> studentStatuses = studentStatusService.getAll();
+        if (studentStatuses == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(studentStatuses, HttpStatus.OK);
     }
 
     @GetMapping ("/{id}")

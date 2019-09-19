@@ -20,6 +20,7 @@
             <div class="col-md-4">
                 <button id="create_status" type="button" class="btn btn-info">Создать</button>
             </div>
+            <!--TODO: Поиск на этой странице не работает!-->
             <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск статуса..."/></div>
         </div>
         <br />
@@ -31,15 +32,8 @@
                 <th class="col-md-1 fit"></th>
             </tr>
             </thead>
+            <!--Рендеринг таблицы на стороне клиента-->
             <tbody id="table-body">
-            <tr th:each="status : ${statuses}">
-                <td th:text="${status.id}"></td>
-                <td th:text="${status.status}"></td>
-                <td>
-                    <button class="button_edit_status btn btn-info glyphicon glyphicon-pencil" th:value="${status.id}" title="Изменить статус"></button>
-                    <button class="button_delete_status btn btn-danger glyphicon glyphicon-remove" th:value="${status.id}" title="Удалить статус"></button>
-                </td>
-            </tr>
             </tbody>
             <tfoot>
 
@@ -47,9 +41,8 @@
         </table>
     </div>
 </div>
-<div th:replace="fragments/student-status-create-modal::studentStatusCreateModal"></div>
-<div th:replace="fragments/student-status-edit-modal::studentStatusEditModal"></div>
-<script type="text/javascript" th:src="@{/js/all-students.js}"></script>
+<div th:replace="fragments/student-status::studentStatusCreateModal"></div>
+<div th:replace="fragments/student-status::studentStatusEditModal"></div>
 <script type="text/javascript" th:src="@{/js/all-students-status.js}"></script>
 </body>
 </html>

@@ -12,6 +12,8 @@ public interface StudentRepositoryCustom {
 
     List<Student> getStudentsWithTodayNotificationsEnabled();
 
+    List<Student> getStudentsWithTodayTrialNotificationsEnabled();
+
     long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses);
 
     void detach(Student student);

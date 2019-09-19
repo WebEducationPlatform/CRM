@@ -477,6 +477,39 @@ public class ScheduleTasks {
 		}
 	}
 
+    /**
+     * Sends end-of-trial notification to student's contacts.
+     */
+    @Scheduled(fixedDelay = 3600000)
+    private void sendTrialNotifications() {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        if (properties.isTrialNotificationEnabled() && properties.getTrialMessageTemplate() != null && properties.getTrialNotificationTime() != null) {
+            LocalTime time = properties.getTrialNotificationTime().truncatedTo(ChronoUnit.HOURS);
+            LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
+            if (properties.isTrialNotificationEnabled() && now.equals(time)) {
+				logger.info("start end-of-trial notification");
+                for (Student student : studentService.getStudentsWithTodayTrialNotificationsEnabled()) {
+					MessageTemplate template = properties.getTrialMessageTemplate();
+					Long clientId = student.getClient().getId();
+					if (student.isNotifyEmail()) {
+						mailSendService.sendSimpleNotification(clientId, template.getTemplateText());
+					}
+					if (student.isNotifySMS()) {
+						smsService.sendSimpleSMS(clientId, template.getOtherText());
+					}
+					if (student.isNotifyVK()) {
+						vkService.simpleVKNotification(clientId, template.getOtherText());
+					}
+					if (student.isNotifySlack()) {
+						slackService.trySendSlackMessageToStudent(clientId, template.getOtherText());
+					}
+                }
+            }
+        } else {
+            logger.info("End-of-trial notification properties not set!");
+        }
+    }
+
     @Scheduled(fixedRate = 60_000)
     private void fetchTelegramMessages() {
         if (telegramService.isTdlibInstalled() && telegramService.isAuthenticated()) {
