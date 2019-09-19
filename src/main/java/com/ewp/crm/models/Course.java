@@ -27,7 +27,7 @@ public class Course {
     @JoinTable(name = "courses_users",
             joinColumns = {@JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))},
             inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
-    private List<User> users  = new ArrayList<>();;
+    private List<User> users  = new ArrayList<>();
 
 //Конструкторы
     public Course() {
