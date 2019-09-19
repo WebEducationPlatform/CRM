@@ -19,11 +19,12 @@
     <!--Основное содержание-->
     <div class="container-fluid">
         <div><h1>Направления</h1></div>
+        <!--Кнопка добавления направления-->
         <div class="row">
             <a href="/courses/add" class="btn btn-info" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">Добавить направление</a>
         </div>
-        <div class="col-md-3">
-            <!--Courses table-->
+        <!--Courses table-->
+        <div class="col-md-4 col-md-offset-4" >
             <div class="table-responsive">
                 <table class="table table-hover table-fixed">
                     <thead>
@@ -39,6 +40,7 @@
                             <!--Edit button-->
                         <td>
                             <button class="btn btn-info btn-lg" type="button" data-toggle="modal" th:attr="data-target='#'+${course.id}" >Edit</button>
+<!--                            Модалка для кнопки редактирования-->
                             <div class="modal fade" th:attr="id=${course.id}">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
