@@ -373,6 +373,10 @@ public class User implements UserDetails {
         return courses;
     }
 
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.synchronizedList(role);
