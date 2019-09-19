@@ -13,4 +13,7 @@ public interface ClientHistoryRepository extends JpaRepository<ClientHistory, Lo
 	List<ClientHistory> getAllByClientId(long id, Pageable pageable);
 
 	ClientHistory getFirstByClientId(long id);
+
+	void deleteClientHistoryById(Long id);
+
 }

@@ -65,7 +65,10 @@ function sendMessages(sendnow) {
         },
         error: function (xhr) {
             if (xhr.status === 500) {
-                setErrorMessage("Что-то пошло не так, необходимо повторить отправку сообщений", "red");
+                setErrorMessage("Не удалось записать текст сообщения в БД:\n " + xhr.responseText, "red");
+            }
+            if (xhr.status === 401) {
+                setErrorMessage("Для отправки сообщения необходимо авторизоваться в системе (перезайти в систему)\n " + xhr.responseText, "red");
             }
         }
     });

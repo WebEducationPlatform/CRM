@@ -25,6 +25,11 @@ public class UserStatusServiceImpl implements UserStatusService {
     }
 
     @Override
+    public void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position) {
+        userStatusDAO.addStatusForUser(user_id, status_id, is_invisible, position);
+    }
+
+    @Override
     public void deleteStatus(Long status_id) {
         userStatusDAO.deleteStatus(status_id);
     }

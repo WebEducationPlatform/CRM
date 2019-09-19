@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Студент
@@ -253,8 +254,10 @@ public class Student implements Diffable<Student> {
     public DiffResult diff(Student student) {
         return new DiffBuilder(this, student, ToStringStyle.JSON_STYLE)
                 .append("Клиент", this.client.getId(), student.client.getId())
-                .append("Дата пробных", this.trialEndDate.toLocalDate(), student.trialEndDate.toLocalDate())
-                .append("Дата оплаты", this.nextPaymentDate.toLocalDate(), student.nextPaymentDate.toLocalDate())
+                .append("Дата пробных", this.trialEndDate.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                        student.trialEndDate.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
+                .append("Дата оплаты", this.nextPaymentDate.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                        student.nextPaymentDate.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
                 .append("Цена", this.price.toString().contains(".00") ? this.price.toBigInteger().toString() : this.price.toString(), student.price.toString().contains(".00") ? student.price.toBigInteger().toString() : student.price.toString())
                 .append("Платёж", this.paymentAmount.toString().contains(".00") ? this.paymentAmount.toBigInteger().toString() : this.paymentAmount.toString(), student.paymentAmount.toString().contains(".00") ? student.paymentAmount.toBigInteger().toString() : student.paymentAmount.toString())
                 .append("Оплата позже", this.payLater.toString().contains(".00") ? this.payLater.toBigInteger().toString() : this.payLater.toString(), student.payLater.toString().contains(".00") ? student.payLater.toBigInteger().toString() : student.payLater.toString())
