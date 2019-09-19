@@ -126,7 +126,7 @@
             <tbody id="table-body">
             <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="'display:none; '+${student.color != null ? 'background-color: ' + student.color : ''}">
                 <td th:id="${'status_' + student.id}" hidden="hidden" th:text="${student.client.status.name}"></td>
-                //Поле для фильтрациии по направлениям
+                <!--Поле для фильтрациии по направлениям-->
                 <td th:each="course : ${student.client.getCourses()}" hidden="hidden" th:id="'course_' + ${course.getName()}" th:value="${course.id}" th:text="${course.getName()}" class="course_fltr"></td>
                 <td th:id="${'name_' + student.id}" th:text="${student.client.name}"></td>
                 <td th:id="${'lastName_' + student.id}" th:text="${student.client.lastName}"></td>
