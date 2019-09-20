@@ -90,12 +90,11 @@ public class CommentApiRestController {
         }
         User fromDB = userService.get(user.getId());
         Comment comment;
-        Client client;
         CommentAnswer commentAnswer;
-//	15.09.2019 try{} catch{} NullPointerException added
+
         try {
             comment = commentService.get(commentId);
-            client = comment.getClient();
+            Client client = comment.getClient();
 //		sendNotificationService.sendNotification(content, client);
             commentAnswer = new CommentAnswer(fromDB, content, client);
         } catch (NullPointerException e) {
@@ -112,8 +111,8 @@ public class CommentApiRestController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping(value = "/delete/answer")
-    public ResponseEntity deleteCommentAnswer(@RequestParam(name = "id") Long id,
+    @PostMapping(value = "/delete/answer/{id}")
+    public ResponseEntity deleteCommentAnswer(@PathVariable Long id,
                                               @RequestParam(name = "email") String email
             /* @AuthenticationPrincipal User userFromSession*/) {
         //added 10.09.2019
@@ -126,8 +125,6 @@ public class CommentApiRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-//Добавлена обработка ошибки - javax.persistence.EntityNotFoundException: Unable to find com.ewp.crm.models.User
-// with id {} + NullPointerException commentAnswerService.get(id)
         try {
             if (commentAnswerService.get(id).getUser().equals(user)) {
                 commentAnswerService.delete(id);
@@ -141,13 +138,12 @@ public class CommentApiRestController {
         }
     }
 
-    // 16.09.2019 ResponseEntity заменен на ResponseEntity<CommentAnswer>, добавлена обработка исключения
-    @PostMapping(value = "/edit/answer")
-    public ResponseEntity<CommentAnswer> editCommentAnswer(@RequestParam(name = "id") Long id,
+    @PostMapping(value = "/edit/answer/{id}")
+    public ResponseEntity<CommentAnswer> editCommentAnswer(@PathVariable Long id,
                                                            @RequestParam(name = "content") String content,
                                                            @RequestParam(name = "email") String email
             /*@AuthenticationPrincipal User userFromSession*/) {
-        //added 10.09.2019
+
         Optional<User> optionalUser = userService.getUserByEmail(email);
         User user;
         if (optionalUser.isPresent()) {
@@ -156,8 +152,7 @@ public class CommentApiRestController {
             logger.error("Can`t edit comments answer, user with email {} not found", email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-//Добавлена обработка ошибки - javax.persistence.EntityNotFoundException: Unable to find com.ewp.crm.models.User
-// with id {} + NullPointerException commentAnswerService.get(id)
+
         try {
             if (commentAnswerService.get(id).getUser().equals(user)) {
                 CommentAnswer commentAnswer = commentAnswerService.get(id);
@@ -173,11 +168,11 @@ public class CommentApiRestController {
         }
     }
 
-    @PostMapping(value = "/delete")
-    public ResponseEntity deleteComment(@RequestParam(name = "id") Long id,
+    @PostMapping(value = "/delete/{id}")
+    public ResponseEntity deleteComment(@PathVariable Long id,
                                         @RequestParam(name = "email") String email
             /*@AuthenticationPrincipal User userFromSession*/) {
-        //added 10.09.2019
+
         Optional<User> optionalUser = userService.getUserByEmail(email);
         User user;
         if (optionalUser.isPresent()) {
@@ -186,8 +181,7 @@ public class CommentApiRestController {
             logger.error("Can`t delete comment, user with email {} not found", email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-//Добавлена обработка ошибки - javax.persistence.EntityNotFoundException: Unable to find com.ewp.crm.models.User
-// with id {} + NullPointerException commentAnswerService.get(id)
+
         try {
             if (commentService.get(id).getUser().equals(user)) {
                 commentService.delete(id);
@@ -201,13 +195,12 @@ public class CommentApiRestController {
         }
     }
 
-    // 16.09.2019 ResponseEntity заменен на ResponseEntity<Comment>
-    @PostMapping(value = "/edit")
-    public ResponseEntity<Comment> editComment(@RequestParam(name = "id") Long id,
+    @PostMapping(value = "/edit/{id}")
+    public ResponseEntity<Comment> editComment(@PathVariable Long id,
                                                @RequestParam(name = "content") String content,
                                                @RequestParam(name = "email") String email
             /*  @AuthenticationPrincipal User userFromSession*/) {
-        //added 10.09.2019
+
         Optional<User> optionalUser = userService.getUserByEmail(email);
         User user;
         if (optionalUser.isPresent()) {

@@ -2,7 +2,9 @@ package com.ewp.crm.controllers.rest.api;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -133,9 +135,8 @@ public class CommentApiRestControllerTest {
         JSONObject json = (JSONObject) parser.parse(content);
         String id = json.getAsString("id");
         this.mockMvc
-                .perform(post(url+"/delete/answer")
-                        .param("id", id)
-                        .param("email", "sevostyanovg.d@gmail.com"))
+                .perform(post(url+"/delete/answer/"+id)
+                    .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -147,8 +148,7 @@ public class CommentApiRestControllerTest {
         JSONObject json = (JSONObject) parser.parse(content);
         String id = json.getAsString("id");
         this.mockMvc
-                .perform(post(url+"/delete/answer")
-                        .param("id", id)
+                .perform(post(url+"/delete/answer/"+id)
                         .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -163,8 +163,7 @@ public class CommentApiRestControllerTest {
         Long idLong = Long.parseLong(id)+1;
         id = idLong.toString();
         this.mockMvc
-                .perform(post(url+"/delete/answer")
-                        .param("id", id)
+                .perform(post(url+"/delete/answer/"+id)
                         .param("email", "sevostyanovg.d@gmail.co"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -178,8 +177,7 @@ public class CommentApiRestControllerTest {
         String id = json.getAsString("id");
 
         this.mockMvc
-                .perform(post(url+"/edit/answer")
-                        .param("id", id)
+                .perform(post(url+"/edit/answer/"+id)
                         .param("content", "ha-ha-ha")
                         .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
@@ -195,8 +193,7 @@ public class CommentApiRestControllerTest {
         String id = json.getAsString("id");
 
         this.mockMvc
-                .perform(post(url+"/edit/answer")
-                        .param("id", id)
+                .perform(post(url+"/edit/answer/"+id)
                         .param("content", "ha-ha-ha")
                         .param("email", "sevostyanovg.d@gmail.c"))
                 .andDo(print())
@@ -212,8 +209,7 @@ public class CommentApiRestControllerTest {
         Long idLong = Long.parseLong(id)+1;
         id = idLong.toString();
         this.mockMvc
-                .perform(post(url+"/edit/answer")
-                        .param("id", id)
+                .perform(post(url+"/edit/answer/"+id)
                         .param("content", "ha-ha-ha")
                         .param("email", "sevostyanovg.d@gmail.c"))
                 .andDo(print())
@@ -228,8 +224,7 @@ public class CommentApiRestControllerTest {
         String id = json.getAsString("id");
 
         this.mockMvc
-                .perform(post(url+"/delete")
-                        .param("id", id)
+                .perform(post(url+"/delete/"+id)
                         .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -244,8 +239,7 @@ public class CommentApiRestControllerTest {
         Long idLong = Long.parseLong(id)+1;
         id = idLong.toString();
         this.mockMvc
-                .perform(post(url+"/delete")
-                        .param("id", id)
+                .perform(post(url+"/delete/"+id)
                         .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -258,8 +252,7 @@ public class CommentApiRestControllerTest {
         JSONObject json = (JSONObject) parser.parse(content);
         String id = json.getAsString("id");
         this.mockMvc
-                .perform(post(url+"/delete")
-                        .param("id", id)
+                .perform(post(url+"/delete/"+id)
                         .param("email", "sevostyanovg.d@gmail.c"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -273,8 +266,7 @@ public class CommentApiRestControllerTest {
         String id = json.getAsString("id");
 
         this.mockMvc
-                .perform(post(url+"/edit")
-                        .param("id", id)
+                .perform(post(url+"/edit/"+id)
                         .param("content", "ha-ha-ha")
                         .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
@@ -291,8 +283,7 @@ public class CommentApiRestControllerTest {
         Long idLong = Long.parseLong(id)+1;
         id = idLong.toString();
         this.mockMvc
-                .perform(post(url+"/edit")
-                        .param("id", id)
+                .perform(post(url+"/edit/"+id)
                         .param("content", "ha-ha-ha")
                         .param("email", "sevostyanovg.d@gmail.com"))
                 .andDo(print())
@@ -306,8 +297,7 @@ public class CommentApiRestControllerTest {
         JSONObject json = (JSONObject) parser.parse(content);
         String id = json.getAsString("id");
         this.mockMvc
-                .perform(post(url+"/edit")
-                        .param("id", id)
+                .perform(post(url+"/edit/"+id)
                         .param("content", "ha-ha-ha")
                         .param("email", "sevostyanovg.d@gmail.co"))
                 .andDo(print())
