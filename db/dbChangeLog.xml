@@ -2,9 +2,51 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
-                   http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-
+    <changeSet author="Sergey Kozionov" id="902.0">
+        <sql>
+            CREATE TABLE `course` (
+            `course_id` bigint NOT NULL AUTO_INCREMENT,
+            `course_name` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`course_id`))
+            ENGINE = INNODB;
+        </sql>
+        <rollback>
+            DROP TABLE `course`;
+        </rollback>
+        <comment>creation course table</comment>
+    </changeSet>
+    <changeSet author="Sergey Kozionov" id="902.1">
+        <sql>
+            CREATE TABLE `courses_clients` (
+            `course_id` bigint NOT NULL,
+            `client_id` bigint NOT NULL,
+            CONSTRAINT FK_COURSE_US FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+            CONSTRAINT FK_CLIENT FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE )
+            ENGINE = INNODB;
+        </sql>
+        <rollback>
+            DROP TABLE `courses_clients`;
+        </rollback>
+        <comment>creation courses_clients table</comment>
+    </changeSet>
+    <changeSet author="Sergey Kozionov" id="902.2">
+        <sql>
+            CREATE TABLE `courses_users` (
+            `course_id` bigint NOT NULL,
+            `user_id` bigint NOT NULL,
+            CONSTRAINT FK_COURSE_CL FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+            CONSTRAINT FK_USER FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE )
+            ENGINE = INNODB;
+        </sql>
+        <rollback>
+            DROP TABLE `courses_users`;
+        </rollback>
+        <comment>creation courses_users table</comment>
+    </changeSet>
 
 </databaseChangeLog>
