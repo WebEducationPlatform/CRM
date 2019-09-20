@@ -896,10 +896,6 @@ function clearListRecipients(selector) {
     $("#" + selector).val('');
 }
 
-function fillListRecipients(selector) {
-
-}
-
 function openEditShowListMailing() {
 
     listGroupName = $('#listMailingSelect').val();

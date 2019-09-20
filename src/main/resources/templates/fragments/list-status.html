@@ -71,12 +71,12 @@
 
             <!--Изменение размера шрифта в зависимости от длины имени статуса-->
             <div style="height: 25px">
-                        <span th:text="${status.name}" th:if="${status.name.length() &lt; 15}"
-                              style="font-size:20px"></span>
-                <span th:text="${status.name}"
+                <span th:text="${status.name} + ' ' + ${#lists.size(status.clients)}" th:if="${status.name.length() &lt; 15}"
+                      style="font-size:20px"></span>
+                <span th:text="${status.name} + ' ' + ${#lists.size(status.clients)}"
                       th:if="${status.name.length() &gt; 15 and status.name.length() &lt; 25}"
                       style="font-size:15px"></span>
-                <span th:text="${status.name}" th:if="${status.name.length() &gt; 25}"
+                <span th:text="${status.name} + ' ' + ${#lists.size(status.clients)}" th:if="${status.name.length() &gt; 25}"
                       style="font-size:13px"></span>
             </div>
         </div>
