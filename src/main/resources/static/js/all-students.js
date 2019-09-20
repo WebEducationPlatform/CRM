@@ -340,17 +340,6 @@ $('.trial-date-btn').on('click', function () {
     return false;
 });
 
-$('#additional-data-clickable-zone').on('click', function () {
-    $('#additional-data').addClass('hidden');
-    $('#show-additional-info-button').removeClass('hidden');
-});
-
-$('#show-additional-info-button').on('click', function () {
-    calc_info_values();
-    $('#additional-data').removeClass('hidden');
-    $('#show-additional-info-button').addClass('hidden');
-});
-
 $('.payment-date-btn').on('click', function () {
     if (!this.id) {
         return;

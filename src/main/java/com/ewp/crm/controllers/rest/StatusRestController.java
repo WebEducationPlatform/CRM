@@ -108,7 +108,6 @@ public class StatusRestController {
         final Status status = new Status(statusName);
         statusService.add(status, currentAdmin.getRole());
         Optional<Status> statusOptional = statusService.get(statusName);
-        userStatusService.addStatusForAllUsers(statusOptional.get().getId());
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
         return ResponseEntity.ok("Успешно добавлено");
     }

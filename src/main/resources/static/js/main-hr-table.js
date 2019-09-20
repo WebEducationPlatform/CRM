@@ -23,6 +23,21 @@ $(document).ready(function () {
             }).appendTo('div#' + student.id + '.portlet');
         })
     });
+    $('<div></div>', {
+        class: 'row center-block',
+        id: 'row-button',
+        style: 'display: flex; justify-content: center; flex-flow:row wrap;'
+    }).appendTo('#page-container');
+    $('<div></div>', {
+        class: 'column',
+        id: 'column-button',
+    }).appendTo('#row-button');
+    $('<button></button>', {
+        class: 'btn btn-lg btn-primary btn-block',
+        id: 'refresh-button',
+        onclick: 'refresh()',
+        text: 'Обновить'
+    }).appendTo('#column-button');
 });
 
 function showCurrentModal(studentId) {
@@ -31,3 +46,23 @@ function showCurrentModal(studentId) {
     currentModal.data('clientId', clientId);
     currentModal.modal('show');
 }
+
+function refresh() {
+    $.get('/hr/refresh')
+        .done(function () {
+            location.reload();
+            $('#error').remove();
+            $('<p></p>', {
+                id: 'error',
+                text: 'Done'
+            }).appendTo('#refresh-button')
+        })
+        .fail(function () {
+            $('#error').remove();
+            $('<p></p>', {
+                id: 'error',
+                text: 'Server error'
+            }).appendTo('#refresh-button')
+        })
+}
+

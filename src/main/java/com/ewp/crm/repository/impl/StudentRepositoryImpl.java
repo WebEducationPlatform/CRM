@@ -48,6 +48,18 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     @Override
+    public List<Student> getStudentsWithTodayTrialNotificationsEnabled() {
+        // Получаем всех студентов, у которых статус клиента = 3 (На пробных), включен любой способ нотификации
+        // и дата удовлетворяет заданному условию
+        return entityManager.createNativeQuery(
+                "SELECT * FROM student s WHERE (((s.notify_email = '1') OR (s.notify_sms = '1') OR " +
+                        "(s.notify_vk = '1') OR (s.notify_slack = '1')) AND " +
+                        "(s.end_trial >= CURDATE() AND s.end_trial < CURDATE() + INTERVAL 1 DAY)) AND " +
+                        "s.client_id IN (SELECT sc.user_id FROM status_clients sc WHERE sc.status_id = '3');", Student.class)
+                .getResultList();
+    }
+
+    @Override
     public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
         String query = "SELECT COUNT(*) FROM (" +
                 "SELECT csch.client_id FROM client_status_changing_history csch " +
