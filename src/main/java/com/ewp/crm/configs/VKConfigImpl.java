@@ -52,8 +52,6 @@ public class VKConfigImpl implements VKConfig {
 
     private String firstSkypeDeleteMessageTemplate;
 
-    private String chatToSendNewClient;
-
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -78,7 +76,6 @@ public class VKConfigImpl implements VKConfig {
             firstSkypeMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.template");
             firstSkypeUpdateMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.updateTemplate");
             firstSkypeDeleteMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.deleteTemplate");
-            chatToSendNewClient = env.getRequiredProperty("vk.app.newClient.reports.service.chat.id");
         } catch (IllegalStateException e) {
             logger.error("VK configs have not initialized. Check vk.properties file", e);
             System.exit(1);
@@ -162,11 +159,6 @@ public class VKConfigImpl implements VKConfig {
     @Override
     public String getFirstSkypeDeleteMessageTemplate() {
         return firstSkypeDeleteMessageTemplate;
-    }
-
-    @Override
-    public String getChatToSendNewClient() {
-        return chatToSendNewClient;
     }
 
     @Override

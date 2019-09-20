@@ -53,7 +53,7 @@ public class VkAdsReportService implements AdReportService {
         return stb.toString();
     }
 
-    //формирование строки запроса для получения баланса рекламногокабинета ВК
+    //формирование строки запроса для получения баланса рекламного кабинета ВК
     private String vkAdsBudgetUri() {
         StringBuilder stb = new StringBuilder(vkApi).append("ads.getBudget")
                 .append("?account_id=").append(adsClientId)
@@ -93,7 +93,7 @@ public class VkAdsReportService implements AdReportService {
         return spent;
     }
 
-    //получение баланса рекламного кабинета вк
+    //получение баланса рекламного кабинета ВК
     public String getBalance() throws JSONException, IOException {
         JSONObject jsonBalance = getAdsFromVkApi(vkAdsBudgetUri);
         return jsonBalance.getString("response");

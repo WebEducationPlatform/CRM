@@ -51,15 +51,6 @@ $('#notification-modal').on('show.bs.modal', function () {
                 )
             });
 
-            $("#new-client-notification-template").empty().append(
-                $('<option>').val('').text('Не выбрано')
-            );
-            $.each(response, function (i, item) {
-                $("#new-client-notification-template").append(
-                    $('<option>').val(item.id).text(item.name)
-                )
-            });
-
             $.ajax({
                 type: 'GET',
                 url: '/rest/properties',
@@ -73,11 +64,6 @@ $('#notification-modal').on('show.bs.modal', function () {
                         $("#trial-notification-template option[value='']").prop('selected', true)
                     } else {
                         $("#trial-notification-template option[value=" + response.trialMessageTemplate.id + "]").prop('selected', true);
-                    }
-                    if (response.newClientMessageTemplate == null) {
-                        $("#new-client-notification-template option[value='']").prop('selected', true)
-                    } else {
-                        $("#new-client-notification-template option[value=" + response.newClientMessageTemplate.id + "]").prop('selected', true);
                     }
                     $("#payment-notification-time").val(response.paymentNotificationTime);
                     $("#payment-notification-enable").prop('checked', response.paymentNotificationEnabled);
@@ -98,7 +84,6 @@ $("#update-notification").click(function () {
         trialMessageTemplate: $("#trial-notification-template").val(),
         trialNotificationTime: $("#trial-notification-time").val(),
         trialNotificationEnabled: $("#trial-notification-enable").prop('checked'),
-        newClientMessageTemplate: $("#new-client-notification-template").val()
     };
     if (!validate_notification_properties(data)) {
         return;
