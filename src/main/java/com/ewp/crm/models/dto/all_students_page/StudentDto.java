@@ -1,9 +1,7 @@
-package com.ewp.crm.models.dto.for_page_all_student;
+package com.ewp.crm.models.dto.all_students_page;
 
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
-import com.ewp.crm.models.dto.ClientDto;
-import com.ewp.crm.models.dto.StatusDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,12 +10,32 @@ import java.util.stream.Collectors;
 
 /**
  * Данный класс предназначен для отображения информации о студенитах на вкладке "Все студенты"
+ * Поля, которые есть в all-students-table.html:
+ *  * 1. id
+ *  * 2. color
+ *  * 3. client:
+ *  *      a) status
+ *  *      b) name
+ *  *      c) lastName
+ *  *      d) email
+ *  *      e) phoneNumber
+ *  *      f) socialProfiles
+ *  *      g) id
+ *  * 4. trialEndDate
+ *  * 5. nextPaymentDate
+ *  * 6. price
+ *  * 7. paymentAmount
+ *  * 8. payLater
+ *  * 9. notifyEmail
+ *  * 10. notifySms
+ *  * 11. notifyVK
+ *  * 12. notifySlack
+ *  * 13. notes
  */
-public class StudentDtoForAllStudentDto {
+public class StudentDto {
 
     private long id;
-    private ClientDtoForAllStudentsDto clientDtoForAllStudentsDto;
-//    private StatusDto statusDto;
+    private ClientDtoForAllStudentsPage clientDtoForAllStudentsPage;
     private String notes;
     private String color;
     private LocalDateTime trialEndDate;
@@ -31,27 +49,25 @@ public class StudentDtoForAllStudentDto {
     private boolean notifySlack = false;
     private StudentStatus studentStatus;
 
-    public StudentDtoForAllStudentDto() {
+    public StudentDto() {
     }
 
-    public StudentDtoForAllStudentDto(long id,
-                                      ClientDtoForAllStudentsDto clientDtoForAllStudentsDto,
-//                                      StatusDto statusDto,
-                                      String notes,
-                                      String color,
-                                      LocalDateTime trialEndDate,
-                                      LocalDateTime nextPaymentDate,
-                                      BigDecimal price,
-                                      BigDecimal paymentAmount,
-                                      BigDecimal payLater,
-                                      boolean notifyEmail,
-                                      boolean notifySMS,
-                                      boolean notifyVK,
-                                      boolean notifySlack,
-                                      StudentStatus studentStatus) {
+    public StudentDto(long id,
+                      ClientDtoForAllStudentsPage clientDtoForAllStudentsPage,
+                      String notes,
+                      String color,
+                      LocalDateTime trialEndDate,
+                      LocalDateTime nextPaymentDate,
+                      BigDecimal price,
+                      BigDecimal paymentAmount,
+                      BigDecimal payLater,
+                      boolean notifyEmail,
+                      boolean notifySMS,
+                      boolean notifyVK,
+                      boolean notifySlack,
+                      StudentStatus studentStatus) {
         this.id = id;
-        this.clientDtoForAllStudentsDto = clientDtoForAllStudentsDto;
-//        this.statusDto = statusDto;
+        this.clientDtoForAllStudentsPage = clientDtoForAllStudentsPage;
         this.notes = notes;
         this.color = color;
         this.trialEndDate = trialEndDate;
@@ -74,21 +90,13 @@ public class StudentDtoForAllStudentDto {
         this.id = id;
     }
 
-    public ClientDtoForAllStudentsDto getClientDtoForAllStudentsDto() {
-        return clientDtoForAllStudentsDto;
+    public ClientDtoForAllStudentsPage getClientDtoForAllStudentsPage() {
+        return clientDtoForAllStudentsPage;
     }
 
-    public void setClientDtoForAllStudentsDto(ClientDtoForAllStudentsDto clientDtoForAllStudentsDto) {
-        this.clientDtoForAllStudentsDto = clientDtoForAllStudentsDto;
+    public void setClientDtoForAllStudentsPage(ClientDtoForAllStudentsPage clientDtoForAllStudentsPage) {
+        this.clientDtoForAllStudentsPage = clientDtoForAllStudentsPage;
     }
-
-//    public StatusDto getStatusDto() {
-//        return statusDto;
-//    }
-//
-//    public void setStatusDto(StatusDto statusDto) {
-//        this.statusDto = statusDto;
-//    }
 
     public String getNotes() {
         return notes;
@@ -191,40 +199,32 @@ public class StudentDtoForAllStudentDto {
      * @param student - принимаемый студент,
      * @return - возвращаемый студент.
      */
-    public static StudentDtoForAllStudentDto getStudentDtoForAllStudentDto(Student student) {
-        StudentDtoForAllStudentDto studentDtoForAllStudentDto = new StudentDtoForAllStudentDto();
+    public static StudentDto getStudentDtoForAllStudentDto(Student student) {
+        StudentDto studentDto = new StudentDto();
 
-        studentDtoForAllStudentDto.id = student.getId();
-        studentDtoForAllStudentDto.clientDtoForAllStudentsDto =
-                ClientDtoForAllStudentsDto.getClientDtoForAllStudent(student.getClient());
-//        studentDtoForAllStudentDto.statusDto = StatusDto.getStatusDto(...);
-        studentDtoForAllStudentDto.notes = student.getNotes();
-        studentDtoForAllStudentDto.color = student.getColor();
-        studentDtoForAllStudentDto.trialEndDate = student.getTrialEndDate();
-        studentDtoForAllStudentDto.nextPaymentDate = student.getNextPaymentDate();
-        studentDtoForAllStudentDto.price = student.getPrice();
-        studentDtoForAllStudentDto.paymentAmount = student.getPaymentAmount();
-        studentDtoForAllStudentDto.payLater = student.getPayLater();
-        studentDtoForAllStudentDto.notifyEmail = student.isNotifyEmail();
-        studentDtoForAllStudentDto.notifySMS = student.isNotifySMS();
-        studentDtoForAllStudentDto.notifyVK = student.isNotifyVK();
-        studentDtoForAllStudentDto.notifySlack = student.isNotifySlack();
-        studentDtoForAllStudentDto.studentStatus = student.getStatus();
+        studentDto.id = student.getId();
+        studentDto.clientDtoForAllStudentsPage =
+                ClientDtoForAllStudentsPage.getClientDtoForAllStudentsPage(student.getClient());
+        studentDto.notes = student.getNotes();
+        studentDto.color = student.getColor();
+        studentDto.trialEndDate = student.getTrialEndDate();
+        studentDto.nextPaymentDate = student.getNextPaymentDate();
+        studentDto.price = student.getPrice();
+        studentDto.paymentAmount = student.getPaymentAmount();
+        studentDto.payLater = student.getPayLater();
+        studentDto.notifyEmail = student.isNotifyEmail();
+        studentDto.notifySMS = student.isNotifySMS();
+        studentDto.notifyVK = student.isNotifyVK();
+        studentDto.notifySlack = student.isNotifySlack();
+        studentDto.studentStatus = student.getStatus();
 
-        return studentDtoForAllStudentDto;
+        return studentDto;
     }
 
-    public static List<StudentDtoForAllStudentDto> getStudentDtoForAllStudentDto(List<Student> students) {
+    public static List<StudentDto> getStudentDtoForAllStudentDto(List<Student> students) {
         return students
                 .stream()
-                .map(StudentDtoForAllStudentDto::getStudentDtoForAllStudentDto)
+                .map(StudentDto::getStudentDtoForAllStudentDto)
                 .collect(Collectors.toList());
     }
-
-    /**
-     * todo Все что выделено в комментарии, связанные со статусом
-     * надо будет посмотреть, работает ли без него и могу ли я получить
-     * имя статуса по StudentStatus заместо StatusDto.
-     * Мне кажется, что это одно и тоже в данном случае!
-     */
 }
