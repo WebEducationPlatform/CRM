@@ -18,7 +18,7 @@
         <rollback>
             DROP TABLE `course`;
         </rollback>
-        <comment>creation course table</comment>
+        <comment>Добавление таблицы направлений</comment>
     </changeSet>
     <changeSet author="Sergey Kozionov" id="902.1">
         <sql>
@@ -32,7 +32,7 @@
         <rollback>
             DROP TABLE `courses_clients`;
         </rollback>
-        <comment>creation courses_clients table</comment>
+        <comment>Добавление таблицы направления-клиенты</comment>
     </changeSet>
     <changeSet author="Sergey Kozionov" id="902.2">
         <sql>
@@ -46,7 +46,7 @@
         <rollback>
             DROP TABLE `courses_users`;
         </rollback>
-        <comment>creation courses_users table</comment>
+        <comment>Добавление таблицы направления-пользователи</comment>
     </changeSet>
 
 </databaseChangeLog>

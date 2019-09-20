@@ -25,6 +25,7 @@ public class CourseController {
         this.courseService = courseService;
     }
 
+    //Возвращает страницу с направлениями
     @GetMapping()
     public ModelAndView allCourses(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("courses");
@@ -32,19 +33,21 @@ public class CourseController {
         return modelAndView;
     }
 
+    //Возвращает страницу добавления направления
     @GetMapping(value = "/add")
     public ModelAndView addCourse() {
         ModelAndView modelAndView = new ModelAndView("course-add");
-
         return modelAndView;
     }
 
+    //Обработка формы добавления нового направления
     @PostMapping(value = "/add")
     public String addCourse(@RequestParam("courseName") String courseName) {
         courseService.add(new Course(courseName));
         return "redirect:/courses";
     }
 
+    //Обработка формы обновления направления
     @PostMapping(value = "/update")
     public String updateCourse(@RequestParam("courseId") Long id,
                                @RequestParam("courseName") String courseName) {
@@ -54,6 +57,7 @@ public class CourseController {
         return "redirect:/courses";
     }
 
+    //Обработка формы удаления направления
     @PostMapping(value = "/delete")
     public String deleteCourse(@RequestParam("delete") Long courseId) {
         courseService.delete(courseId);
