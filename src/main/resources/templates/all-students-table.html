@@ -37,7 +37,7 @@
             <div class="row" id="courses_filter">
                 <div class="col-xs-1" th:each="course : ${courses}" th:id="${course.name}">
                     <input th:id="'course_' + ${course.name}" th:value="${course.id}" class="checkbox" type="checkbox"/>
-                    <label class="control-label" th:for="${course.name}" th:text="${course.name}"></label>
+                    <label class="control-label" th:for="'course_' + ${course.name}" th:text="${course.name}"></label>
                 </div>
             </div>
             <br />
