@@ -31,3 +31,4 @@ nbdist/
 /DownloadData
 /CallRecords/
 
+"src/test/resources/dump.sql" 
