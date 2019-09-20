@@ -36,8 +36,8 @@
             <!--checkboxes фильтра по направлениям-->
             <div class="row" id="courses_filter">
                 <div class="col-xs-1" th:each="course : ${courses}" th:id="${course.name}">
+                    <input th:id="'course_' + ${course.name}" th:value="${course.id}" class="checkbox" type="checkbox"/>
                     <label class="control-label" th:for="${course.name}" th:text="${course.name}"></label>
-                    <input th:id="'course_' + ${course.name}" th:value="${course.id}" class="checkbox" type="checkbox"/> <!--th:checked="${#strings.contains(filters,course.name)}"-->
                 </div>
             </div>
             <br />
