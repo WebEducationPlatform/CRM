@@ -22,6 +22,19 @@ function clientsSearch() {
     });
 }
 
+function statusesSearch() {
+    $("#search-statuses").keyup(function () {
+        _this = this;
+        $.each($("#table-hidden-statuses tbody tr"), function () {
+            if ($(this).text().toLowerCase().replace('показать', "").indexOf($(_this).val().toLowerCase()) === -1) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+    });
+}
+
 //Заготовка главной функции для отрисовки Доски на клиенте
 $(document).ready(function renderMainClientTable () {
 
