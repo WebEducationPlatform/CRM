@@ -199,7 +199,7 @@ public class StudentDto {
      * @param student - принимаемый студент,
      * @return - возвращаемый студент.
      */
-    public static StudentDto getStudentDtoForAllStudentDto(Student student) {
+    public static StudentDto getStudentDtoForAllStudentsPage(Student student) {
         StudentDto studentDto = new StudentDto();
 
         studentDto.id = student.getId();
@@ -221,10 +221,10 @@ public class StudentDto {
         return studentDto;
     }
 
-    public static List<StudentDto> getStudentDtoForAllStudentDto(List<Student> students) {
+    public static List<StudentDto> getStudentDtoForAllStudentsPage(List<Student> students) {
         return students
                 .stream()
-                .map(StudentDto::getStudentDtoForAllStudentDto)
+                .map(StudentDto::getStudentDtoForAllStudentsPage)
                 .collect(Collectors.toList());
     }
 }
