@@ -1068,3 +1068,11 @@ textarea[class*="feedback-video-url"] {
 #status-as-columns {
 	height: 10px;
 }
+
+.error-page {
+	position: absolute;
+	left: 50%;
+	top: 30%;
+	transform: translate(-50%, -50%);
+	font-size: 110pt;
+}
