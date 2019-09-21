@@ -144,9 +144,9 @@ public class StatusRestController {
                 clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
                 clientService.updateClient(currentClient);
                 notificationService.deleteNotificationsByClient(currentClient);
-                //Отправка сообщения клиенту при смене статуса--------------------
-                sendNotificationClientChangeStatus(currentClient, userFromSession);
-                //------------------------------------------------------------------
+//                //Отправка сообщения клиенту при смене статуса--------------------
+//                sendNotificationClientChangeStatus(currentClient, userFromSession);
+//                //------------------------------------------------------------------
                 logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
                 return ResponseEntity.ok().build();
             }
@@ -154,26 +154,26 @@ public class StatusRestController {
         }
         clientService.updateClient(currentClient);
         notificationService.deleteNotificationsByClient(currentClient);
-        //Отправка сообщения клиенту при смене статуса--------------------
-        sendNotificationClientChangeStatus(currentClient, userFromSession);
-        //------------------------------------------------------------------
+//        //Отправка сообщения клиенту при смене статуса--------------------
+//        sendNotificationClientChangeStatus(currentClient, userFromSession);
+//        //------------------------------------------------------------------
         logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
         return ResponseEntity.ok().build();
     }
 
     //Метод отправки сообщения по шаблону
-    private void sendNotificationClientChangeStatus(Client currentClient,
-                                                    User userFromSession) {
-        MessageTemplate messageTemplate = messageTemplateService.get(currentClient.getStatus().getTemplateId());
-        if (messageTemplate != null) {
-            String templateText = messageTemplate.getTemplateText();
-            String theme = messageTemplate.getTheme();
-            mailSendService.prepareAndSend(currentClient.getId(), templateText, templateText, userFromSession, theme);
-            logger.info("Status change message sent: Client id : " + currentClient.getId());
-        } else {
-            logger.info("Message not sent. Assign a template to the status to send a message to the client about the status change.");
-        }
-    }
+//    private void sendNotificationClientChangeStatus(Client currentClient,
+//                                                    User userFromSession) {
+//        MessageTemplate messageTemplate = messageTemplateService.get(currentClient.getStatus().getTemplateId());
+//        if (messageTemplate != null) {
+//            String templateText = messageTemplate.getTemplateText();
+//            String theme = messageTemplate.getTheme();
+//            mailSendService.prepareAndSend(currentClient.getId(), templateText, templateText, userFromSession, theme);
+//            logger.info("Status change message sent: Client id : " + currentClient.getId());
+//        } else {
+//            logger.info("Message not sent. Assign a template to the status to send a message to the client about the status change.");
+//        }
+//    }
 
     @PostMapping(value = "/client/delete")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
@@ -259,5 +259,14 @@ public class StatusRestController {
             in++;
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/message_template/{statusId}")
+    public ResponseEntity<MessageTemplate> getAllMessageTemplates(@PathVariable("statusId") Long statusId) {
+        MessageTemplate messageTemplate = messageTemplateService.get(statusService.get(statusId).get().getTemplateId());
+        if (messageTemplate == null) {
+            messageTemplate = new MessageTemplate();
+        }
+        return new ResponseEntity<>(messageTemplate, HttpStatus.OK);
     }
 }
