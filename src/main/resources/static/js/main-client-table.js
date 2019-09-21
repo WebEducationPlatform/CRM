@@ -213,8 +213,11 @@ function drawVerifiedUsersTable() {
     //Очистка содержимого таблицы после ключевого элемента
     element.nextAll().remove();
     if (verifiedUsers.length !=0) {
+        // Строка поиска по сотрудникам
+        trHTML += "<tr><td colspan='2'><input class='form-control clearable' id='searchInput' placeholder='Поиск...' /></td></tr>";
         for (let i = 0; i < verifiedUsers.length; i++) {
             if (verifiedUsers[i].enabled) {
+                // console.log(verifiedUsers[i]);
                 trHTML += "<tr><td>" + verifiedUsers[i].firstName +
                     " " + verifiedUsers[i].lastName + "</td>";
             } else {
@@ -240,6 +243,42 @@ function drawVerifiedUsersTable() {
         element.after("<p>Пусто</p>");
     }
 }
+
+
+//Отображать только сотрудников, соответствующих результатам поиска
+function showUserMatchCondition() {
+    $('#searchInput').keyup(function(eventObject){
+
+    });
+}
+
+// $(document).ready(function () {
+//     console.log("1 step");
+//     $("#searchInput_test").keyup(function () {
+//         console.log("2 step");
+//         const value = $(this).val().toLowerCase();
+//         console.log(value);
+//         // $("#table-body").find("tr").filter(function () {
+//         //     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+//         // });
+//     });
+// });
+// /*Поиск в таблице*/
+// $(document).ready(function () {
+//     $("#searchInput_test").keyup(function () {
+//         _this = this;
+//         console.log(_this);
+//         console.log(this);
+//
+//         // $.each($("#test_test tr"), function () {
+//         //     if ($(this).text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
+//         //         $(this).hide();
+//         //     } else {
+//         //         $(this).show();
+//         //     }
+//         // });
+//     });
+// });
 
 //Заполняем таблицу новых (неверифицированных) пользователей
 function drawNewUsersTable() {

@@ -145,6 +145,7 @@ $(document).ready(function () {
                     drawHiddenStatusesTable();
                     drawVerifiedUsersTable();
                     drawNewUsersTable();
+                    showUserMatchCondition(); //Отображать только сотрудников, соответствующих результатам поиска
                 }
             };
             var hidePanel = function () {
