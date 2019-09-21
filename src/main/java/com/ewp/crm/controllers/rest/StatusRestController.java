@@ -39,13 +39,15 @@ public class StatusRestController {
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private final RoleService roleService;
     private final UserStatusService userStatusService;
+    private final SendNotificationService sendNotificationService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
                                 ClientHistoryService clientHistoryService, NotificationService notificationService,
                                 StudentService studentService, StudentStatusService studentStatusService,
                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService,
-                                RoleService roleService, UserStatusService userStatusService) {
+                                RoleService roleService, UserStatusService userStatusService,
+                                SendNotificationService sendNotificationService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -55,6 +57,7 @@ public class StatusRestController {
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.roleService = roleService;
         this.userStatusService = userStatusService;
+        this.sendNotificationService = sendNotificationService;
     }
 
     @GetMapping
@@ -137,6 +140,7 @@ public class StatusRestController {
                 clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
                 clientService.updateClient(currentClient);
                 notificationService.deleteNotificationsByClient(currentClient);
+                sendNotificationService.sendNotificationsEditStatus(currentClient, currentClient.getStatus());
                 logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
                 return ResponseEntity.ok().build();
             }
@@ -144,6 +148,7 @@ public class StatusRestController {
         }
         clientService.updateClient(currentClient);
         notificationService.deleteNotificationsByClient(currentClient);
+        sendNotificationService.sendNotificationsEditStatus(currentClient, currentClient.getStatus());
         logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
         return ResponseEntity.ok().build();
     }
@@ -196,6 +201,19 @@ public class StatusRestController {
         if (status.isPresent()) {
             status.get().setCreateStudent(create);
             statusService.update(status.get());
+            return HttpStatus.OK;
+        }
+        return HttpStatus.NOT_FOUND;
+    }
+
+    @PostMapping(value = "/send-notifications")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public HttpStatus sendNotifications(@RequestParam("id") Long id,
+                                        @RequestParam("send") Boolean send,
+                                        @AuthenticationPrincipal User currentUser) {
+        UserStatus userStatus = userStatusService.getUserStatus(currentUser.getId(), id);
+        if (userStatus != null) {
+              userStatusService.updateUserStatusNotifications(currentUser.getId(), id, send);
             return HttpStatus.OK;
         }
         return HttpStatus.NOT_FOUND;

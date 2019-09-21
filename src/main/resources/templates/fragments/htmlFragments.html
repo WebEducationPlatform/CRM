@@ -157,6 +157,16 @@
                                         </li>
                                     </th:block>
                                     <th:block
+                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).EDIT_STATUS}">
+                                        <li th:class="'menu' + ${notification.client.id}">
+                                            <a data-toggle="modal" class="link-cursor-pointer notify"
+                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:text="${'У клиента - ' + notification.client.name + ' ' + notification.client.lastName + ' статус изменился на ' + notification.information}">
+                                            </a>
+                                        </li>
+                                    </th:block>
+                                    <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
