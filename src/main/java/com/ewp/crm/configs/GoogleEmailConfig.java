@@ -6,7 +6,6 @@ import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MailSendService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.util.converters.IncomeStringToClient;
@@ -60,7 +59,6 @@ public class GoogleEmailConfig {
     private final ClientHistoryService clientHistoryService;
     private final MailSendService prepareAndSend;
     private final ProjectPropertiesService projectPropertiesService;
-    private final SendNotificationService sendNotificationService;
     private final UserService userService;
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
@@ -71,14 +69,12 @@ public class GoogleEmailConfig {
                              ClientService clientService, StatusService statusService,
                              IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService,
                              ProjectPropertiesService projectPropertiesService,
-                             SendNotificationService sendNotificationService, Environment env,
-                             UserService userService) {
+                             Environment env, UserService userService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
         this.incomeStringToClient = incomeStringToClient;
         this.prepareAndSend = prepareAndSend;
-        this.sendNotificationService = sendNotificationService;
         this.userService = userService;
 
         login = mailConfig.getLogin();
@@ -194,15 +190,7 @@ public class GoogleEmailConfig {
                             userService.getUserToOwnCard(routeType).ifPresent(client::setOwnerUser);
 
                             clientService.addClient(client, null);
-                            if (parser.getSubject().contains("java-mentor")) {
-                                sendNotificationService.sendNewClientNotification(client, "Java-mentor");
-                            } else if (parser.getSubject().contains("javalearn")) {
-                                sendNotificationService.sendNewClientNotification(client, "Java-learn");
-                            } else if (parser.getSubject().contains("jslearn")) {
-                                sendNotificationService.sendNewClientNotification(client, "JS-learn");
-                            } else {
-                                sendNotificationService.sendNewClientNotification(client, "gmail");
-                            }
+
                             if (sendAutoAnswer && template != null) {
                                 prepareAndSend.sendEmailInAllCases(client);
                             } else {

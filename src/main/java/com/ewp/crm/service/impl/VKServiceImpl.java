@@ -221,6 +221,7 @@ public class VKServiceImpl implements VKService {
                 "&response_type=token";
     }
 
+    // Позволяет получить URL, сокращенный с помощью vk.cc
     @Override
     public Optional<String> getShortLinkForUrl(String url) {
         String uriGetShortLink = vkApi + "utils.getShortLink" +
