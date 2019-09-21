@@ -47,6 +47,7 @@ public class AdminRestStatusController {
 			status.get().setTrialOffset(newStatus.getTrialOffset());
 			status.get().setNextPaymentOffset(newStatus.getNextPaymentOffset());
 			status.get().setRole(newStatus.getRole());
+			status.get().setTemplateId(newStatus.getTemplateId());
 			statusService.update(status.get());
 			logger.info("{} has updated status {}", currentAdmin.getFullName(), newStatus.getName());
 			return ResponseEntity.ok().build();

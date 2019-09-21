@@ -5,7 +5,7 @@
 </head>
 <body>
 
-<th:block th:fragment="listStatus (statuses)">
+<th:block th:fragment="listStatus (statuses, emailTmpl)">
     <div th:id="'status-column'+${status.id}"
          class="column" th:each="status : ${statuses}"
          th:value="${status.id}"

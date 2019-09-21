@@ -24,7 +24,7 @@
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
 
         <!--Цикл отрисовки статусов-->
-        <div th:replace="fragments/list-status::listStatus (${statuses})"></div>
+        <div th:replace="fragments/list-status::listStatus (${statuses}, ${emailTmpl})"></div>
 
         <div class="create-new-status-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
