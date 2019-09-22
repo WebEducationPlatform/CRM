@@ -47,7 +47,7 @@ public class StudentDto {
     private boolean notifySMS = false;
     private boolean notifyVK = false;
     private boolean notifySlack = false;
-    private StudentStatus studentStatus;
+    private StudentStatusDto studentStatusDto;
 
     public StudentDto() {
     }
@@ -65,7 +65,7 @@ public class StudentDto {
                       boolean notifySMS,
                       boolean notifyVK,
                       boolean notifySlack,
-                      StudentStatus studentStatus) {
+                      StudentStatusDto studentStatusDto) {
         this.id = id;
         this.clientDtoForAllStudentsPage = clientDtoForAllStudentsPage;
         this.notes = notes;
@@ -79,7 +79,7 @@ public class StudentDto {
         this.notifySMS = notifySMS;
         this.notifyVK = notifyVK;
         this.notifySlack = notifySlack;
-        this.studentStatus = studentStatus;
+        this.studentStatusDto = studentStatusDto;
     }
 
     public long getId() {
@@ -186,12 +186,12 @@ public class StudentDto {
         this.notifySlack = notifySlack;
     }
 
-    public StudentStatus getStudentStatus() {
-        return studentStatus;
+    public StudentStatusDto getStudentStatusDto() {
+        return studentStatusDto;
     }
 
-    public void setStudentStatus(StudentStatus studentStatus) {
-        this.studentStatus = studentStatus;
+    public void setStudentStatusDto(StudentStatus studentStatus) {
+        this.studentStatusDto = studentStatusDto;
     }
 
     /**
@@ -216,7 +216,7 @@ public class StudentDto {
         studentDto.notifySMS = student.isNotifySMS();
         studentDto.notifyVK = student.isNotifyVK();
         studentDto.notifySlack = student.isNotifySlack();
-        studentDto.studentStatus = student.getStatus();
+        studentDto.studentStatusDto = StudentStatusDto.getStudentStatusDto(student.getStatus());
 
         return studentDto;
     }
