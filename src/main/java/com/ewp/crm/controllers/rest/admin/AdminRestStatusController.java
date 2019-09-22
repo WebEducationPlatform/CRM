@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 @RequestMapping("/rest/admin/status")
 public class AdminRestStatusController {
 

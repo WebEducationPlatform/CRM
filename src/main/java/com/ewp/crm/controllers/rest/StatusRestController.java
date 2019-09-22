@@ -80,7 +80,6 @@ public class StatusRestController {
     }
 
     @GetMapping(value = "/all/invisible")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession) {
         List<Role> sessionRoles = userFromSession.getRole();
         Role role = roleService.getRoleByName(ROLE_NAME_USER);
