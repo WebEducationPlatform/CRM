@@ -47,8 +47,7 @@ public class ProjectPropertiesRestController {
                                               @RequestParam(name = "paymentNotificationEnabled") Boolean paymentEnabled,
                                               @RequestParam(name = "trialMessageTemplate") Long trialTemplateId,
                                               @RequestParam(name = "trialNotificationTime") String trialTime,
-                                              @RequestParam(name = "trialNotificationEnabled") Boolean trialEnabled,
-                                              @RequestParam(name = "newClientMessageTemplate") Long newClientTemplateId) {
+                                              @RequestParam(name = "trialNotificationEnabled") Boolean trialEnabled) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (paymentTemplateId == null) {
             current.setPaymentMessageTemplate(null);
@@ -64,11 +63,6 @@ public class ProjectPropertiesRestController {
         }
         current.setTrialNotificationTime(LocalTime.parse(trialTime));
         current.setTrialNotificationEnabled(trialEnabled);
-        if (newClientTemplateId == null) {
-            current.setNewClientMessageTemplate(null);
-        } else {
-            current.setNewClientMessageTemplate(messageTemplateService.get(newClientTemplateId));
-        }
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }

@@ -2,7 +2,7 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.BatchSize;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -103,6 +103,10 @@ public class Status implements Serializable {
 	@OneToMany(mappedBy = "sortedStatusesId.statusId")
 	@Fetch(value = FetchMode.SUBSELECT)
 	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
+
+	@Column (name = "template_id")
+	@JsonProperty(value = "templateId")
+	private Long templateId = 0L;
 
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
@@ -228,5 +232,13 @@ public class Status implements Serializable {
 
 	public void setSortedStatuses(Set<SortedStatuses> sortedStatuses) {
 		this.sortedStatuses = sortedStatuses;
+	}
+
+	public Long getTemplateId() {
+		return templateId;
+	}
+
+	public void setTemplateId(Long templateId) {
+		this.templateId = templateId;
 	}
 }

@@ -69,7 +69,6 @@ public class NotificationRestController {
         List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
         notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
         notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
-        notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
         for (Notification notification : notifications) {
             if (notification.getType() == Notification.Type.POSTPONE) {
                 Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
@@ -90,7 +89,6 @@ public class NotificationRestController {
             notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
             notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
             notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
-            notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
             for (Notification notification : notifications) {
                 if (notification.getType() == Notification.Type.POSTPONE) {
                     Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
@@ -102,21 +100,6 @@ public class NotificationRestController {
             }
         }
         return clients;
-    }
-
-    @PostMapping(value = "/comment/cleanAllNewUserNotify")
-    public ResponseEntity markAsReadAllNewUserNotify(@AuthenticationPrincipal User userFromSession) {
-        if (userFromSession.isNewClientNotifyIsEnabled()) {
-            userFromSession.setNewClientNotifyIsEnabled(false);
-            List<Client> clients = clientService.getAllClients();
-            for (Client client : clients) {
-                notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
-            }
-        } else {
-            userFromSession.setNewClientNotifyIsEnabled(true);
-        }
-        userService.update(userFromSession);
-        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping(value = "/postpone/getAll")
