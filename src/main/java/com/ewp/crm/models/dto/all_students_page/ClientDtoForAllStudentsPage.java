@@ -29,20 +29,20 @@ public class ClientDtoForAllStudentsPage {
     private String phoneNumber;
     private StatusDto statusDto;
     private String email;
-    private List<SocialProfile> socialProfiles = new ArrayList<>();
+    private List<SocialNetworkDto> socialNetworkDtos = new ArrayList<>();
 
 
     public ClientDtoForAllStudentsPage() {
     }
 
-    public ClientDtoForAllStudentsPage(long id, String name, String lastName, String phoneNumber, StatusDto statusDto, String email, List<SocialProfile> socialProfiles) {
+    public ClientDtoForAllStudentsPage(long id, String name, String lastName, String phoneNumber, StatusDto statusDto, String email, List<SocialNetworkDto> socialNetworkDtos) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.statusDto = statusDto;
         this.email = email;
-        this.socialProfiles = socialProfiles;
+        this.socialNetworkDtos = socialNetworkDtos;
     }
 
     public long getId() {
@@ -93,12 +93,12 @@ public class ClientDtoForAllStudentsPage {
         this.statusDto = statusDto;
     }
 
-    public List<SocialProfile> getSocialProfiles() {
-        return socialProfiles;
+    public List<SocialNetworkDto> getSocialProfilesDto() {
+        return socialNetworkDtos;
     }
 
-    public void setSocialProfiles(List<SocialProfile> socialProfiles) {
-        this.socialProfiles = socialProfiles;
+    public void setSocialProfiles(List<SocialNetworkDto> socialNetworkDtos) {
+        this.socialNetworkDtos = socialNetworkDtos;
     }
 
     /**
@@ -118,7 +118,7 @@ public class ClientDtoForAllStudentsPage {
         Optional<String> phoneNumberOptional = client.getPhoneNumber();
         clientDtoForAllStudentsPage.phoneNumber = phoneNumberOptional.orElse(Constants.EMPTY_STRING);
 
-        clientDtoForAllStudentsPage.socialProfiles = client.getSocialProfiles();
+        clientDtoForAllStudentsPage.socialNetworkDtos = SocialNetworkDto.getSocialNetworkDtos(client.getSocialProfiles());
         clientDtoForAllStudentsPage.statusDto = StatusDto.getStatusDto(client.getStatus());
 
         return clientDtoForAllStudentsPage;
