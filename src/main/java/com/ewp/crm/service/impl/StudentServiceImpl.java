@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
+import com.ewp.crm.models.dto.all_students_page.StudentDto;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
@@ -108,5 +109,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     public Student getStudentByEmail(String email) {
         return studentRepository.getStudentByEmail(email);
     }
+
+    @Override
+    public List<StudentDto> getStudentDtoForAllStudentsPage() {
+        return studentRepositoryCustom.getStudentDtoForAllStudentsPage();
+    }
+
 
 }
