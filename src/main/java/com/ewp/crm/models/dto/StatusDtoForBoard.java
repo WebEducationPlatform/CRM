@@ -21,6 +21,7 @@ public class StatusDtoForBoard {
     private Integer trialOffset = 0;
     private Integer nextPaymentOffset = 0;
     private Set<SortedStatuses> sortedStatuses = new HashSet<>();
+    private Long templateId = 0L;
 
     public StatusDtoForBoard() {
     }
@@ -33,7 +34,8 @@ public class StatusDtoForBoard {
                              Long position,
                              List<Role> role,
                              Integer trialOffset,
-                             Integer nextPaymentOffset) {
+                             Integer nextPaymentOffset,
+                             Long templateId) {
         this.id = id;
         this.name = name;
         this.isInvisible = isInvisible;
@@ -43,6 +45,7 @@ public class StatusDtoForBoard {
         this.role = role;
         this.trialOffset = trialOffset;
         this.nextPaymentOffset = nextPaymentOffset;
+        this.templateId = templateId;
     }
 
     public Long getId() {
@@ -125,6 +128,14 @@ public class StatusDtoForBoard {
         this.sortedStatuses = sortedStatuses;
     }
 
+    public Long getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
+    }
+
     public static StatusDtoForBoard getStatusDto(Status status) {
 
         StatusDtoForBoard statusDtoForBoard = new StatusDtoForBoard();
@@ -139,6 +150,7 @@ public class StatusDtoForBoard {
         statusDtoForBoard.trialOffset = status.getTrialOffset();
         statusDtoForBoard.nextPaymentOffset = status.getNextPaymentOffset();
         statusDtoForBoard.sortedStatuses = status.getSortedStatuses();
+        statusDtoForBoard.templateId = status.getTemplateId();
 
         return statusDtoForBoard;
     }

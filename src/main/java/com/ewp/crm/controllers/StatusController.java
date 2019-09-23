@@ -145,6 +145,7 @@ public class StatusController {
         List<Notification> notificationsTypePostpone;
     }
 
+    //Формирование колонки с одним статусом
     @GetMapping(value = "/get/{id}")
     public String showStatus(
             Model model,
@@ -155,9 +156,8 @@ public class StatusController {
         if (!(optional.isPresent())) {
             return "";
         }
-        Status status = optional.get();
-        model.addAttribute("statuses", status);
-
+        model.addAttribute("statuses", optional.get());
+        model.addAttribute("emailTmpl", messageTemplateService.getAll());
         return "fragments/list-status::listStatus";
     }
 
