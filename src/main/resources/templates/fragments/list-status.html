@@ -41,19 +41,19 @@
                             </li>
                         </ul>
                     </li>
-                    <th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+                    <th:block>
                         <li th:if="${status.id!=1}" class="delete-status-icon">
                             <a class="glyphicon glyphicon-remove-circle"
-                               data-toggle="modal" th:value="${status.id}">&nbsp;Удалить статус</a>
+                               data-toggle="modal" th:value="${status.id}" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">&nbsp;Удалить статус</a>
                         </li>
                         <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit"
                                data-toggle="modal"
-                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">&nbsp;Изменить статус</a>
+                               th:attrappend="data-target='#renameStatusModal' + ${status.id}" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">&nbsp;Изменить статус</a>
                         </li>
                         <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
                                th:value="${status.id}" onclick='hideStatusWithClients(this)'>&nbsp;Скрыть</a>
                         </li>
-                        <li><a class="link-cursor-pointer glyphicon glyphicon-user">&nbsp;Сделать студентом <input
+                        <li><a class="link-cursor-pointer glyphicon glyphicon-user" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">&nbsp;Сделать студентом <input
                                 class="create_student_checkbox"
                                 type="checkbox"
                                 th:value="${status.id}"
@@ -71,12 +71,12 @@
 
             <!--Изменение размера шрифта в зависимости от длины имени статуса-->
             <div style="height: 25px">
-                <span th:text="${status.name} + ' ' + ${#lists.size(status.clients)}" th:if="${status.name.length() &lt; 15}"
+                <span th:text="${status.name} + ' (' + ${#lists.size(status.clients)} + ')'" th:if="${status.name.length() &lt; 15}"
                       style="font-size:20px"></span>
-                <span th:text="${status.name} + ' ' + ${#lists.size(status.clients)}"
+                <span th:text="${status.name} + ' (' + ${#lists.size(status.clients)} + ')'"
                       th:if="${status.name.length() &gt; 15 and status.name.length() &lt; 25}"
                       style="font-size:15px"></span>
-                <span th:text="${status.name} + ' ' + ${#lists.size(status.clients)}" th:if="${status.name.length() &gt; 25}"
+                <span th:text="${status.name} + ' (' + ${#lists.size(status.clients)} + ')'" th:if="${status.name.length() &gt; 25}"
                       style="font-size:13px"></span>
             </div>
         </div>
