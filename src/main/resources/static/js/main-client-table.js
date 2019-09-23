@@ -1,4 +1,4 @@
-var invisibleStatuses, emailTmpl, verifiedUsers, newUsers, mentors, usersWithoutMentors;
+var invisibleStatuses, emailTmpl, verifiedUsers, newUsers, mentors, usersWithoutMentors, srchStr;
 
 //Search clients in main
 function clientsSearch() {
@@ -214,7 +214,6 @@ function drawVerifiedUsersTable() {
     element.nextAll().remove();
     if (verifiedUsers.length !=0) {
         // Строка поиска по сотрудникам
-        trHTML += "<tr><td colspan='2'><input class='form-control clearable' id='searchInput' placeholder='Поиск...' /></td></tr>";
         for (let i = 0; i < verifiedUsers.length; i++) {
             if (verifiedUsers[i].enabled) {
                 // console.log(verifiedUsers[i]);
@@ -247,38 +246,21 @@ function drawVerifiedUsersTable() {
 
 //Отображать только сотрудников, соответствующих результатам поиска
 function showUserMatchCondition() {
-    $('#searchInput').keyup(function(eventObject){
-
+    $('#searchInput').keyup(function(){
+        srchStr = this.value.toLowerCase();
+        $("#tbl-verified-users tr").each(function() {
+            if ($(this).text().toLowerCase().startsWith(srchStr)){
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+        console.log(srchStr);
     });
 }
 
-// $(document).ready(function () {
-//     console.log("1 step");
-//     $("#searchInput_test").keyup(function () {
-//         console.log("2 step");
-//         const value = $(this).val().toLowerCase();
-//         console.log(value);
-//         // $("#table-body").find("tr").filter(function () {
-//         //     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-//         // });
-//     });
-// });
-// /*Поиск в таблице*/
-// $(document).ready(function () {
-//     $("#searchInput_test").keyup(function () {
-//         _this = this;
-//         console.log(_this);
-//         console.log(this);
-//
-//         // $.each($("#test_test tr"), function () {
-//         //     if ($(this).text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
-//         //         $(this).hide();
-//         //     } else {
-//         //         $(this).show();
-//         //     }
-//         // });
-//     });
-// });
+// if ($(this).text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
+// $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
 
 //Заполняем таблицу новых (неверифицированных) пользователей
 function drawNewUsersTable() {
