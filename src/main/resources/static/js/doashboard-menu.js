@@ -143,7 +143,6 @@ $(document).ready(function () {
                 fillFilterList();
                 if (userLoggedIn.authorities.some(arrayEl => (arrayEl.authority === 'OWNER') || (arrayEl.authority === 'ADMIN') || (arrayEl.authority === 'HR'))) {
                     drawHiddenStatusesTable();
-                    drawVerifiedUsersTable();
                     drawNewUsersTable();
                     showUserMatchCondition(); //Отображать только сотрудников, соответствующих результатам поиска
                 }
