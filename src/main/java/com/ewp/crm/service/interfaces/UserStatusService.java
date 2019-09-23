@@ -25,4 +25,6 @@ public interface UserStatusService {
     List<UserStatus> getAll();
 
     void addStatusForUser(Long id, Long id1, boolean b, Long l);
+
+    void updateUserStatusNotifications(Long user_id, Long status_id, boolean send_notifications);
 }

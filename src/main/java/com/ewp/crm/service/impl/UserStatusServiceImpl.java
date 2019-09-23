@@ -63,4 +63,10 @@ public class UserStatusServiceImpl implements UserStatusService {
     public List<UserStatus> getAll() {
         return userStatusDAO.getAll();
     }
+
+    @Override
+    public void updateUserStatusNotifications(Long user_id, Long status_id, boolean send_notifications){
+        userStatusDAO.updateUserStatusNotifications(user_id, status_id, send_notifications);
+    }
+
 }
