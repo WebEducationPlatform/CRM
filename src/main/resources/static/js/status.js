@@ -279,6 +279,18 @@ $(".create_student_checkbox").click(function () {
     });
 });
 
+//Set sendNotifications flag for send
+$(".send_notifications_checkbox").click(function () {
+    $.ajax({
+        type: 'POST',
+        url: "/rest/status/send-notifications",
+        data: {
+            id: this.value,
+            send: this.checked
+        }
+    });
+});
+
 function showAllStatuses() {
     let element = $('#all-statuses-positions-table tbody');
     $.ajax({

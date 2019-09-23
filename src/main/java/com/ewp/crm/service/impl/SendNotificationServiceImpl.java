@@ -1,19 +1,8 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.VKConfigImpl;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.MessageTemplate;
-import com.ewp.crm.models.Notification;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.SMSService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +38,24 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     private final VKService vkService;
 
+    private final UserStatusService userStatusService;
+
+    private final StatusService statusService;
+
     private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
 
     private Environment env;
 
+
     @Autowired
-    public SendNotificationServiceImpl(MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, Environment env, UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService, VKConfigImpl vkConfig) {
+    public SendNotificationServiceImpl(MessageTemplateService messageTemplateService,
+                                       ProjectPropertiesService projectPropertiesService,
+                                       Environment env, UserService userService,
+                                       MailSendService mailSendService,
+                                       NotificationService notificationService,
+                                       SMSService smsService, @Lazy VKService vkService,
+                                       VKConfigImpl vkConfig, UserStatusService userStatusService,
+                                       StatusService statusService) {
         this.userService = userService;
         this.mailSendService = mailSendService;
         this.notificationService = notificationService;
@@ -64,6 +65,20 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.serverUrl = env.getProperty("server.url");
         this.env = env;
+        this.userStatusService = userStatusService;
+        this.statusService = statusService;
+    }
+
+
+    @Override
+    public void sendNotificationsEditStatus(Client client, Status status){
+        logger.info("sending notification to edit status clients...");
+        List<User> usersToNotify = userService.getAll();
+        for (User user : usersToNotify) {
+            if (userStatusService.getUserStatus(user.getId(), status.getId()).getSendNotifications()) {
+                notificationService.add(new Notification(status.toString(), client, user, Notification.Type.EDIT_STATUS));
+            }
+        }
     }
 
     @Override

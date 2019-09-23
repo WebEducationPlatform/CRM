@@ -147,6 +147,16 @@
                                         </li>
                                     </th:block>
                                     <th:block
+                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).EDIT_STATUS}">
+                                        <li th:class="'menu' + ${notification.client.id}">
+                                            <a data-toggle="modal" class="link-cursor-pointer notify"
+                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:text="${'У клиента - ' + notification.client.name + ' ' + notification.client.lastName + ' статус изменился на ' + notification.information}">
+                                            </a>
+                                        </li>
+                                    </th:block>
+                                    <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
@@ -1033,6 +1043,16 @@
 <!--                    <th:block th:each="notification_comment:${notifications_type_comment}">-->
 <!--                        <th:block th:if="${notification_comment.client == client}">-->
 <!--                                   <span id="notification"-->
+
+<!--                                         class="notification glyphicon glyphicon-bell"-->
+<!--                                         style="color: red"></span>-->
+<!--                        </th:block>-->
+
+<!--                    </th:block>-->
+
+<!--                    <th:block th:each="notification_new_user:${notifications_type_new_user}">-->
+<!--                        <th:block th:if="${notification_new_user.client == client}">-->
+<!--                                   <span id="2у notification-new"-->
 
 <!--                                         class="notification glyphicon glyphicon-bell"-->
 <!--                                         style="color: red"></span>-->

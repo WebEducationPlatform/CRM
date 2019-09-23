@@ -102,4 +102,12 @@ public class UserStatusDAOImpl implements UserStatusDAO {
         return userStatusList;
     }
 
+    @Override
+    public void updateUserStatusNotifications(Long user_id, Long status_id, boolean send_notifications){
+        entityManager.createNativeQuery("update user_status set send_notifications = :send_notifications where user_id = :user_id and status_id = :status_id")
+                .setParameter("user_id", user_id)
+                .setParameter("status_id", status_id)
+                .setParameter("send_notifications", send_notifications)
+                .executeUpdate();
+    }
 }
