@@ -33,48 +33,53 @@
         <comment>table TEST creation for demonstration</comment>
     </changeSet>
 
-    <changeSet author="Sergey Kozionov" id="902.0">
+    <changeSet author="Eduard Nabiev" id="878">
         <sql>
-            CREATE TABLE `course` (
-            `course_id` bigint NOT NULL AUTO_INCREMENT,
-            `course_name` VARCHAR(255) NOT NULL,
-            PRIMARY KEY (`course_id`))
-            ENGINE = INNODB;
+            ALTER TABLE `crm`.`project_properties`
+            DROP FOREIGN KEY `fk4newclientmsgtempl`;
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            DROP COLUMN `new_client_message_template`,
+            DROP INDEX `FKghbjcdvjhk7x4e21i9gj68xbi` ;
+            ;
+            DELETE FROM `crm`.`message_template` WHERE name = 'Оповещение новая заявка';
+            ;
+            ALTER TABLE `crm`.`user`
+            DROP COLUMN `new_client_notify_is_enabled`;
+            ;
+            DELETE FROM crm.user_notification USING user_notification
+            WHERE user_notification.notification_id in (SELECT id FROM crm.notifications where type = 'NEW_USER');
+            ;
+            DELETE FROM crm.client_notification USING client_notification
+            WHERE client_notification.notification_id in (SELECT id FROM crm.notifications where type = 'NEW_USER');
+            ;
+            DELETE FROM crm.notifications where (type = 'NEW_USER' AND id != 0);
         </sql>
         <rollback>
-            DROP TABLE `course`;
+            INSERT INTO `crm`.`message_template`
+            (`name`, `other_text`, `template_text`, `theme`)
+            VALUES ('Оповещение новая заявка', 'Поступила новая заявка из %from% %link% %coordinator%', '<p>Поступила новая заявка из %from% %link% %coordinator%</p>', NULL);
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD COLUMN `new_client_message_template` BIGINT(20) NULL DEFAULT NULL AFTER `default_student_status`;
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD INDEX `FKghbjcdvjhk7x4e21i9gj68xbi` (`new_client_message_template` ASC);
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD CONSTRAINT `fk4newclientmsgtempl`
+            FOREIGN KEY (`new_client_message_template`)
+            REFERENCES `crm`.`message_template` (`id`)
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT;
+            ;
+            UPDATE `crm`.`project_properties`
+            SET `new_client_message_template` = (SELECT id FROM crm.message_template where name = 'Оповещение новая заявка') WHERE `id` = 1;
+            ;
+            ALTER TABLE `crm`.`user`
+            ADD COLUMN `new_client_notify_is_enabled` BIT(1) NULL DEFAULT NULL AFTER `last_name`;
         </rollback>
-        <comment>Добавление таблицы направлений</comment>
-    </changeSet>
-
-    <changeSet author="Sergey Kozionov" id="902.1">
-        <sql>
-            CREATE TABLE `courses_clients` (
-            `course_id` bigint NOT NULL,
-            `client_id` bigint NOT NULL,
-            CONSTRAINT FK_COURSE_US FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
-            CONSTRAINT FK_CLIENT FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE )
-            ENGINE = INNODB;
-        </sql>
-        <rollback>
-            DROP TABLE `courses_clients`;
-        </rollback>
-        <comment>Добавление таблицы направления-клиенты</comment>
-    </changeSet>
-
-    <changeSet author="Sergey Kozionov" id="902.2">
-        <sql>
-            CREATE TABLE `courses_users` (
-            `course_id` bigint NOT NULL,
-            `user_id` bigint NOT NULL,
-            CONSTRAINT FK_COURSE_CL FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
-            CONSTRAINT FK_USER FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE )
-            ENGINE = INNODB;
-        </sql>
-        <rollback>
-            DROP TABLE `courses_users`;
-        </rollback>
-        <comment>Добавление таблицы направления-пользователи</comment>
+        <comment>table TEST creation for demonstration</comment>
     </changeSet>
 
 </databaseChangeLog>

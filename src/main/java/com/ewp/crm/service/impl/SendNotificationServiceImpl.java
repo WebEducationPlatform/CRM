@@ -49,8 +49,6 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     private final VKService vkService;
 
-    private final String chatToNewClient;
-
     private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
 
     private Environment env;
@@ -65,50 +63,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         this.messageTemplateService = messageTemplateService;
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.serverUrl = env.getProperty("server.url");
-        this.chatToNewClient = vkConfig.getChatToSendNewClient();
         this.env = env;
-    }
-
-    @Override
-    public void sendNotificationsAllUsers(Client client) {
-        logger.info("sending notification to all clients...");
-        List<User> usersToNotify = userService.getAll();
-        for (User user : usersToNotify) {
-            if (user.isNewClientNotifyIsEnabled()) {
-                notificationService.add(new Notification(client, user, Notification.Type.NEW_USER));
-            }
-        }
-    }
-
-    @Override
-    public void sendNewClientNotification(Client client, String from) {
-        MessageTemplate template = projectProperties.getNewClientMessageTemplate();
-        if (template != null) {
-            String newClientUrl = serverUrl + "/client?id=" + client.getId();
-            Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
-            Map<String, String> params = new HashMap<>();
-            params.put("%from%", from + " c id=" + client.getId() + " ");
-            params.put("%link%", shortUrl.orElse(newClientUrl));
-            if(client.getOwnerUser() != null) {
-                String coordinatorName = client.getOwnerUser().getFullName();
-                String coordinator = String.format(env.getProperty("messaging.notification.new-client"),
-                        coordinatorName);
-                params.put("%coordinator%", coordinator);
-            } else {
-                params.put("%coordinator%", "");
-            }
-            String notificationMessage = messageTemplateService.replaceName(template.getOtherText(), params);
-            vkService.sendMessageByChatId(chatToNewClient, notificationMessage);
-            List<User> usersToNotify = userService.getAll();
-            for (User userToNotify : usersToNotify) {
-                if (userToNotify.isEnableMailNotifications()) {
-                    mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
-                }
-                if (userToNotify.isEnableSmsNotifications()) {
-                    smsService.sendSimpleSmsToUser(userToNotify, notificationMessage.replace("https://", ""));
-                }
-            }
-        }
     }
 
     @Override

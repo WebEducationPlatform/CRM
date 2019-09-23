@@ -148,16 +148,6 @@
                                         </li>
                                     </th:block>
                                     <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).NEW_USER}">
-                                        <li th:class="'menu' + ${notification.client.id}">
-                                            <a data-toggle="modal" class="link-cursor-pointer notify"
-                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
-                                               th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
-                                            </a>
-                                        </li>
-                                    </th:block>
-                                    <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
@@ -631,21 +621,19 @@
                             </tr>
                         </table>
 
-<!--                        Станислав Сорокин сказал что это не актуально-->
-<!--                        <div class="form-group" th:id="'checkbox_status_roles_' + ${status.id} "-->
-<!--                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">-->
-<!--                            <label th:for="'checkbox_status_roles_' + ${status.id} ">Роли</label>-->
-<!--                            <div th:id="'current_status_roles_' + ${status.id} ">-->
-<!--                                <span th:each="role : ${status.role}" th:value="${role.id}"></span>-->
-<!--                            </div>-->
-<!--                            <div class="checkbox" th:each="role : ${roles}">-->
-<!--                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}"-->
-<!--                                       th:value="${role.id}"/>-->
-<!--                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}"-->
-<!--                                       th:text="${role.roleName}"></label>-->
-<!--                            </div>-->
-<!--                        </div>-->
                     </div>
+
+                    <div class="form-group">
+                        <label>Шаблон для уведомления клиента при изменении статуса</label>
+                        <select class="form-control" th:id="'edit-status-template' + ${status.id}">
+                            <option id="0" value="0" selected="true">Выберите шаблон</option>
+                            <option th:each="template : ${emailTmpl}" th:value="${template.id}" th:id="'template' + ${status.id} + '-' + ${template.id}"
+                                    th:selected="${status.templateId == template.id}"
+                                    th:text="${template.name}">
+                            </option>
+                        </select>
+                    </div>
+
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"
                             th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить
@@ -1046,16 +1034,6 @@
 <!--                    <th:block th:each="notification_comment:${notifications_type_comment}">-->
 <!--                        <th:block th:if="${notification_comment.client == client}">-->
 <!--                                   <span id="notification"-->
-
-<!--                                         class="notification glyphicon glyphicon-bell"-->
-<!--                                         style="color: red"></span>-->
-<!--                        </th:block>-->
-
-<!--                    </th:block>-->
-
-<!--                    <th:block th:each="notification_new_user:${notifications_type_new_user}">-->
-<!--                        <th:block th:if="${notification_new_user.client == client}">-->
-<!--                                   <span id="2у notification-new"-->
 
 <!--                                         class="notification glyphicon glyphicon-bell"-->
 <!--                                         style="color: red"></span>-->

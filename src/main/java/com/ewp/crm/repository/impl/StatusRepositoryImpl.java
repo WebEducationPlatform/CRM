@@ -45,7 +45,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
         // Получаем все видимые статусы, которые доступны роли roleId, отсортированные по позиции
         List<Tuple> tupleStatuses = entityManager.createNativeQuery(
                 "SELECT s.status_id AS id, s.status_name AS name, us.is_invisible, s.create_student," +
-                        "us.position, s.trial_offset, s.next_payment_offset, ss.sorting_type " +
+                        "us.position, s.trial_offset, s.next_payment_offset, ss.sorting_type, s.template_id " +
                         "FROM status s left join sorted_statuses ss on ss.status_status_id = s.status_id " +
                         "and ss.user_user_id = :user_id, user_status us " +
                         "where us.status_id = s.status_id and us.user_id = :user_id " +
@@ -62,6 +62,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int trialOffset = (int) tuple.get("trial_offset");
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
             String sortingType = (String) tuple.get("sorting_type");
+            long templateId = tuple.get("template_id") == null ? 0L : ((BigInteger) tuple.get("template_id")).longValue();
 
             List<Role> statusRoles = entityManager.createQuery(
                     "SELECT s.role FROM Status s WHERE s.id = :statusId")
@@ -160,7 +161,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                     clients.add(newClientDto);
                 }
             }
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, statusRoles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, statusRoles, trialOffset, nextPaymentOffset, templateId));
 
         }
         logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);

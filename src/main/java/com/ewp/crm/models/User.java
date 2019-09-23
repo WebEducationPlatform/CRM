@@ -95,9 +95,6 @@ public class User implements UserDetails {
     @Column(name = "is_enabled") // включен, разрешен??? user-info.js, всегда false
     private boolean isEnabled;
 
-    @Column(name = "new_client_notify_is_enabled")
-    private boolean newClientNotifyIsEnabled = true;
-
     /**
      * ????????
      */
@@ -405,14 +402,6 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return isEnabled;
-    }
-
-    public boolean isNewClientNotifyIsEnabled() {
-        return newClientNotifyIsEnabled;
-    }
-
-    public void setNewClientNotifyIsEnabled(boolean newClientNotifyIsEnabled) {
-        this.newClientNotifyIsEnabled = newClientNotifyIsEnabled;
     }
 
     public String getStudentPageFilters() {
