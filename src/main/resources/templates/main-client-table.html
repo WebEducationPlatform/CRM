@@ -47,7 +47,7 @@
     </div>
 
     <!--Блок МЕНЮ-->
-    <div id="panel" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR','MENTOR')">
+    <div id="panel">
         <div id="panel-content">
             <div class="panel-group">
                 <div class="panel-title" style="position: fixed">
@@ -56,22 +56,23 @@
                 <div class="panel-title">
                     <h2>Меню</h2>
                 </div>
-                <div id="showOnlyMyClientsDiv" sec:authorize="hasAnyAuthority('MENTOR')">
-                </div>
-                <div id="statuses_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+
+                <div id="showOnlyMyClientsDiv" sec:authorize="hasAnyAuthority('MENTOR')"></div>
+
+                <div id="statuses_group">
                     <div class="panel-heading" id="statuses-heading">
                         <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
                            href="#collapseStatuses">Скрытые статусы</a>
                     </div>
                     <div id="collapseStatuses" class="panel-collapse collapse">
                         <div class="panel-body">
+                            <div class="search-place">
+                                <input id="search-statuses" type="text" class="form-control" name="search" placeholder="Search"/>
+                            </div>
                             <!--Таблица скрытых статусов, отрисовка на клиенте-->
                             <table class="table table-bordered" id="table-hidden-statuses">
                                 <tr style="display:none" id="tr-hidden-statuses">
-                                    <td></td>
-                                    <td>
-                                        <button type="button" class="show-status-btn btn" value="" onclick="showStatus()">Показать</button>
-                                    </td>
+
                                 </tr>
                             </table>
                         </div>
@@ -211,8 +212,9 @@
 <div th:replace="fragments/htmlFragments::sendTemplateModal"
      sec:authorize="hasAnyAuthority('MENTOR')"></div>
 
+<div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
+
 <th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
-    <div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
     <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
     <div th:replace="fragments/message-history::messageHistory"></div>
     <div th:replace="fragments/htmlFragments::reAvailableUser"></div>

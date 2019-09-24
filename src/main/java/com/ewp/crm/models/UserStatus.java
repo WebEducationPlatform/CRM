@@ -1,5 +1,8 @@
 package com.ewp.crm.models;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.integration.annotation.Default;
+
 import javax.persistence.*;
 
 @Entity
@@ -22,6 +25,10 @@ public class UserStatus {
 
     @Column(name = "position")
     private Long position;
+
+    @ColumnDefault(value = "0")
+    @Column(name = "send_notifications", nullable = false)
+    private Boolean sendNotifications = false;
 
     public Long getId() {
         return id;
@@ -61,5 +68,13 @@ public class UserStatus {
 
     public void setPosition(Long position) {
         this.position = position;
+    }
+
+    public Boolean getSendNotifications() {
+        return sendNotifications;
+    }
+
+    public void setSendNotifications(Boolean sendNotifications) {
+        this.sendNotifications = sendNotifications;
     }
 }

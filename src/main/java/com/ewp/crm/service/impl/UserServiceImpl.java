@@ -147,6 +147,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             userFromDb.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
             userFromDb.setIsVerified(user.isVerified());
             userFromDb.setEnabled(user.isEnabled());
+            userFromDb.setRowStatusDirection(user.getRowStatusDirection());
             if (user.getPassword().length() > 0) {
                 if (!user.getPassword().equals(userFromDb.getPassword())){
                     userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));

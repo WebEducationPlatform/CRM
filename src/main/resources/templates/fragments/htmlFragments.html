@@ -68,13 +68,13 @@
 <!--                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>-->
                     <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
                     <li class="nav-item dropdown">
-                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Сотрудники
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <li><a class="dropdown-item" href="/mentors">Менторы</a></li>
-                            <li><a class="dropdown-item" href="/hr/managers">Координаторы</a></li>
+                            <li><a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/managers">Координаторы</a></li>
                         </ul>
                     </li>
                     <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
@@ -144,6 +144,16 @@
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
                                                th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
                                                th:text="${'Отложенный клиент ' + notification.client.name + ' ' + notification.client.lastName} + ' возвращен на доску'">
+                                            </a>
+                                        </li>
+                                    </th:block>
+                                    <th:block
+                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).EDIT_STATUS}">
+                                        <li th:class="'menu' + ${notification.client.id}">
+                                            <a data-toggle="modal" class="link-cursor-pointer notify"
+                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:text="${'У клиента - ' + notification.client.name + ' ' + notification.client.lastName + ' статус изменился на ' + notification.information}">
                                             </a>
                                         </li>
                                     </th:block>
@@ -1034,6 +1044,16 @@
 <!--                    <th:block th:each="notification_comment:${notifications_type_comment}">-->
 <!--                        <th:block th:if="${notification_comment.client == client}">-->
 <!--                                   <span id="notification"-->
+
+<!--                                         class="notification glyphicon glyphicon-bell"-->
+<!--                                         style="color: red"></span>-->
+<!--                        </th:block>-->
+
+<!--                    </th:block>-->
+
+<!--                    <th:block th:each="notification_new_user:${notifications_type_new_user}">-->
+<!--                        <th:block th:if="${notification_new_user.client == client}">-->
+<!--                                   <span id="2у notification-new"-->
 
 <!--                                         class="notification glyphicon glyphicon-bell"-->
 <!--                                         style="color: red"></span>-->
