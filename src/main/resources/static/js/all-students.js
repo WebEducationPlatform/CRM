@@ -48,7 +48,7 @@ $('.checkbox').click(function() {
     $.ajax({
         async: true,
         type: 'POST',
-        url: '/admin/rest/user/filters',
+        url: '/rest/admin/user/filters',
         data: {'filters' : json}
     });
     calc_info_values();
@@ -319,17 +319,6 @@ $('.trial-date-btn').on('click', function () {
     changeDateValue(field, id, 'trialEndDateValue_', 'trial-end-date_');
     updateStudent(id);
     return false;
-});
-
-$('#additional-data-clickable-zone').on('click', function () {
-    $('#additional-data').addClass('hidden');
-    $('#show-additional-info-button').removeClass('hidden');
-});
-
-$('#show-additional-info-button').on('click', function () {
-    calc_info_values();
-    $('#additional-data').removeClass('hidden');
-    $('#show-additional-info-button').addClass('hidden');
 });
 
 $('.payment-date-btn').on('click', function () {

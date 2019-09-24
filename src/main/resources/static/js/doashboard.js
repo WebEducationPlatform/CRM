@@ -8,6 +8,7 @@ $(document).ready(function () {
     getUserLoggedIn(true);
     get_us();
     clientsSearch();
+    statusesSearch();
 
     //Отслеживаем нажатие клавиши Enter при создании нового статуса
     $("#new-status-name").keypress(function (e) {
@@ -56,21 +57,30 @@ $(document).ready(function () {
     }, 'show');
 });
 
+function drawingClientsInStatus(statusId) {
+    $.get("/rest/client/order", {statusId: statusId})
+        .done(function (order) {
+            $("#" + order + statusId).addClass("active");
+        });
+    let url = "/status/" + statusId;
+    $("#clients-for-status" + statusId).load(url, function() {
+        cardsMotion(this);
+    });
+}
+
 //Отрисовка карточек клиентов в статусах
 $(document).ready(function () {
+    showUsersInStatuses();
+});
+//Отрисовка карточек клиентов в статусах, как бы тоже самое, что и сверху,
+// вытащил изнутри, чтобы превратить в отдельную функцию!
+function showUsersInStatuses() {
     let statuses = $(".column");
     for (var i = 0; i < statuses.length; i++) {
         let statusId = $(statuses[i]).attr("value");
-        $.get("/rest/client/order", {statusId: statusId})
-            .done(function (order) {
-                $("#" + order + statusId).addClass("active");
-            });
-        let url = "/status/" + statusId;
-        $("#clients-for-status" + statusId).load(url, function() {
-            cardsMotion(this);
-        });
+        drawingClientsInStatus(statusId);
     }
-});
+}
 
 //func responsible for the client's cards motion
 function cardsMotion(element) {
@@ -241,10 +251,11 @@ function assignMentor(id, user, principalId) {
 //Change status button
 function changeStatusName(id) {
 
-    let url = '/admin/rest/status/edit';
+    let url = '/rest/admin/status/edit';
     let statusName = $("#change-status-name" + id).val();
     let trial_offset = parseInt($("#trial_offset_" + id).val());
     let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
+    let templateId = $("#edit-status-template" + id ).find("option:selected").val();
 
     var $sel = $("#checkbox_status_roles_" + id ).find("input[type=checkbox]:checked");
     var stRoles = [];
@@ -262,6 +273,7 @@ function changeStatusName(id) {
         name: statusName,
         trialOffset: trial_offset,
         nextPaymentOffset: next_payment_offset,
+        templateId: templateId,
         role: stRoles
     };
 

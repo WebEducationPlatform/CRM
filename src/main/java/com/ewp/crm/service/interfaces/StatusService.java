@@ -50,7 +50,7 @@ public interface StatusService {
 
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
 
-    List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
+    List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible(User user);
 
     Optional<Status> findStatusWithSortedClientsByUser(Long statusId, User userFromSession);
 

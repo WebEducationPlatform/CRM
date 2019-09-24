@@ -9,7 +9,6 @@ import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.UserService;
@@ -31,7 +30,6 @@ import java.util.Optional;
 public class WhatsappWebhook {
 
     private final ClientService clientService;
-    private final SendNotificationService sendNotificationService;
     private final WhatsappMessageService whatsappMessageService;
     private final StatusService statusService;
     private final SocialProfileService socialProfileService;
@@ -40,12 +38,10 @@ public class WhatsappWebhook {
     private Environment env;
 
     @Autowired
-    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService,
-                           WhatsappMessageService whatsappMessageService, StatusService statusService,
-                           SocialProfileService socialProfileService, ClientHistoryService clientHistoryService,
-                           Environment env, UserService userService) {
+    public WhatsappWebhook(ClientService clientService, WhatsappMessageService whatsappMessageService,
+                           StatusService statusService, SocialProfileService socialProfileService,
+                           ClientHistoryService clientHistoryService, Environment env, UserService userService) {
         this.clientService = clientService;
-        this.sendNotificationService = sendNotificationService;
         this.whatsappMessageService = whatsappMessageService;
         this.statusService = statusService;
         this.socialProfileService = socialProfileService;
@@ -79,7 +75,6 @@ public class WhatsappWebhook {
                     newClient.addHistory(new ClientHistory(env.getProperty("messaging.client.history.add-from-whatsapp"), whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
                     userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
                     clientService.addClient(newClient, null);
-                    sendNotificationService.sendNewClientNotification(newClient, "whatsapp");
                     checkSocialProfile(whatsappMessage, newClient);
                     whatsappMessage.setClient(newClient);
                 } else {

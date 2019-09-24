@@ -175,24 +175,23 @@ public class ScheduleTasks {
 	}
 
 	private void addClientFromVk(Client newClient) {
-            statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
-            newClient.setState(Client.State.NEW);
-            if (!newClient.getSocialProfiles().isEmpty()) {
-                newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
-            }
-            clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
-            vkService.fillClientFromProfileVK(newClient);
-            Optional<String> optionalEmail = newClient.getEmail();
-            if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
-                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
-            }
-
-           if (autoSetUser){
-           	userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
+		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
+		newClient.setState(Client.State.NEW);
+		if (!newClient.getSocialProfiles().isEmpty()) {
+			newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
 		}
-            clientService.addClient(newClient, null);
-            sendNotificationService.sendNewClientNotification(newClient, "vk");
-            logger.info("New client with id {} has added from VK", newClient.getId());
+		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
+		vkService.fillClientFromProfileVK(newClient);
+		Optional<String> optionalEmail = newClient.getEmail();
+		if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
+			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
+		}
+
+	   	if (autoSetUser) {
+		   userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
+	   	}
+		clientService.addClient(newClient, null);
+		logger.info("New client with id {} has added from VK", newClient.getId());
 	}
 
     @Scheduled(cron = "0 0 7 * * *")
@@ -476,6 +475,39 @@ public class ScheduleTasks {
 			logger.info("Payment notification properties not set!");
 		}
 	}
+
+    /**
+     * Sends end-of-trial notification to student's contacts.
+     */
+    @Scheduled(fixedDelay = 3600000)
+    private void sendTrialNotifications() {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        if (properties.isTrialNotificationEnabled() && properties.getTrialMessageTemplate() != null && properties.getTrialNotificationTime() != null) {
+            LocalTime time = properties.getTrialNotificationTime().truncatedTo(ChronoUnit.HOURS);
+            LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
+            if (properties.isTrialNotificationEnabled() && now.equals(time)) {
+				logger.info("start end-of-trial notification");
+                for (Student student : studentService.getStudentsWithTodayTrialNotificationsEnabled()) {
+					MessageTemplate template = properties.getTrialMessageTemplate();
+					Long clientId = student.getClient().getId();
+					if (student.isNotifyEmail()) {
+						mailSendService.sendSimpleNotification(clientId, template.getTemplateText());
+					}
+					if (student.isNotifySMS()) {
+						smsService.sendSimpleSMS(clientId, template.getOtherText());
+					}
+					if (student.isNotifyVK()) {
+						vkService.simpleVKNotification(clientId, template.getOtherText());
+					}
+					if (student.isNotifySlack()) {
+						slackService.trySendSlackMessageToStudent(clientId, template.getOtherText());
+					}
+                }
+            }
+        } else {
+            logger.info("End-of-trial notification properties not set!");
+        }
+    }
 
     @Scheduled(fixedRate = 60_000)
     private void fetchTelegramMessages() {

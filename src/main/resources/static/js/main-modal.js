@@ -7,6 +7,13 @@ function backUrl(url) {
     history.replaceState(state, title, url);
 }
 
+// Эта функция закрывает карточку юзера и переводит на страницу | http://localhost:9999/client |
+// Относится к крестику в карточке, там два события на нем: backUrl() и это! [Трелло-ид:890]
+$('#main-modal-window').on( "click", function() {
+    showUsersInStatuses();
+});
+
+
 //Запрос: на главной модалке показать или скрыть
 $('#client-request-button').click( () => {
     var x = document.getElementById("client-request");
@@ -263,7 +270,7 @@ $(function () {
                 $('#client-status-list').empty();
                 $.each(status, function (i, s) {
                     $('#client-status-list').append(
-                        '<li><a onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
+                        '<li><a id="ClientIdStatusId' + clientId + s.id + '" onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
                     );
                 });
 
@@ -684,7 +691,7 @@ $(function () {
                 /* Client history first loading */
                 $.ajax({
                     method: 'GET',
-                    url: '/client/history/rest/getHistory/' + client.id,
+                    url: '/rest/client/history/getHistory/' + client.id,
                     data: {
                         page: 0,
                         isAsc: false
@@ -732,7 +739,60 @@ $('#slackLinkModal').on('show.bs.modal', function () {
     });
 });
 
+//Отправка сообщения по шаблону
+function sendMessageTemplate(clientId, templateId, body) {
+    var formData = {
+        clientId : clientId,
+        templateId : templateId,
+        body : body
+    };
+    $.ajax({
+        async: false,
+        type: "POST",
+        url: "/rest/sendEmail",
+        data: formData,
+        success: function (result) {
+
+        },
+        error: function (e) {
+            err.push(valuecheck);
+            alert("Не удалось отправить сообщение: " + err);
+            console.log(e);
+        }
+    });
+}
+
+//Изменение статуса у клиента с отправкой сообщения об изменении
 function changeStatus(clientId, statusId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: "/rest/status/message_template/" + statusId,
+        success: function (messageTemplate) {
+            if (messageTemplate.id === null) {
+                changeClientStatus(clientId, statusId);
+                return;
+            }
+            if (messageTemplate.templateText.includes("%bodyText%")) {
+                result = prompt("Основной текст", "");
+                if (result === null || result === '') {
+                    alert('Для изменения статуса необходимо ввести текс!');
+                }else {
+                    changeClientStatus(clientId, statusId);
+                    sendMessageTemplate(clientId, messageTemplate.id, result);
+                }
+            }else {
+                changeClientStatus(clientId, statusId);
+                sendMessageTemplate(clientId, messageTemplate.id, "");
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+function changeClientStatus(clientId, statusId) {
     $.ajax({
         async: false,
         type: 'POST',

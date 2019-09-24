@@ -3,7 +3,7 @@ function switchTemplate() {
     if (selected === 'email') {
         $('#field').show();
         $('#show-area').hide();
-    } else if (selected === 'vk') {
+    } else if (selected === 'other') {
         $('#field').hide();
         $('#show-area').show();
     }
@@ -13,6 +13,8 @@ var current;
 var exit;
 var defaltText;
 var count = 0;
+var pattern = /^(?!\s*$).+/;
+
 $(document).ready(function () {
     current = document.getElementById("message");
 });
@@ -35,9 +37,13 @@ window.onbeforeunload = function () {
 };
 
 function saveTemplate(templateName) {
-    let url = '/admin/editMessageTemplate';
+    let url = '/rest/admin/editMessageTemplate';
     let text = $('#textTemplateArea').val();
     let themeTemplate = $('#template-theme-rename').val();
+    if (!pattern.test(themeTemplate)) {
+        setErrorMessage('Тема шаблона не может быть пустой!');
+        return;
+    }
     let wrap = {
         templateName: templateName,
         templateText: CKEDITOR.instances['body'].getData(),
@@ -79,7 +85,7 @@ function sendImg(templateName, input) {
 
     var dataValue = new FormData();
     dataValue.append("0", file);
-    let url = '/admin/savePicture?templateName='+templateName;
+    let url = '/rest/admin/savePicture?templateName='+templateName;
     $.ajax({
         url: url,
         type: 'POST',
@@ -143,15 +149,16 @@ $(document).ready(function () {
             dialogDefinition.removeContents('advanced');
         }
     });
-    editor.addCommand("infoCommend", {
+    editor.addCommand("infoCommand", {
         exec: function (edt) {
             $("#infoModal").modal('show');
         }
     });
     editor.ui.addButton('SuperButton', {
-        label: "Info",
-        command: 'infoCommend',
+        label: "Краткая информация о редакторе",
+        command: 'infoCommand',
         toolbar: 'styles',
-        icon: 'https://img.icons8.com/ios/26/000000/info.png'
+        icon: 'info.png'
+        //icon: 'https://img.icons8.com/ios/26/000000/info.png'
     });
 });

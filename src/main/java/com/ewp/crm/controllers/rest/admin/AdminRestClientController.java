@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/admin/rest/client")
+@RequestMapping("/rest/admin/client")
 public class AdminRestClientController {
 
     private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);
@@ -70,72 +70,16 @@ public class AdminRestClientController {
     public ResponseEntity updateClient(@RequestBody Client currentClient,
                                        @AuthenticationPrincipal User userFromSession) {
         Client clientFromDB = clientService.get(currentClient.getId());
-        currentClient.setWhatsappMessages(clientFromDB.getWhatsappMessages());
-        currentClient.setHistory(clientFromDB.getHistory());
-        currentClient.setComments(clientFromDB.getComments());
-        currentClient.setOwnerUser(clientFromDB.getOwnerUser());
-        currentClient.setStatus(clientFromDB.getStatus());
-        currentClient.setStudent(clientFromDB.getStudent());
-        if (clientFromDB.getDateOfRegistration() == null) {
-            clientService.setClientDateOfRegistrationByHistoryDate(currentClient);
-        } else {
-            currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
-        }
-        currentClient.setSmsInfo(clientFromDB.getSmsInfo());
-        currentClient.setCanCall(clientFromDB.isCanCall());
-        currentClient.setCallRecords(clientFromDB.getCallRecords());
-        currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
-        currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
-        currentClient.setState(clientFromDB.getState());
         if (currentClient.equals(clientFromDB)) {
+            logger.info("{} has no need to update client: id {}, email {}", currentClient.getId(), currentClient.getEmail().orElse("not found"));
             return ResponseEntity.noContent().build();
+        } else {
+            clientService.updateClient(currentClient);
+            logger.info("{} has updated client: id {}, email {}", currentClient.getId(), currentClient.getEmail().orElse("not found"));
+            clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
+
+            return ResponseEntity.ok(HttpStatus.OK);
         }
-        clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
-
-        // Код ниже необходим чтобы задедектить изменение сущностей которые смапленны аннотацией @ElementCollection
-        // Относится к списку почты и телефона, ошибка заключается в том что когда пытаешься изменить порядок уже существующих данных
-        // Происходит ошибка уникальности (неправильны мердж сущности) в остальном всё ок
-        // Если произошёл такой случай то руками удаляем зависимости, сохраняем и записываем что пришло
-        List<String> emails = currentClient.getClientEmails();
-        List<String> phones = currentClient.getClientPhones();
-
-        List<String> emailsFromDb = clientFromDB.getClientEmails();
-        List<String> phonesFromDb = clientFromDB.getClientPhones();
-
-        boolean needUpdateClient = false;
-
-        // Если размеры равны начинаем проверку
-        int count = Math.min(emails.size(), emailsFromDb.size());
-        for (int i = 0; i < count; i++) {
-            // Если почты не равны взводим флаг что нужн доп апдейт клиента
-            if (!emails.get(i).equals(emailsFromDb.get(i))) {
-                emailsFromDb.clear();
-                needUpdateClient = true;
-                break;
-            }
-        }
-
-        // Если флаг взведён даже не проверям телефоны
-        if (!needUpdateClient) {
-            count = Math.min(phones.size(), phonesFromDb.size());
-            for (int i = 0; i < count; i++) {
-                // Если почты не равны взводим флаг что нужн доп апдейт клиента
-                if (!phones.get(i).equals(phonesFromDb.get(i))) {
-                    phonesFromDb.clear();
-                    needUpdateClient = true;
-                    break;
-                }
-            }
-        }
-
-        // Проверяем достаточные условия для удаления/записи
-        if (needUpdateClient) {
-            clientService.updateClient(clientFromDB);
-        }
-
-        clientService.updateClient(currentClient);
-        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
-        return ResponseEntity.ok(HttpStatus.OK);
     }
     
     @GetMapping(value = "/remove")
@@ -147,7 +91,7 @@ public class AdminRestClientController {
             return ResponseEntity.notFound().build();
         }
         clientService.delete(clientId);
-        
+
         logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }

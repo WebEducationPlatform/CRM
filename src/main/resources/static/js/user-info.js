@@ -59,7 +59,7 @@ function changeUser(id, authId) {
     }
 
     var $sel = $('#edit-user-roles').find("input[type=checkbox]:checked");
-    let url = '/admin/rest/user/update';
+    let url = '/rest/admin/user/update';
 
     $sel.each(function (index, sel) {
         var obj = {};
@@ -192,7 +192,7 @@ function sendPhoto(id, authId) {
     dataValue.append("0", file);
     dataValue.append("id", id);
     $.ajax({
-        url: '/admin/rest/user/update/photo',
+        url: '/rest/admin/user/update/photo',
         type: 'POST',
         data: dataValue,
         cache: false,
@@ -247,7 +247,7 @@ function addUser() {
     }
 
     var $sel = $('#add-user-roles').find("input[type=checkbox]:checked");
-    let url = '/admin/rest/user/add';
+    let url = '/rest/admin/user/add';
 
     $sel.each(function (index, sel) {
         var obj = {};

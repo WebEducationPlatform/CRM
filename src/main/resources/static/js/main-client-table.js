@@ -22,6 +22,19 @@ function clientsSearch() {
     });
 }
 
+function statusesSearch() {
+    $("#search-statuses").keyup(function () {
+        _this = this;
+        $.each($("#table-hidden-statuses tbody tr"), function () {
+            if ($(this).text().toLowerCase().replace('показать', "").indexOf($(_this).val().toLowerCase()) === -1) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+    });
+}
+
 //Заготовка главной функции для отрисовки Доски на клиенте
 $(document).ready(function renderMainClientTable () {
 
@@ -163,10 +176,10 @@ function drawHiddenStatusesTable() {
     if (invisibleStatuses.length !=0) {
         for (let i = 0; i < invisibleStatuses.length; i++) {
             if (invisibleStatuses[i].name != 'deleted') {
-                trHTML += "<tr><td width='70%'>" + invisibleStatuses[i].name + "</td>" +
+                trHTML += "<tr id = 'invisibleStatuses" + invisibleStatuses[i].id + "'><td width='70%'>" + invisibleStatuses[i].name + "</td>" +
                     "<td>" +
                         "<button type='button' class='show-status-btn btn' " +
-                            "value='" + invisibleStatuses[i].id + "'>Показать</button>" +
+                            "value='" + invisibleStatuses[i].id + "' onclick=\"showStatus(this.value)\">Показать</button>" +
                     "</td></tr>";
             }
         }
