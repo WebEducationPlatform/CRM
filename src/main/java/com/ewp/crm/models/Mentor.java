@@ -16,7 +16,9 @@ public class Mentor extends User {
     @Column(name = "mentor_show_only_my_clients")
     private boolean showOnlyMyClients;
 
-    //Связь с направлениями
+    /**
+     *Связь ментора направлениями
+     */
     @ManyToMany(mappedBy = "clients")
     private List<Course> courses = new ArrayList<>();
 
