@@ -26,7 +26,7 @@ public class Course {
     @ManyToMany
     @JoinTable(name = "courses_mentors",
             joinColumns = {@JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))},
-            inverseJoinColumns = {@JoinColumn(name = "mentors_id", foreignKey = @ForeignKey(name = "FK_MENTOR"))})
+            inverseJoinColumns = {@JoinColumn(name = "mentor_id", foreignKey = @ForeignKey(name = "FK_MENTOR"))})
     private List<Mentor> mentors  = new ArrayList<>();
 
 //Конструкторы
