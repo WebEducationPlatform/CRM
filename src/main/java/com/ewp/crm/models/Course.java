@@ -24,10 +24,10 @@ public class Course {
     private List<Client> clients = new ArrayList<>();
 
     @ManyToMany
-    @JoinTable(name = "courses_users",
+    @JoinTable(name = "courses_mentors",
             joinColumns = {@JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))},
-            inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
-    private List<User> users  = new ArrayList<>();
+            inverseJoinColumns = {@JoinColumn(name = "mentors_id", foreignKey = @ForeignKey(name = "FK_MENTOR"))})
+    private List<Mentor> mentors  = new ArrayList<>();
 
 //Конструкторы
     public Course() {
@@ -42,10 +42,10 @@ public class Course {
         this.clients = clients;
     }
 
-    public Course(String name, List<Client> clients, List<User> users) {
+    public Course(String name, List<Client> clients, List<Mentor> mentors) {
         this.name = name;
         this.clients = clients;
-        this.users = users;
+        this.mentors = mentors;
     }
 //Геттеры, сеттеры
     public Long getId() {
@@ -68,11 +68,11 @@ public class Course {
         this.clients = clients;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<Mentor> getMentors() {
+        return mentors;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setMentors(List<Mentor> mentors) {
+        this.mentors = mentors;
     }
 }

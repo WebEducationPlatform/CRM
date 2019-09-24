@@ -179,10 +179,6 @@ public class User implements UserDetails {
     @Column(name = "is_row_status_direction", columnDefinition = "BIT(1) DEFAULT 1", nullable = false)
     private boolean isRowStatusDirection;
 
-    //Связь с направлениями
-    @ManyToMany(mappedBy = "clients")
-    private List<Course> courses = new ArrayList<>();
-
     public User() {
         this.isEnabled = false;
         this.isVerified = false;
@@ -364,14 +360,6 @@ public class User implements UserDetails {
 
     public void setLastClientDate(Instant lastClientDate) {
         this.lastClientDate = lastClientDate;
-    }
-
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
     }
 
     @Override

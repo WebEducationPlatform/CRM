@@ -112,15 +112,15 @@
 
     <changeSet author="Sergey Kozionov" id="902.2">
     <sql>
-        CREATE TABLE `courses_users` (
+        CREATE TABLE `courses_mentors` (
         `course_id` bigint NOT NULL,
         `user_id` bigint NOT NULL,
         CONSTRAINT FK_COURSE_CL FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
-        CONSTRAINT FK_USER FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE )
+        CONSTRAINT FK_MENTOR FOREIGN KEY (user_id) REFERENCES mentor(user_id) ON DELETE CASCADE )
         ENGINE = INNODB;
     </sql>
     <rollback>
-        DROP TABLE `courses_users`;
+        DROP TABLE `courses_mentors`;
     </rollback>
     <comment>Добавление таблицы направления-пользователи</comment>
     </changeSet>
