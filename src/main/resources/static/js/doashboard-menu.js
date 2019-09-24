@@ -141,10 +141,10 @@ $(document).ready(function () {
                     $(this).addClass('visible');
                 });
                 fillFilterList();
+                drawHiddenStatusesTable();
                 if (userLoggedIn.authorities.some(arrayEl => (arrayEl.authority === 'OWNER') || (arrayEl.authority === 'ADMIN') || (arrayEl.authority === 'HR'))) {
-                    drawHiddenStatusesTable();
+                    drawVerifiedUsersTable();
                     drawNewUsersTable();
-                    showUserMatchCondition(); //Отображать только сотрудников, соответствующих результатам поиска
                 }
             };
             var hidePanel = function () {

@@ -8,6 +8,7 @@ $(document).ready(function () {
     getUserLoggedIn(true);
     get_us();
     clientsSearch();
+    statusesSearch();
 
     //Отслеживаем нажатие клавиши Enter при создании нового статуса
     $("#new-status-name").keypress(function (e) {

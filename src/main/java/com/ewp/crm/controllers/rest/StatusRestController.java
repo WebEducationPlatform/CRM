@@ -39,6 +39,7 @@ public class StatusRestController {
     private final SendMailsController sendMailsController;
     private final MessageTemplateService messageTemplateService;
     private final MailSendService mailSendService;
+    private final SendNotificationService sendNotificationService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
@@ -48,7 +49,8 @@ public class StatusRestController {
                                 RoleService roleService, UserStatusService userStatusService,
                                 SendMailsController sendMailsController,
                                 MessageTemplateService messageTemplateService,
-                                MailSendService mailSendService) {
+                                MailSendService mailSendService,
+                                SendNotificationService sendNotificationService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -61,6 +63,7 @@ public class StatusRestController {
         this.sendMailsController = sendMailsController;
         this.messageTemplateService = messageTemplateService;
         this.mailSendService = mailSendService;
+        this.sendNotificationService = sendNotificationService;
     }
 
     @GetMapping
@@ -80,7 +83,6 @@ public class StatusRestController {
     }
 
     @GetMapping(value = "/all/invisible")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession) {
         List<Role> sessionRoles = userFromSession.getRole();
         Role role = roleService.getRoleByName(ROLE_NAME_USER);
@@ -147,6 +149,7 @@ public class StatusRestController {
 //                //Отправка сообщения клиенту при смене статуса--------------------
 //                sendNotificationClientChangeStatus(currentClient, userFromSession);
 //                //------------------------------------------------------------------
+                sendNotificationService.sendNotificationsEditStatus(currentClient, currentClient.getStatus());
                 logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
                 return ResponseEntity.ok().build();
             }
@@ -157,6 +160,7 @@ public class StatusRestController {
 //        //Отправка сообщения клиенту при смене статуса--------------------
 //        sendNotificationClientChangeStatus(currentClient, userFromSession);
 //        //------------------------------------------------------------------
+        sendNotificationService.sendNotificationsEditStatus(currentClient, currentClient.getStatus());
         logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
         return ResponseEntity.ok().build();
     }
@@ -223,6 +227,19 @@ public class StatusRestController {
         if (status.isPresent()) {
             status.get().setCreateStudent(create);
             statusService.update(status.get());
+            return HttpStatus.OK;
+        }
+        return HttpStatus.NOT_FOUND;
+    }
+
+    @PostMapping(value = "/send-notifications")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public HttpStatus sendNotifications(@RequestParam("id") Long id,
+                                        @RequestParam("send") Boolean send,
+                                        @AuthenticationPrincipal User currentUser) {
+        UserStatus userStatus = userStatusService.getUserStatus(currentUser.getId(), id);
+        if (userStatus != null) {
+              userStatusService.updateUserStatusNotifications(currentUser.getId(), id, send);
             return HttpStatus.OK;
         }
         return HttpStatus.NOT_FOUND;

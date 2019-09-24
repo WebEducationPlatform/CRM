@@ -22,6 +22,7 @@ public class StatusDtoForBoard {
     private Integer nextPaymentOffset = 0;
     private Set<SortedStatuses> sortedStatuses = new HashSet<>();
     private Long templateId = 0L;
+    private boolean sendNotifications;
 
     public StatusDtoForBoard() {
     }
@@ -35,7 +36,8 @@ public class StatusDtoForBoard {
                              List<Role> role,
                              Integer trialOffset,
                              Integer nextPaymentOffset,
-                             Long templateId) {
+                             Long templateId,
+                             boolean sendNotifications) {
         this.id = id;
         this.name = name;
         this.isInvisible = isInvisible;
@@ -46,6 +48,7 @@ public class StatusDtoForBoard {
         this.trialOffset = trialOffset;
         this.nextPaymentOffset = nextPaymentOffset;
         this.templateId = templateId;
+        this.sendNotifications = sendNotifications;
     }
 
     public Long getId() {
@@ -134,6 +137,14 @@ public class StatusDtoForBoard {
 
     public void setTemplateId(Long templateId) {
         this.templateId = templateId;
+    }
+
+    public boolean isSendNotifications() {
+        return sendNotifications;
+    }
+
+    public void setSendNotifications(boolean sendNotifications) {
+        this.sendNotifications = sendNotifications;
     }
 
     public static StatusDtoForBoard getStatusDto(Status status) {
