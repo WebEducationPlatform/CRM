@@ -13,8 +13,5 @@ public interface MentorRepository {
 
     void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId);
 
-    int getQuantityStudentsByMentorId(long id);
-
-    void updateQuantityStudentsByMentorId(long id, int quantityStudents);
 
 }

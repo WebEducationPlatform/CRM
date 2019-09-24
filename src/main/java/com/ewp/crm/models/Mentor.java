@@ -21,10 +21,8 @@ public class Mentor extends User {
     public Mentor() {
     }
 
-    @Column( name = "quantity_students")
-    @ColumnDefault("3")
-    @NotNull
-    private int quantityStudents;
+
+    private transient int quantityStudents;
 
     public Mentor(boolean showOnlyMyClients) {
         super();

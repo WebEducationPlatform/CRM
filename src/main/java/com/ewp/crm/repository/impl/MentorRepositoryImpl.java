@@ -46,34 +46,8 @@ public class MentorRepositoryImpl implements MentorRepository {
     public void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId) {
         entityManager.createNativeQuery("UPDATE mentor SET mentor_show_only_my_clients = " + showAll +" WHERE user_id = " + userId).executeUpdate();
     }
-    @Override
-    @Transactional
-    public int getQuantityStudentsByMentorId(long id){
-        Query query = entityManager.createNativeQuery("SELECT quantity_students from mentor m WHERE user_id = :id");
-        query.setParameter("id", id);
-        if (query.getResultList().isEmpty()){
-            updateUserAsMentorWithDefaultValues(id);
-            return 3;
-        }
-        return ((Number)query.getSingleResult()).intValue();
-    }
-    @Override
-    @Transactional
-    public void updateQuantityStudentsByMentorId(long id, int quantityStudents){
-        Query updateQuery = entityManager.createNativeQuery("UPDATE mentor SET quantity_students = :quantityStudents WHERE user_id = :id");
-        updateQuery.setParameter("quantityStudents",quantityStudents);
-        updateQuery.setParameter("id", id);
-        updateQuery.executeUpdate();
-    }
 
-    
-    @Transactional
-    private void updateUserAsMentorWithDefaultValues(long id){
-        Query updateQuery = entityManager.createNativeQuery("INSERT INTO mentor (user_id) VALUES (:id)");
-        updateQuery.setParameter("id", id);
-        updateQuery.executeUpdate();
-        updateUserTypeAsMentor(id);
-    }
+
     private void updateUserTypeAsMentor(Long id){
         Query nativeQuery = entityManager.createNativeQuery("UPDATE user u SET user_type = 'MENTOR' where u.user_id = :id");
         nativeQuery.setParameter("id", id);

@@ -3,7 +3,6 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Mentor;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.MentorService;
-import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,15 +40,15 @@ public class MentorRestController {
     }
 
     @PreAuthorize("hasAnyAuthority('OWNER')")
-    @GetMapping(value = "/admin/rest/mentor/student/quantity/{id}")
-    public int getQuantityStudentsForMentor(@PathVariable long id){
-        return mentorService.getQuantityStudentsByMentorId(id);
+    @GetMapping(value = "/admin/rest/mentor/student/quantity/{email}")
+    public int getQuantityStudentsForMentor(@PathVariable String email){
+        return mentorService.getQuantityStudentsByMentorEmail(email);
     }
 
     @PreAuthorize("hasAnyAuthority('OWNER')")
     @PostMapping(value = "/mentor/rest/user/update")
-    public ResponseEntity updateUser(@RequestParam long id, @RequestParam int quantityStudents) {
-        mentorService.updateQuantityStudentsByMentorId(id,quantityStudents);
+    public ResponseEntity updateUser(@RequestParam String email, @RequestParam int quantityStudents) {
+        mentorService.updateQuantityStudentsByMentorEmail(email, quantityStudents);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }

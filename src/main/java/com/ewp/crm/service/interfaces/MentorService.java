@@ -11,8 +11,8 @@ public interface MentorService {
 
     void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId);
 
-    int getQuantityStudentsByMentorId(long id);
+    int getQuantityStudentsByMentorEmail(String mentorEmail);
 
-    void updateQuantityStudentsByMentorId(long id, int quantityStudents);
+    void updateQuantityStudentsByMentorEmail(String mentorEmail, int quantityStudents);
 
 }

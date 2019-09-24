@@ -379,9 +379,10 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
 $(document).ready(function () {
     let studentQuantity = $("#quantity-students");
     let studentsQuantityDiv = $("#students-quantity");
+    let email = $('#edit-user-email').val();
     if (isUpdatedUserMentor) {
         studentsQuantityDiv.show();
-        let url = "/admin/rest/mentor/student/quantity/"+updatedUserId;
+        let url = "/admin/rest/mentor/student/quantity/"+ email;
         $.ajax({
                 url: url,
                 type: 'GET',
@@ -403,13 +404,14 @@ function updateQuantityStudents() {
     if (isUpdatedUserMentor){
         let mentorUrl = '/mentor/rest/user/update';
         let quantity = $("#quantity-students").val();
+
         console.log(quantity);
         $.ajax({
             url: mentorUrl,
             type: 'POST',
             dataType: 'json',
             data: {
-                id: updatedUserId,
+                email:$('#edit-user-email').val(),
                 quantityStudents: quantity,
                 success: function (resp) {
                     console.log(quantity);
