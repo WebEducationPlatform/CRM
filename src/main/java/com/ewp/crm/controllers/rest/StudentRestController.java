@@ -278,6 +278,9 @@ public class StudentRestController {
 
     @GetMapping("/all")
     public ResponseEntity getStudentDtoForPageOfAll() {
+        if (studentService.getStudentDtoForAllStudentsPage() == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
         return ResponseEntity.ok(studentService.getStudentDtoForAllStudentsPage());
     }
 }
