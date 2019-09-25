@@ -92,14 +92,18 @@ public class CommentApiRestController {
 		Comment comment = commentService.get(commentId);
 		Client client = comment.getClient();
 //		sendNotificationService.sendNotification(content, client);
-		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
-		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
-		if (answer.isPresent()) {
-			comment.addAnswer(answer.get());
-			commentService.update(comment);
-			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, comment);
+//		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
+		comment.addAnswer(commentAnswer);
+		commentService.update(comment);
+		return ResponseEntity.ok(commentAnswer);
+
+//		if (answer.isPresent()) {
+//			comment.addAnswer(answer.get());
+//			commentService.update(comment);
+//			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
+//		}
+//		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/delete/answer")

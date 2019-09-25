@@ -2,10 +2,10 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "comment")
@@ -44,11 +44,12 @@ public class Comment {
 	/**
 	 * We use FetchType.LAZY for lazy initialization.
 	 */
-	@OrderBy("date DESC")
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinTable(name = "comment_comment_answer",
-			joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))},
-			inverseJoinColumns = {@JoinColumn(name = "answer_id", foreignKey = @ForeignKey(name = "FK_ANSWER"))})
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "originalComment")
+//	@OrderBy("date DESC")
+//	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//	@JoinTable(name = "comment_comment_answer",
+//			joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))},
+//			inverseJoinColumns = {@JoinColumn(name = "answer_id", foreignKey = @ForeignKey(name = "FK_ANSWER"))})
 	private List<CommentAnswer> commentAnswers;
 
 	public Comment() {
@@ -86,7 +87,6 @@ public class Comment {
 		this.client = client;
 	}
 
-
 	public String getContent() {
 		return content;
 	}
@@ -109,11 +109,11 @@ public class Comment {
 		if (o == null || getClass() != o.getClass()) return false;
 
 		Comment comment = (Comment) o;
-		if (id != null ? !id.equals(comment.id) : comment.id != null) return false;
-		if (user != null ? !user.equals(comment.user) : comment.user != null) return false;
-		if (client != null ? !client.equals(comment.client) : comment.client != null) return false;
-		if (dateFormat != null ? !dateFormat.equals(comment.dateFormat) : comment.dateFormat != null) return false;
-		return content != null ? content.equals(comment.content) : comment.content == null;
+		if (!Objects.equals(id, comment.id)) return false;
+		if (!Objects.equals(user, comment.user)) return false;
+		if (!Objects.equals(client, comment.client)) return false;
+		if (!Objects.equals(dateFormat, comment.dateFormat)) return false;
+		return Objects.equals(content, comment.content);
 	}
 
 	@Override
@@ -130,6 +130,7 @@ public class Comment {
 		return commentAnswers;
 	}
 
+	//TODO проверить используется ли метод и удалить если нет
 	public void setCommentAnswers(List<CommentAnswer> commentAnswers) {
 		this.commentAnswers = commentAnswers;
 	}

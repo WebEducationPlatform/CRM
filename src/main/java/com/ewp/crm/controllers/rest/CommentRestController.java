@@ -15,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/comment")
@@ -54,42 +53,39 @@ public class CommentRestController {
 	                                          @RequestParam(name = "content") String content,
 											  @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
-		if (client == null) {
+		if (client == null) { // TODO если клиент в этом момент не может быть удален, то проверка избыточна
 			logger.error("Can`t add comment, client with id {} not found", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // TODO ?????
 		}
 		sendNotificationService.sendNotification(content, client);
 		Comment newComment = new Comment(userFromSession, client, content);
 		commentService.add(newComment);
-		return ResponseEntity.status(HttpStatus.OK).body(newComment);
+		return ResponseEntity.ok(newComment);
 	}
 
 	@PostMapping(value = "/add/answer")
 	public ResponseEntity<CommentAnswer> addAnswer(@RequestParam(name = "content") String content,
                                                    @RequestParam(name = "commentId") Long commentId,
 												   @AuthenticationPrincipal User userFromSession) {
-		User fromDB = userService.get(userFromSession.getId());
-		Comment comment = commentService.get(commentId);
-		Client client = comment.getClient();
+		User currentUser = userService.get(userFromSession.getId());
+		Comment originalComment = commentService.get(commentId);
+		Client client = originalComment.getClient();
 		sendNotificationService.sendNotification(content, client);
-		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
-		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
-		if (answer.isPresent()) {
-			comment.addAnswer(answer.get());
-			commentService.update(comment);
-			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		CommentAnswer commentAnswer = new CommentAnswer(currentUser, content, originalComment);
+		commentAnswerService.addCommentAnswer(commentAnswer);
+//		originalComment.addAnswer(commentAnswer); //TODO просить Стаса почему этот вызов не нужен!
+		return ResponseEntity.ok(commentAnswer);
 	}
 
 	@PostMapping(value = "/delete/answer")
 	public ResponseEntity deleteCommentAnswer(@RequestParam(name = "id") Long id,
 											  @AuthenticationPrincipal User userFromSession) {
+		//TODO если пользователя, который создал комментарий уже не существует, то как его удалять??
 		if (commentAnswerService.get(id).getUser().equals(userFromSession)) {
 			commentAnswerService.delete(id);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // TODO зачем???
 		}
 	}
 
@@ -103,7 +99,7 @@ public class CommentRestController {
 			commentAnswerService.update(commentAnswer);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // TODO зачем?
 		}
 	}
 
@@ -114,7 +110,7 @@ public class CommentRestController {
 			commentService.delete(id);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // TODO зачем?
 		}
 	}
 
@@ -122,7 +118,7 @@ public class CommentRestController {
 	public ResponseEntity editComment(@RequestParam(name = "id") Long id,
                                       @RequestParam(name = "content") String content,
 									  @AuthenticationPrincipal User userFromSession) {
-		if (commentService.get(id).getUser().equals(userFromSession)) {
+		if (commentService.get(id).getUser().equals(userFromSession)) { // TODO зачем? От кого эта защита?
 			Comment comment = commentService.get(id);
 			comment.setContent(content);
 			commentService.update(comment);

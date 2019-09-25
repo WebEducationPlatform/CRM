@@ -2,7 +2,6 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
@@ -15,22 +14,9 @@ public class CommentAnswer {
 	@Column(name = "answer_id")
 	private Long id;
 
-	/**
-	 * We use FetchType.LAZY for lazy initialization.
-	 */
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinTable(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))
 	private User user;
-
-	/**
-	 * We use FetchType.LAZY for lazy initialization.
-	 */
-	@JsonIgnore
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinTable(name = "client_comment_answer",
-			joinColumns = {@JoinColumn(name = "answer_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER_CLIENT"))},
-			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))})
-	private Client client;
 
 	@Column(name = "date")
 	private ZonedDateTime dateFormat;
@@ -39,24 +25,19 @@ public class CommentAnswer {
 	@Lob
 	private String content;
 
-	/**
-	 * We use FetchType.LAZY for lazy initialization.
-	 */
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinTable(name = "comment_comment_answer",
-			joinColumns = {@JoinColumn(name = "answer_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))},
-			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_ANSWER"))})
-	private Comment mainComment;
-
+	@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "COMMENT_FK"))
+	private Comment originalComment;
 
 	public CommentAnswer() {
+
 	}
 
-	public CommentAnswer(User user, String content, Client client) {
+	public CommentAnswer(User user, String content, Comment originalComment) {
 		this.user = user;
 		this.content = content;
-		this.client = client;
+		this.originalComment = originalComment;
 		setDateFormat(ZonedDateTime.now());
 	}
 
@@ -76,12 +57,12 @@ public class CommentAnswer {
 		this.content = content;
 	}
 
-	public Comment getMainComment() {
-		return mainComment;
+	public Comment getOriginalComment() {
+		return originalComment;
 	}
 
-	public void setMainComment(Comment mainComment) {
-		this.mainComment = mainComment;
+	public void setOriginalComment(Comment originalComment) {
+		this.originalComment = originalComment;
 	}
 
 	public User getUser() {
@@ -92,14 +73,6 @@ public class CommentAnswer {
 		this.user = user;
 	}
 
-	public Client getClient() {
-		return client;
-	}
-
-	public void setClient(Client client) {
-		this.client = client;
-	}
-
 	public ZonedDateTime getDateFormat() {
 		return dateFormat;
 	}
@@ -107,4 +80,5 @@ public class CommentAnswer {
 	public void setDateFormat(ZonedDateTime dateFormat) {
 		this.dateFormat = dateFormat;
 	}
+
 }
