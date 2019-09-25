@@ -24,8 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +88,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     /**
-     *  Перевод всей истории смен статусов клиентов из ClientHistory в ClientStatusChangingHistory
+     * Перевод всей истории смен статусов клиентов из ClientHistory в ClientStatusChangingHistory
      */
     @Override
     public void fillClientStatusChangingHistoryFromClientHistory() {
@@ -101,7 +101,7 @@ public class ReportServiceImpl implements ReportService {
             return;
         }
         User defaultUser = userService.get(1L);
-        for (Client client :clients) {
+        for (Client client : clients) {
             logger.debug("Start filling history for client id = " + client.getId());
             if (client.getDateOfRegistration() == null) {
                 clientService.setClientDateOfRegistrationByHistoryDate(client);
@@ -117,7 +117,7 @@ public class ReportServiceImpl implements ReportService {
                 clientStatusChangingHistoryService.add(history);
             } else {
                 logger.debug("Found " + histories.size() + " histories.");
-                for (ClientHistory history :histories) {
+                for (ClientHistory history : histories) {
                     Optional<String> destStatusName = parseStatusNameFromHistoryTitle(history.getTitle());
                     if (!destStatusName.isPresent()) {
                         logger.warn("Can't parse status from history " + history.getTitle());
@@ -212,13 +212,13 @@ public class ReportServiceImpl implements ReportService {
     }
 
     /**
-     *  Восстановление последовательности смены статусов клиентов в таблице ClientStatusChangingHistory
+     * Восстановление последовательности смены статусов клиентов в таблице ClientStatusChangingHistory
      */
     @Override
     public void processLinksInStatusChangingHistory() {
         logger.info("Start processLinksInStatusChangingHistory()");
         List<Client> clients = clientRepository.findAll();
-        for (Client client :clients) {
+        for (Client client : clients) {
             List<ClientStatusChangingHistory> clientStatusChangingHistories = clientStatusChangingHistoryService.getAllClientStatusChangingHistoryByClientByDate(client);
             Status previous = null;
             ClientStatusChangingHistory last = null;
@@ -262,16 +262,16 @@ public class ReportServiceImpl implements ReportService {
     }
 
     /**
-     *  Установить ключ is_creation для смен статусов, которые связаны с созданием клиента
+     * Установить ключ is_creation для смен статусов, которые связаны с созданием клиента
      */
     @Override
     public void setCreationsInStatusChangingHistory() {
         logger.info("Start setCreationsInStatusChangingHistory()");
         List<ClientHistory.Type> historyTypes = Arrays.asList(ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST);
         List<Client> clients = clientRepository.findAll();
-        for (Client client :clients) {
+        for (Client client : clients) {
             List<ClientHistory> histories = clientRepository.getAllHistoriesByClientAndHistoryType(client, historyTypes);
-            for (ClientHistory history :histories) {
+            for (ClientHistory history : histories) {
                 clientStatusChangingHistoryService.setCreationInNearestStatusChangingHistoryForClient(client, history.getDate());
             }
         }
@@ -474,7 +474,7 @@ public class ReportServiceImpl implements ReportService {
      */
     private boolean hasClientEverBeenInStatus(Client client, List<Status> statuses) {
         List<ClientHistory> allHistories = clientRepository.getAllHistoriesByClientStatusChanging(client, statuses, Collections.singletonList(ClientHistory.Type.STATUS));
-        for (ClientHistory history :allHistories) {
+        for (ClientHistory history : allHistories) {
             if (!isFakeChangingStatusBy3minsRule(history)) {
                 Optional<ClientHistory> beforeHistory = historyBeforeThis(history);
                 if (beforeHistory.isPresent()) {
@@ -623,18 +623,18 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void writeToCSVFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
         fillCSVFile(clientRepository.filteringClientWithoutPaginator(filteringCondition),
-                    filteringCondition.getSelectedCheckbox(),
-                    createFilePath(fileName));
+                filteringCondition.getSelectedCheckbox(),
+                createFilePath(fileName));
     }
 
     @Override
     public void writeToCSVFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName) {
         fillCSVFile(clientService.getAllClients(),
-                    conditionToDownload.getSelected(),
-                    createFilePath(fileName));
+                conditionToDownload.getSelected(),
+                createFilePath(fileName));
     }
 
-    private void fillTxtFile(List<Client> clients, List<String> checkedData, String delimeter,Path filePath) {
+    private void fillTxtFile(List<Client> clients, List<String> checkedData, String delimeter, Path filePath) {
         if (Strings.isNullOrEmpty(delimeter)) {
             delimeter = "  ";
         }
@@ -678,7 +678,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private void fillExcelFile(List<Client> clients, List<String> checkedData, Path filePath) {
-        Map<String,String> requestedFieldsMap = new LinkedHashMap<>(CLIENT_REPORT_FIELDS);
+        Map<String, String> requestedFieldsMap = new LinkedHashMap<>(CLIENT_REPORT_FIELDS);
         requestedFieldsMap.entrySet().removeIf(x -> !checkedData.contains(x.getKey()));
 
         List<String> socialNetworkTypes = Arrays.asList(SocialProfile.SocialNetworkType.values())
@@ -714,18 +714,18 @@ public class ReportServiceImpl implements ReportService {
             Row row = sheet.createRow(rowNum++);
             for (String field : requestedFieldsMap.keySet()) {
                 if (field.equals("name")) {
-                        row.createCell(colNum++).setCellValue(client.getName());
+                    row.createCell(colNum++).setCellValue(client.getName());
                 } else if (field.equals("lastName")) {
-                        row.createCell(colNum++).setCellValue(client.getLastName());
+                    row.createCell(colNum++).setCellValue(client.getLastName());
                 } else if (field.equals("email")) {
-                        row.createCell(colNum++).setCellValue(client.getClientEmails()
-                                .stream()
-                                .collect(Collectors.joining(", ")));
+                    row.createCell(colNum++).setCellValue(client.getClientEmails()
+                            .stream()
+                            .collect(Collectors.joining(", ")));
                 } else if (field.equals("phoneNumber")) {
-                        row.createCell(colNum++).setCellValue(client.getClientPhones()
-                                .stream()
-                                .collect(Collectors.joining(", ")));
-                } else if (socialNetworkTypes.contains(field)){
+                    row.createCell(colNum++).setCellValue(client.getClientPhones()
+                            .stream()
+                            .collect(Collectors.joining(", ")));
+                } else if (socialNetworkTypes.contains(field)) {
                     if (field.equals("vk")) {
                         row.createCell(colNum++).setCellValue(client.getSocialProfiles().stream()
                                 .filter(x -> x.getSocialNetworkType().getName().equals("vk"))
@@ -753,7 +753,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private void fillCSVFile(List<Client> clients, List<String> checkedData, Path filePath) {
-        Map<String,String> requestedFieldsMap = new LinkedHashMap<>(CLIENT_REPORT_FIELDS);
+        Map<String, String> requestedFieldsMap = new LinkedHashMap<>(CLIENT_REPORT_FIELDS);
         requestedFieldsMap.entrySet().removeIf(x -> !checkedData.contains(x.getKey()));
 
         List<String> socialNetworkTypes = Arrays.asList(SocialProfile.SocialNetworkType.values())
@@ -761,8 +761,8 @@ public class ReportServiceImpl implements ReportService {
                 .map(x -> x.getName())
                 .collect(Collectors.toList());
 
-        try(BufferedWriter writer = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"));
-                CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"));
+             CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
             printer.printRecord(requestedFieldsMap.values());
             for (Client client : clients) {
                 printer.println();
@@ -780,7 +780,7 @@ public class ReportServiceImpl implements ReportService {
                             printer.print(client.getClientPhones()
                                     .stream()
                                     .collect(Collectors.joining(", ")));
-                        } else if (socialNetworkTypes.contains(field)){
+                        } else if (socialNetworkTypes.contains(field)) {
                             if (field.equals("vk")) {
                                 printer.print(client.getSocialProfiles().stream()
                                         .filter(x -> x.getSocialNetworkType().getName().equals("vk"))
@@ -832,5 +832,119 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return file;
+    }
+
+    public String fillExcelOrCsvFileForBitrix24(String formatFile) {
+        FileOutputStream fileOut = null;
+        File file = null;
+        if (formatFile.equals("xlsx")) {
+            file = createFilePath("Clients.xlsx").toFile();
+        }
+        if (formatFile.equals("xls")) {
+            file = createFilePath("Clients.xls").toFile();
+        }
+        if (formatFile.equals("csv")) {
+            file = createFilePath("Clients.csv").toFile();
+        }
+
+        List<Client> clientList = clientService.getAllClients();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Clients");
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeightInPoints((short) 12);
+        headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        headerCellStyle.setFont(headerFont);
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.setRowStyle(headerCellStyle);
+
+        headerRow.createCell(0).setCellValue("ID");
+        headerRow.createCell(1).setCellValue("Имя");
+        headerRow.createCell(2).setCellValue("Фамилия");
+        headerRow.createCell(3).setCellValue("Имя, Фамилия");
+        headerRow.createCell(4).setCellValue("Дата рождения");
+        headerRow.createCell(5).setCellValue("Мобильный телефон");
+        headerRow.createCell(6).setCellValue("Рабочий e-mail");
+        headerRow.createCell(7).setCellValue("E-mail для рассылок");
+        headerRow.createCell(8).setCellValue("Контакт Facebook");
+        headerRow.createCell(9).setCellValue("Контакт Telegram");
+        headerRow.createCell(10).setCellValue("Контакт ВКонтакте");
+        headerRow.createCell(11).setCellValue("Контакт Skype");
+        headerRow.createCell(12).setCellValue("Другой контакт");
+        headerRow.createCell(13).setCellValue("Другой контакт");
+        headerRow.createCell(14).setCellValue("Тип контакта");
+        headerRow.createCell(15).setCellValue("Экспорт");
+        headerRow.createCell(16).setCellValue("Доступен для всех");
+
+        int rowNum = 1;
+        int colNum;
+        List<SocialProfile> socialProfileList;
+        for (Client client : clientList) {
+            colNum = 0;
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(colNum).setCellValue(client.getId());
+            row.createCell(colNum + 1).setCellValue(client.getName());
+            row.createCell(colNum + 2).setCellValue(client.getLastName());
+            row.createCell(colNum + 3).setCellValue(client.getName() + " " + client.getLastName());
+            row.createCell(colNum + 4).setCellValue(client.getBirthDate() == null ? "" : client.getBirthDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+
+            List<String> phoneNumberList = client.getClientPhones();
+            if (!phoneNumberList.isEmpty()) {
+                row.createCell(colNum + 5).setCellValue(phoneNumberList.get(0));
+            }
+
+            List<String> emailsList = client.getClientEmails();
+            if (!emailsList.isEmpty()) {
+                row.createCell(colNum + 6).setCellValue(emailsList.get(0));
+                row.createCell(colNum + 7).setCellValue(emailsList.get(0));
+            }
+
+            row.createCell(colNum + 11).setCellValue(client.getSkype() == null ? "" : client.getSkype());
+
+            socialProfileList = client.getSocialProfiles();
+            if (!socialProfileList.isEmpty()) {
+                for (SocialProfile socialProfile : socialProfileList) {
+                    if (socialProfile.getSocialNetworkType().getName().equals("FACEBOOK")) {
+                        row.createCell(colNum + 8).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("TELEGRAM")) {
+                        row.createCell(colNum + 9).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("VK")) {
+                        row.createCell(colNum + 10).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("SLACK")) {
+                        row.createCell(colNum + 12).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("WHATSAPP")) {
+                        row.createCell(colNum + 13).setCellValue(socialProfile.getSocialId());
+                    }
+                }
+            }
+            colNum = 14;
+            row.createCell(colNum++).setCellValue("Клиент");
+            row.createCell(colNum++).setCellValue("Да");
+            row.createCell(colNum++).setCellValue("Да");
+        }
+
+        try {
+            fileOut = new FileOutputStream(file);
+            workbook.write(fileOut);
+            fileOut.close();
+        } catch (FileNotFoundException e) {
+            logger.error("Can't find file! ", e);
+        } catch (IOException e) {
+            logger.error("Can't fill excel file! ", e);
+        }
+        return file.getName();
     }
 }
