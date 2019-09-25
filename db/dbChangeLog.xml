@@ -82,4 +82,22 @@
         <comment>table TEST creation for demonstration</comment>
     </changeSet>
 
+    <changeSet author="Vladimir Nomokonov" id="919-1">
+        <sql>
+            DROP TABLE IF  EXISTS `vk_tracked_club`;
+        </sql>
+        <rollback>
+            CREATE TABLE `vk_tracked_club` (
+            `id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `client_id` bigint(20) DEFAULT NULL,
+            `group_id` bigint(20) DEFAULT NULL,
+            `group_name` varchar(255) DEFAULT NULL,
+            `token` varchar(255) DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `UK_crpkyoh8f186f0wy0oa40hiap` (`group_id`)
+            )
+        </rollback>
+        <comment>table TEST creation for demonstration</comment>
+    </changeSet>
+
 </databaseChangeLog>
