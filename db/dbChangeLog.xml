@@ -101,7 +101,45 @@
             `token` varchar(255) DEFAULT NULL,
             PRIMARY KEY (`id`),
             UNIQUE KEY `UK_crpkyoh8f186f0wy0oa40hiap` (`group_id`)
-            )
+            );
+
+            CREATE TABLE `youtube_tracking_card` (
+            `youtube_tracking_card_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `channel_name` varchar(255) DEFAULT NULL,
+            `description` varchar(255) DEFAULT NULL,
+            `has_live_stream` bit(1) DEFAULT NULL,
+            `vk_group` varchar(255) NOT NULL,
+            `youtube_channel` varchar(255) NOT NULL,
+            PRIMARY KEY (`youtube_tracking_card_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client_youtube_tracking_card` (
+            `youtube_tracking_card_id` bigint(20) NOT NULL,
+            `youtube_client_id` bigint(20) NOT NULL,
+            PRIMARY KEY (`youtube_client_id`),
+            KEY `FKndhe41q8e9wxeqqgslf36tkla` (`youtube_tracking_card_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client` (
+            `youtube_client_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `checked` bit(1) DEFAULT NULL,
+            `full_name` varchar(255) NOT NULL,
+            `upload_date` datetime DEFAULT NULL,
+            PRIMARY KEY (`youtube_client_id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client_message` (
+            `youtube_client_message_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `messages` varchar(255) DEFAULT NULL,
+            PRIMARY KEY (`youtube_client_message_id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=651 DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client_youtube_client_message` (
+            `youtube_client_id` bigint(20) DEFAULT NULL,
+            `youtube_client_messages_id` bigint(20) NOT NULL,
+            PRIMARY KEY (`youtube_client_messages_id`),
+            KEY `FK_YOUTUBE_CLIENT_YOUTUBE_CLIENT_MESSAGES` (`youtube_client_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         </rollback>
     </changeSet>
 
