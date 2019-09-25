@@ -85,6 +85,12 @@
     <changeSet author="Vladimir Nomokonov" id="919-1">
         <sql>
             DROP TABLE IF  EXISTS `vk_tracked_club`;
+
+            DROP TABLE IF EXISTS youtube_client_youtube_tracking_card;
+            DROP TABLE IF EXISTS youtube_tracking_card;
+            DROP TABLE IF EXISTS youtube_client_youtube_client_message;
+            DROP TABLE IF EXISTS youtube_client;
+            DROP TABLE IF EXISTS youtube_client_message;
         </sql>
         <rollback>
             CREATE TABLE `vk_tracked_club` (
@@ -97,7 +103,6 @@
             UNIQUE KEY `UK_crpkyoh8f186f0wy0oa40hiap` (`group_id`)
             )
         </rollback>
-        <comment>table TEST creation for demonstration</comment>
     </changeSet>
 
 </databaseChangeLog>
