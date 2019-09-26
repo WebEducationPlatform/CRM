@@ -1,6 +1,5 @@
 package com.ewp.crm.component;
 
-import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
@@ -16,10 +15,6 @@ import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.User;
-import com.ewp.crm.models.VkMember;
-import com.ewp.crm.models.VkTrackedClub;
-import com.ewp.crm.models.YouTubeTrackingCard;
-import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
@@ -40,10 +35,6 @@ import com.ewp.crm.service.interfaces.TelegramService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.VkMemberService;
-import com.ewp.crm.service.interfaces.VkTrackedClubService;
-import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
-import com.ewp.crm.service.interfaces.YoutubeClientService;
-import com.ewp.crm.service.interfaces.YoutubeService;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.ewp.crm.util.patterns.ValidationPattern;
 import org.drinkless.tdlib.TdApi;
@@ -78,8 +69,6 @@ public class ScheduleTasks {
 
 	private final PotentialClientService potentialClientService;
 
-	private final YouTubeTrackingCardService youTubeTrackingCardService;
-
 	private final ClientService clientService;
 
 	private final StudentService studentService;
@@ -100,13 +89,7 @@ public class ScheduleTasks {
 
 	private final FacebookService facebookService;
 
-	private final VkTrackedClubService vkTrackedClubService;
-
 	private final VkMemberService vkMemberService;
-
-	private final YoutubeService youtubeService;
-
-	private final YoutubeClientService youtubeClientService;
 
 	private final AssignSkypeCallService assignSkypeCallService;
 
@@ -133,20 +116,18 @@ public class ScheduleTasks {
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
-						 YouTubeTrackingCardService youTubeTrackingCardService,
 						 ClientService clientService, StudentService studentService,
 						 StatusService statusService, ProjectPropertiesService projectPropertiesService,
 						 MailingService mailingService, SocialProfileService socialProfileService, SMSService smsService,
 						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+						 ClientHistoryService clientHistoryService,
+						 VkMemberService vkMemberService, FacebookService facebookService,
+						 AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 VkCampaignService vkCampaignService, TelegramService telegramService,
 						 SlackService slackService, UserService userService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
-		this.youTubeTrackingCardService = youTubeTrackingCardService;
 		this.clientService = clientService;
 		this.studentService = studentService;
 		this.statusService = statusService;
@@ -157,10 +138,7 @@ public class ScheduleTasks {
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
 		this.facebookService = facebookService;
-		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
-		this.youtubeService = youtubeService;
-		this.youtubeClientService = youtubeClientService;
 		this.assignSkypeCallService = assignSkypeCallService;
 		this.reportService = reportService;
 		this.env = env;
@@ -291,27 +269,6 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 60_000)
-	private void findNewMembersAndSendFirstMessage() {
-		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
-		List<VkMember> lastMemberList = vkMemberService.getAll();
-		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
-			List<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-					.orElseThrow(() -> new NotFoundMemberList(env.getProperty("messaging.vk.exception.not-found-member-list")));
-			int countNewMembers = 0;
-			for (VkMember vkMember : freshMemberList) {
-				if (!lastMemberList.contains(vkMember)) {
-					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
-					vkMemberService.add(vkMember);
-					countNewMembers++;
-				}
-			}
-			if (countNewMembers > 0) {
-				logger.info("{} new VK members has signed in {} club", countNewMembers, vkTrackedClub.getGroupName());
-			}
-		}
-	}
-
 	@Scheduled(fixedRate = 5_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
@@ -415,26 +372,6 @@ public class ScheduleTasks {
 				info = env.getProperty("messaging.client.phone.calls.unknown-error");
 		}
 		return info;
-	}
-
-	@Scheduled(fixedRate = 60_000)
-	private void handleYoutubeLiveStreams() {
-		for (YouTubeTrackingCard youTubeTrackingCard : youTubeTrackingCardService.getAllByHasLiveStream(false)) {
-			youtubeService.handleYoutubeLiveChatMessages(youTubeTrackingCard);
-		}
-	}
-
-	@Scheduled(fixedRate = 60_000)
-	private void getPotentialClientsFromYoutubeClients() {
-		for (YoutubeClient youtubeClient : youtubeClientService.getAllByChecked(false)) {
-			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
-			if (newPotentialClient.isPresent()) {
-				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
-				if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent()) {
-					potentialClientService.addPotentialClient(newPotentialClient.get());
-				}
-			}
-		}
 	}
 
 	/**
