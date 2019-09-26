@@ -27,6 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class StatusApiRestControllerTest2 {
 
+    /***
+     * Здесь комментарий оставлен специально, чтобы сделать можно было бы ПР!
+     */
+
     private String baseUri = "http://localhost:9999/rest/api/status";
 
     @Autowired
