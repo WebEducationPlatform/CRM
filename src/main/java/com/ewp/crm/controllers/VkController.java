@@ -53,7 +53,6 @@ public class VkController {
                         VKConfig vkConfig) {
         this.vkService = vkService;
         this.userService = userService;
-//        this.vkTrackedClubService = vkTrackedClubService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkCampaignService = vkCampaignService;
         this.vkConfig = vkConfig;
