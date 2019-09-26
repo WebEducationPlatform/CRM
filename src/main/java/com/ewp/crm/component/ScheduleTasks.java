@@ -4,7 +4,6 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
-import com.ewp.crm.models.AssignSkypeCall;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.MessageTemplate;
@@ -21,7 +20,6 @@ import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.interfaces.AssignSkypeCallService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.FacebookService;
@@ -108,8 +106,6 @@ public class ScheduleTasks {
 
 	private final YoutubeClientService youtubeClientService;
 
-	private final AssignSkypeCallService assignSkypeCallService;
-
 	private final ReportService reportService;
 
 	private final ProjectPropertiesService projectPropertiesService;
@@ -140,7 +136,7 @@ public class ScheduleTasks {
 						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
 						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+						 YoutubeClientService youtubeClientService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 VkCampaignService vkCampaignService, TelegramService telegramService,
 						 SlackService slackService, UserService userService) {
@@ -161,7 +157,6 @@ public class ScheduleTasks {
 		this.vkMemberService = vkMemberService;
 		this.youtubeService = youtubeService;
 		this.youtubeClientService = youtubeClientService;
-		this.assignSkypeCallService = assignSkypeCallService;
 		this.reportService = reportService;
 		this.env = env;
 		this.mailingService = mailingService;
@@ -218,54 +213,6 @@ public class ScheduleTasks {
         }
     }
 
-	@Scheduled(fixedRate = 15_000)
-	private void checkCallInSkype() {
-		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient()) {
-			Client client = assignSkypeCall.getToAssignSkypeCall();
-			client.setLiveSkypeCall(false);
-			assignSkypeCall.setSkypeCallDateCompleted(true);
-			clientService.updateClient(client);
-			assignSkypeCallService.update(assignSkypeCall);
-		}
-	}
-
-	@Scheduled(fixedRate = 30_000)
-	private void checkCallInSkypeToSendTheNotification() {
-		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
-			Client client = assignSkypeCall.getToAssignSkypeCall();
-			String skypeTemplateHtml = env.getRequiredProperty("skype.template");
-			String skypeTemplateText = env.getRequiredProperty("skype.textTemplate");
-			String skypeTheme = env.getRequiredProperty("skype.theme");
-			User principal = assignSkypeCall.getFromAssignSkypeCall();
-			Long clientId = client.getId();
-			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
-					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
-			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-			if (clientService.hasClientSocialProfileByType(client, "vk")) {
-				try {
-					vkService.sendMessageToClient(clientId, skypeTemplateText, dateOfSkypeCall, principal);
-				} catch (Exception e) {
-					logger.warn("VK message not sent", e);
-				}
-			}
-			if (client.getPhoneNumber().isPresent() && !client.getPhoneNumber().get().isEmpty()) {
-				try {
-					smsService.sendSMS(clientId, skypeTemplateText, dateOfSkypeCall, principal);
-				} catch (Exception e) {
-					logger.warn("SMS message not sent", e);
-				}
-			}
-			if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
-				try {
-					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal, skypeTheme);
-				} catch (Exception e) {
-					logger.warn("E-mail message not sent");
-				}
-			}
-			assignSkypeCall.setTheNotificationWasIsSent(true);
-			assignSkypeCallService.update(assignSkypeCall);
-		}
-	}
 
 	@Scheduled(fixedRate = 5_000)
 	private void handleRequestsFromVk() {
