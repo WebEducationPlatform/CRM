@@ -1,10 +1,17 @@
 package com.ewp.crm.repository.impl;
 
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
+import com.ewp.crm.models.StudentStatus;
+import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.all_students_page.ClientDtoForAllStudentsPage;
+import com.ewp.crm.models.dto.all_students_page.SocialNetworkDto;
 import com.ewp.crm.models.dto.all_students_page.StudentDto;
+import com.ewp.crm.models.dto.all_students_page.StudentStatusDto;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
+import org.apache.poi.poifs.crypt.dsig.services.TimeStampService;
+import org.apache.poi.poifs.crypt.dsig.services.TimeStampServiceValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -112,31 +120,37 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         List<StudentDto> result = new ArrayList<>();
 
         List<Tuple> tupleStudents = entityManager.createNativeQuery(
-                "SELECT s.id AS id, s.notes AS notes, s.color AS color, s.end_trial AS trialEndDate," +
-                "s.next_pay AS nextPaymentDate, s.price AS price, s.amount AS payment_amount," +
-                "s.later AS payLater, s.notify_email AS notifyEmail, s.notify_sms AS notifySms," +
-                "s.notify_vk AS notifyVK, s.notify_slack AS notifySlack, s.status_id AS studentStatusID," +
-                "c.client_id AS client_id, c.first_name AS first_name, c.last_name AS last_name," +
-                "c.phone_number AS phoneNumber, c.email AS clientEmail, " +
-                "ss.status AS studentStatusName," +
-                "st.status_id AS statusID , st.status_name AS statusName " +
-                "FROM student s, student_status ss, client c, status st, status_clients sc " +
-                "WHERE s.client_id = c.client_id " +
+                "SELECT s.id AS id, s.notes AS notes, s.color AS color, s.end_trial AS trialEndDate, " +
+                        "s.next_pay AS nextPaymentDate, s.price AS price, s.amount AS payment_amount, " +
+                        "s.later AS payLater, s.notify_email AS notifyEmail, s.notify_sms AS notifySms, " +
+                        "s.notify_vk AS notifyVK, s.notify_slack AS notifySlack, " +
+                        //Поля для клиента
+                        "c.client_id AS client_id, c.first_name AS first_name, c.last_name AS last_name, " +
+                        "c.phone_number AS phoneNumber, c.email AS clientEmail, " +
+                        "ss.id AS studentStatusId, ss.status AS studentStatusName, " +
+                        // Поля для статуса
+                        "st.status_id AS statusID, st.status_name AS statusName " +
+
+                        "FROM student s, " +
+                        "student_status ss, " +
+                        "client c, " +
+                        "status st, " +
+                        "status_clients sc " +
+
+                        "WHERE s.client_id = c.client_id " +
                         "AND s.status_id = ss.id " +
                         "AND st.status_id = sc.status_id " +
-                        "AND c.client_id = sc.user_id;",
+                        "AND c.client_id = sc.user_id;"
 
-                Tuple.class).getResultList();
-        /**
-         * todo надо завершить выборку и проверить, как она работает!
-         */
+                , Tuple.class).getResultList();
 
         for (Tuple tuple : tupleStudents) {
-            long statusId = ((BigInteger) tuple.get("id")).longValue();
+            //Поля для StudentDto
+            long studentID = ((BigInteger) tuple.get("id")).longValue();
             String notes = tuple.get("notes") == null ? "" : (String) tuple.get("notes");
             String color = tuple.get("color") == null ? "" : (String) tuple.get("color");
-            LocalDateTime trialEndDate = ((LocalDateTime) tuple.get("trialEndDate"));
-            LocalDateTime nextPaymentDate = ((LocalDateTime) tuple.get("nextPaymentDate"));
+            LocalDateTime trialEndDate = ((Timestamp) tuple.get("trialEndDate")).toLocalDateTime();
+            LocalDateTime nextPaymentDate = ((Timestamp) tuple.get("nextPaymentDate")).toLocalDateTime();
             BigDecimal price = ((BigDecimal) tuple.get("price"));
             BigDecimal paymentAmount = ((BigDecimal) tuple.get("payment_amount"));
             BigDecimal payLater = ((BigDecimal) tuple.get("payLater"));
@@ -144,10 +158,80 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
             boolean notifySms = (boolean) tuple.get("notifySms");
             boolean notifyVK = (boolean) tuple.get("notifyVK");
             boolean notifySlack = (boolean) tuple.get("notifySlack");
+            long studentStatusId = ((BigInteger) tuple.get("studentStatusId")).longValue();
+            String studentStatusName = tuple.get("studentStatusName") == null ? "" : (String) tuple.get("studentStatusName");
+            //Создать StudentStatus по имени studentStatusName и добавить студенту.
+
+            //Поля для ClientDtoForAllStudentsPage
+            long clientId = ((BigInteger) tuple.get("client_id")).longValue();
+            String firstName = tuple.get("first_name") == null ? "" : (String) tuple.get("first_name");
+            String lastName = tuple.get("last_name") == null ? "" : (String) tuple.get("last_name");
+            String phoneNumber = tuple.get("phoneNumber") == null ? "" : (String) tuple.get("phoneNumber");
+            String email = tuple.get("clientEmail") == null ? "" : (String) tuple.get("clientEmail");
+            long statusID = ((BigInteger) tuple.get("statusID")).longValue();
+            String statusName = tuple.get("statusName") == null ? "" : (String) tuple.get("statusName");
+
+            List<SocialNetworkDto> profiles = getStudentProfiles(clientId);
 
 
+            ClientDtoForAllStudentsPage clientDtoForAllStudentsPage =
+                    new ClientDtoForAllStudentsPage(
+                            clientId,
+                            firstName,
+                            lastName,
+                            phoneNumber,
+                            new StatusDto(statusID, statusName),
+                            email,
+                            profiles
+                    );
+            //Конец создания клиента.
+
+            //StudentDTO
+            StudentDto studentDto = new StudentDto(
+                    studentID,
+                    clientDtoForAllStudentsPage,
+                    notes,
+                    color,
+                    trialEndDate,
+                    nextPaymentDate,
+                    price,
+                    paymentAmount,
+                    payLater,
+                    notifyEmail,
+                    notifySms,
+                    notifyVK,
+                    notifySlack,
+                    new StudentStatusDto(studentStatusId, studentStatusName)
+            );
+            //End
+
+            result.add(studentDto);
         }
 
         return result;
+    }
+
+    private List<SocialNetworkDto> getStudentProfiles(long clientId) {
+        List<SocialNetworkDto> profiles = new ArrayList<>();
+        List<Tuple> socialProfiles = entityManager.createNativeQuery(
+                "SELECT     sn.id AS trueSocialID," +
+                        "           sn.social_id AS socialID," +
+                        "           sn.social_network_type AS networkType " +
+
+                        "FROM       social_network sn," +
+                        "           client_social_network csn " +
+
+                        "WHERE " + clientId + " = csn.client_id " +
+                        "       AND csn.social_network_id = sn.id;"
+        , Tuple.class).getResultList();
+
+        for (Tuple studentProfile : socialProfiles) {
+            long trueSocialId = ((BigInteger) studentProfile.get("trueSocialId")).longValue();
+            String socialId = studentProfile.get("socialID") == null ? "" : (String) studentProfile.get("socialID");
+            String socialNetworkType = studentProfile.get("networkType") == null ? "" : (String) studentProfile.get("networkType");
+            profiles.add(new SocialNetworkDto(trueSocialId, socialId, SocialNetworkType.valueOf(socialNetworkType)));
+        }
+
+        return profiles;
     }
 }
