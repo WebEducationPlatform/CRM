@@ -3,13 +3,11 @@ package com.ewp.crm.controllers;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.User;
-import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.models.vkcampaigns.VkAddFriendsCampaign;
 import com.ewp.crm.models.vkcampaigns.VkUser;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
-import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,6 @@ public class VkController {
 
     private final UserService userService;
     private final VKService vkService;
-    private final VkTrackedClubService vkTrackedClubService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkCampaignService vkCampaignService;
     private final VKConfig vkConfig;
@@ -51,25 +48,14 @@ public class VkController {
     @Autowired
     public VkController(VKService vkService,
                         UserService userService,
-                        VkTrackedClubService vkTrackedClubService,
                         ProjectPropertiesService projectPropertiesService,
                         VkCampaignService vkCampaignService,
                         VKConfig vkConfig) {
         this.vkService = vkService;
         this.userService = userService;
-        this.vkTrackedClubService = vkTrackedClubService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkCampaignService = vkCampaignService;
         this.vkConfig = vkConfig;
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'HR')")
-    @GetMapping(value = "/admin/vkontakte/trackedclub")
-    public ModelAndView trackingGroupInfo() {
-        ModelAndView modelAndView = new ModelAndView("vk-trackedclub-info");
-        modelAndView.addObject("vkTrackedClub", vkTrackedClubService.getAll());
-        modelAndView.addObject("newVkTrackedClub", new VkTrackedClub());
-        return modelAndView;
     }
 
     @GetMapping(value = "/vk-auth")
