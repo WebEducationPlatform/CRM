@@ -94,6 +94,7 @@
                         </div>
                     </div>
                 </div>
+<!--                Список сотрудников-->
                 <div id="user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <div class="panel-heading" id="user_group-heading">
                         <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
@@ -101,7 +102,8 @@
                     </div>
                     <div id="collapseUser" class="panel-collapse collapse in">
                         <div class="panel-body" id="user_group-body">
-                            <table class="table table-bordered">
+                            <input class='form-control clearable' id='searchInput' placeholder='Поиск...' /> <!--Строка поиска по сотрудникам-->
+                            <table class="table table-bordered" id="tbl-verified-users">
                                 <!--Таблица верифицированных пользователей, отрисовка на клиенте-->
                                 <tr style="display:none" id="tr-verified-users">
                                     <td class="unEnabledUser"></td>
@@ -114,7 +116,6 @@
                                                 onclick="fillUsersTableForDelete(this)"></button>
                                     </td>
                                 </tr>
-
                             </table>
                         </div>
                     </div>
