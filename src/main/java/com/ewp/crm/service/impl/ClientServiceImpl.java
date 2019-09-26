@@ -27,24 +27,23 @@ import java.util.*;
 @Transactional
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
-	private final ClientRepository clientRepository;
-	private final SlackInviteLinkRepository slackInviteLinkRepository;
-	private StatusService statusService;
-	private SendNotificationService sendNotificationService;
-	private NotificationRepository notificationRepository;
-	private final SocialProfileService socialProfileService;
-	private final ClientHistoryService clientHistoryService;
-	private final RoleService roleService;
-	private final VKService vkService;
-	private final PhoneValidator phoneValidator;
-	private final PassportService passportService;
-	private final ProjectPropertiesService projectPropertiesService;
-	private final SlackService slackService;
-	private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
-	private Environment env;
-	private final UserService userService;
-	private final StudentRepository studentRepository;
+    private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
+    private final ClientRepository clientRepository;
+    private final SlackInviteLinkRepository slackInviteLinkRepository;
+    private StatusService statusService;
+    private NotificationRepository notificationRepository;
+    private final SocialProfileService socialProfileService;
+    private final ClientHistoryService clientHistoryService;
+    private final RoleService roleService;
+    private final VKService vkService;
+    private final PhoneValidator phoneValidator;
+    private final PassportService passportService;
+    private final ProjectPropertiesService projectPropertiesService;
+    private final SlackService slackService;
+    private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
+    private Environment env;
+    private final UserService userService;
+    private final StudentRepository studentRepository;
 
 	@Autowired
 	public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
@@ -381,32 +380,31 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				existClient.get().addHistory(clientHistory);
 			}
 
-			existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
-			existClient.get().setRepeated(true);
-			sendNotificationService.sendNotificationsAllUsers(existClient.get());
-			Status lastStatus = existClient.get().getStatus();
-			if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
-				statusService.get("Постоплата 3").ifPresent(existClient.get()::setStatus);
-			} else {
-				if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
-					statusService.get("Постоплата JS").ifPresent(existClient.get()::setStatus);
-				} else {
-					statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
-				}
-			}
-			if (!lastStatus.equals(existClient.get().getStatus())) {
-				Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);
-				historyOfChangingStatus.ifPresent(existClient.get()::addHistory);
-				ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
-						ZonedDateTime.now(),
-						lastStatus,
-						existClient.get().getStatus(),
-						existClient.get(),
-						user);
-				clientStatusChangingHistory.setClientCreation(true);
-				clientStatusChangingHistoryService.add(clientStatusChangingHistory);
-			}
-			client.setId(existClient.get().getId());
+            existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
+            existClient.get().setRepeated(true);
+            Status lastStatus = existClient.get().getStatus();
+            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
+                statusService.get("Постоплата 3").ifPresent(existClient.get()::setStatus);
+            } else {
+                if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
+                    statusService.get("Постоплата JS").ifPresent(existClient.get()::setStatus);
+                } else {
+                    statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+                }
+            }
+            if (!lastStatus.equals(existClient.get().getStatus())) {
+                Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);
+                historyOfChangingStatus.ifPresent(existClient.get()::addHistory);
+                ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
+                        ZonedDateTime.now(),
+                        lastStatus,
+                        existClient.get().getStatus(),
+                        existClient.get(),
+                        user);
+                clientStatusChangingHistory.setClientCreation(true);
+                clientStatusChangingHistoryService.add(clientStatusChangingHistory);
+            }
+            client.setId(existClient.get().getId());
 
 			if (existClient.get().getDateOfRegistration() == null) {
 				setClientDateOfRegistrationByHistoryDate(existClient.get());
@@ -420,8 +418,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			setClientDateOfRegistrationByHistoryDate(client);
 		}
 
-		clientRepository.saveAndFlush(client);
-		sendNotificationService.sendNotificationsAllUsers(client);
+        clientRepository.saveAndFlush(client);
 
 		ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
 				client.getDateOfRegistration(),
@@ -632,15 +629,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		return clientRepository.getClientsBySearchPhrase(search);
 	}
 
-	@Autowired
-	public void setSendNotificationService(SendNotificationService sendNotificationService) {
-		this.sendNotificationService = sendNotificationService;
-	}
-
-	@Autowired
-	private void setStatusService(StatusService statusService) {
-		this.statusService = statusService;
-	}
+    @Autowired
+    private void setStatusService(StatusService statusService) {
+        this.statusService = statusService;
+    }
 
 	@Override
 	public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {

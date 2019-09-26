@@ -16,10 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ewp.crm.util.Constants.*;
@@ -39,13 +36,21 @@ public class StatusRestController {
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private final RoleService roleService;
     private final UserStatusService userStatusService;
+    private final SendMailsController sendMailsController;
+    private final MessageTemplateService messageTemplateService;
+    private final MailSendService mailSendService;
+    private final SendNotificationService sendNotificationService;
 
     @Autowired
     public StatusRestController(StatusService statusService, ClientService clientService,
                                 ClientHistoryService clientHistoryService, NotificationService notificationService,
                                 StudentService studentService, StudentStatusService studentStatusService,
                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService,
-                                RoleService roleService, UserStatusService userStatusService) {
+                                RoleService roleService, UserStatusService userStatusService,
+                                SendMailsController sendMailsController,
+                                MessageTemplateService messageTemplateService,
+                                MailSendService mailSendService,
+                                SendNotificationService sendNotificationService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -55,6 +60,10 @@ public class StatusRestController {
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.roleService = roleService;
         this.userStatusService = userStatusService;
+        this.sendMailsController = sendMailsController;
+        this.messageTemplateService = messageTemplateService;
+        this.mailSendService = mailSendService;
+        this.sendNotificationService = sendNotificationService;
     }
 
     @GetMapping
@@ -74,7 +83,6 @@ public class StatusRestController {
     }
 
     @GetMapping(value = "/all/invisible")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession) {
         List<Role> sessionRoles = userFromSession.getRole();
         Role role = roleService.getRoleByName(ROLE_NAME_USER);
@@ -108,7 +116,6 @@ public class StatusRestController {
         final Status status = new Status(statusName);
         statusService.add(status, currentAdmin.getRole());
         Optional<Status> statusOptional = statusService.get(statusName);
-        userStatusService.addStatusForAllUsers(statusOptional.get().getId());
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
         return ResponseEntity.ok("Успешно добавлено");
     }
@@ -132,12 +139,17 @@ public class StatusRestController {
                 currentClient,
                 userFromSession);
         clientStatusChangingHistoryService.add(clientStatusChangingHistory);
+
         if (!lastStatus.isCreateStudent() && currentClient.getStatus().isCreateStudent()) {
             Optional<Student> newStudent = studentService.addStudentForClient(currentClient);
             if (newStudent.isPresent()) {
                 clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
                 clientService.updateClient(currentClient);
                 notificationService.deleteNotificationsByClient(currentClient);
+//                //Отправка сообщения клиенту при смене статуса--------------------
+//                sendNotificationClientChangeStatus(currentClient, userFromSession);
+//                //------------------------------------------------------------------
+                sendNotificationService.sendNotificationsEditStatus(currentClient, currentClient.getStatus());
                 logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
                 return ResponseEntity.ok().build();
             }
@@ -145,9 +157,27 @@ public class StatusRestController {
         }
         clientService.updateClient(currentClient);
         notificationService.deleteNotificationsByClient(currentClient);
+//        //Отправка сообщения клиенту при смене статуса--------------------
+//        sendNotificationClientChangeStatus(currentClient, userFromSession);
+//        //------------------------------------------------------------------
+        sendNotificationService.sendNotificationsEditStatus(currentClient, currentClient.getStatus());
         logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
         return ResponseEntity.ok().build();
     }
+
+    //Метод отправки сообщения по шаблону
+//    private void sendNotificationClientChangeStatus(Client currentClient,
+//                                                    User userFromSession) {
+//        MessageTemplate messageTemplate = messageTemplateService.get(currentClient.getStatus().getTemplateId());
+//        if (messageTemplate != null) {
+//            String templateText = messageTemplate.getTemplateText();
+//            String theme = messageTemplate.getTheme();
+//            mailSendService.prepareAndSend(currentClient.getId(), templateText, templateText, userFromSession, theme);
+//            logger.info("Status change message sent: Client id : " + currentClient.getId());
+//        } else {
+//            logger.info("Message not sent. Assign a template to the status to send a message to the client about the status change.");
+//        }
+//    }
 
     @PostMapping(value = "/client/delete")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
@@ -202,6 +232,19 @@ public class StatusRestController {
         return HttpStatus.NOT_FOUND;
     }
 
+    @PostMapping(value = "/send-notifications")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public HttpStatus sendNotifications(@RequestParam("id") Long id,
+                                        @RequestParam("send") Boolean send,
+                                        @AuthenticationPrincipal User currentUser) {
+        UserStatus userStatus = userStatusService.getUserStatus(currentUser.getId(), id);
+        if (userStatus != null) {
+              userStatusService.updateUserStatusNotifications(currentUser.getId(), id, send);
+            return HttpStatus.OK;
+        }
+        return HttpStatus.NOT_FOUND;
+    }
+
     @PostMapping("/client/changeByName")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity changeStatusByName(@RequestParam("newStatus") String newStatus,
@@ -228,10 +271,19 @@ public class StatusRestController {
     public ResponseEntity updateStatusesPositions(@RequestBody List<StatusPositionIdNameDTO> statusesPositionIdsNameDTO,
                                                   @AuthenticationPrincipal User currentUser) {
         Long in = Long.valueOf(1);
-        for(StatusPositionIdNameDTO statusPositionIdNameDTO : statusesPositionIdsNameDTO) {
+        for (StatusPositionIdNameDTO statusPositionIdNameDTO : statusesPositionIdsNameDTO) {
             userStatusService.updateUserStatus(currentUser.getId(), statusPositionIdNameDTO.getId(), false, in);
             in++;
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/message_template/{statusId}")
+    public ResponseEntity<MessageTemplate> getAllMessageTemplates(@PathVariable("statusId") Long statusId) {
+        MessageTemplate messageTemplate = messageTemplateService.get(statusService.get(statusId).get().getTemplateId());
+        if (messageTemplate == null) {
+            messageTemplate = new MessageTemplate();
+        }
+        return new ResponseEntity<>(messageTemplate, HttpStatus.OK);
     }
 }

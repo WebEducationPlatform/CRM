@@ -8,6 +8,7 @@ $(document).ready(function () {
     getUserLoggedIn(true);
     get_us();
     clientsSearch();
+    statusesSearch();
 
     //Отслеживаем нажатие клавиши Enter при создании нового статуса
     $("#new-status-name").keypress(function (e) {
@@ -254,6 +255,7 @@ function changeStatusName(id) {
     let statusName = $("#change-status-name" + id).val();
     let trial_offset = parseInt($("#trial_offset_" + id).val());
     let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
+    let templateId = $("#edit-status-template" + id ).find("option:selected").val();
 
     var $sel = $("#checkbox_status_roles_" + id ).find("input[type=checkbox]:checked");
     var stRoles = [];
@@ -271,6 +273,7 @@ function changeStatusName(id) {
         name: statusName,
         trialOffset: trial_offset,
         nextPaymentOffset: next_payment_offset,
+        templateId: templateId,
         role: stRoles
     };
 

@@ -5,6 +5,162 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
                    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
+    <changeSet author="Eduard Nabiev" id="834">
+        <sql>
+            ALTER TABLE `crm`.`project_properties`
+            ADD COLUMN `trial_notification_enabled` BIT(1) NOT NULL DEFAULT 0 AFTER `first_skype_call_after_status`,
+            ADD COLUMN `trial_notification_time` TIME NULL DEFAULT NULL AFTER `trial_notification_enabled`,
+            ADD COLUMN `trial_message_template` BIGINT(20) NULL DEFAULT NULL AFTER `trial_notification_time`,
+            ADD INDEX `fk9trialtemlp_idx` (`trial_message_template` ASC);
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD CONSTRAINT `fk9trialtemlp`
+            FOREIGN KEY (`trial_message_template`)
+            REFERENCES `crm`.`message_template` (`id`)
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT;
+        </sql>
+        <rollback>
+            ALTER TABLE `crm`.`project_properties`
+            DROP FOREIGN KEY `fk9trialtemlp`;
+            ALTER TABLE `crm`.`project_properties`
+            DROP COLUMN `trial_message_template`,
+            DROP COLUMN `trial_notification_time`,
+            DROP COLUMN `trial_notification_enabled`,
+            DROP INDEX `fk9trialtemlp_idx` ;
+            ;
+        </rollback>
+        <comment>table TEST creation for demonstration</comment>
+    </changeSet>
 
+    <changeSet author="Eduard Nabiev" id="878">
+        <sql>
+            ALTER TABLE `crm`.`project_properties`
+            DROP FOREIGN KEY `fk4newclientmsgtempl`;
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            DROP COLUMN `new_client_message_template`,
+            DROP INDEX `FKghbjcdvjhk7x4e21i9gj68xbi` ;
+            ;
+            DELETE FROM `crm`.`message_template` WHERE name = 'Оповещение новая заявка';
+            ;
+            ALTER TABLE `crm`.`user`
+            DROP COLUMN `new_client_notify_is_enabled`;
+            ;
+            DELETE FROM crm.user_notification USING user_notification
+            WHERE user_notification.notification_id in (SELECT id FROM crm.notifications where type = 'NEW_USER');
+            ;
+            DELETE FROM crm.client_notification USING client_notification
+            WHERE client_notification.notification_id in (SELECT id FROM crm.notifications where type = 'NEW_USER');
+            ;
+            DELETE FROM crm.notifications where (type = 'NEW_USER' AND id != 0);
+        </sql>
+        <rollback>
+            INSERT INTO `crm`.`message_template`
+            (`name`, `other_text`, `template_text`, `theme`)
+            VALUES ('Оповещение новая заявка', 'Поступила новая заявка из %from% %link% %coordinator%', '<p>Поступила новая заявка из %from% %link% %coordinator%</p>', NULL);
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD COLUMN `new_client_message_template` BIGINT(20) NULL DEFAULT NULL AFTER `default_student_status`;
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD INDEX `FKghbjcdvjhk7x4e21i9gj68xbi` (`new_client_message_template` ASC);
+            ;
+            ALTER TABLE `crm`.`project_properties`
+            ADD CONSTRAINT `fk4newclientmsgtempl`
+            FOREIGN KEY (`new_client_message_template`)
+            REFERENCES `crm`.`message_template` (`id`)
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT;
+            ;
+            UPDATE `crm`.`project_properties`
+            SET `new_client_message_template` = (SELECT id FROM crm.message_template where name = 'Оповещение новая заявка') WHERE `id` = 1;
+            ;
+            ALTER TABLE `crm`.`user`
+            ADD COLUMN `new_client_notify_is_enabled` BIT(1) NULL DEFAULT NULL AFTER `last_name`;
+        </rollback>
+        <comment>table TEST creation for demonstration</comment>
+    </changeSet>
+
+    <changeSet author="Vladimir Nomokonov" id="919-1">
+        <sql>
+            DROP TABLE IF  EXISTS `vk_tracked_club`;
+
+            DROP TABLE IF EXISTS youtube_client_youtube_tracking_card;
+            DROP TABLE IF EXISTS youtube_tracking_card;
+            DROP TABLE IF EXISTS youtube_client_youtube_client_message;
+            DROP TABLE IF EXISTS youtube_client;
+            DROP TABLE IF EXISTS youtube_client_message;
+            DROP TABLE IF EXISTS feedback_client;
+            DROP TABLE IF EXISTS feedback;
+        </sql>
+        <rollback>
+            CREATE TABLE `vk_tracked_club` (
+            `id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `client_id` bigint(20) DEFAULT NULL,
+            `group_id` bigint(20) DEFAULT NULL,
+            `group_name` varchar(255) DEFAULT NULL,
+            `token` varchar(255) DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `UK_crpkyoh8f186f0wy0oa40hiap` (`group_id`)
+            );
+
+            CREATE TABLE `youtube_tracking_card` (
+            `youtube_tracking_card_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `channel_name` varchar(255) DEFAULT NULL,
+            `description` varchar(255) DEFAULT NULL,
+            `has_live_stream` bit(1) DEFAULT NULL,
+            `vk_group` varchar(255) NOT NULL,
+            `youtube_channel` varchar(255) NOT NULL,
+            PRIMARY KEY (`youtube_tracking_card_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client_youtube_tracking_card` (
+            `youtube_tracking_card_id` bigint(20) NOT NULL,
+            `youtube_client_id` bigint(20) NOT NULL,
+            PRIMARY KEY (`youtube_client_id`),
+            KEY `FKndhe41q8e9wxeqqgslf36tkla` (`youtube_tracking_card_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client` (
+            `youtube_client_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `checked` bit(1) DEFAULT NULL,
+            `full_name` varchar(255) NOT NULL,
+            `upload_date` datetime DEFAULT NULL,
+            PRIMARY KEY (`youtube_client_id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client_message` (
+            `youtube_client_message_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `messages` varchar(255) DEFAULT NULL,
+            PRIMARY KEY (`youtube_client_message_id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=651 DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `youtube_client_youtube_client_message` (
+            `youtube_client_id` bigint(20) DEFAULT NULL,
+            `youtube_client_messages_id` bigint(20) NOT NULL,
+            PRIMARY KEY (`youtube_client_messages_id`),
+            KEY `FK_YOUTUBE_CLIENT_YOUTUBE_CLIENT_MESSAGES` (`youtube_client_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE `feedback` (
+            `feedback_id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `social_url` varchar(255) DEFAULT NULL,
+            `text` longtext,
+            `video_url` varchar(255) DEFAULT NULL,
+            PRIMARY KEY (`feedback_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE `feedback_client` (
+            `client_id` bigint(20) DEFAULT NULL,
+            `feedback_id` bigint(20) NOT NULL,
+            PRIMARY KEY (`feedback_id`),
+            KEY `FK_CLIENT` (`client_id`),
+            CONSTRAINT `FK_FEEDBACK` FOREIGN KEY (`feedback_id`) REFERENCES `feedback` (`feedback_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

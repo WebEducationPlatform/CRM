@@ -27,6 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class StatusApiRestControllerTest2 {
 
+    /***
+     * Здесь комментарий оставлен специально, чтобы сделать можно было бы ПР!
+     */
+
     private String baseUri = "http://localhost:9999/rest/api/status";
 
     @Autowired
@@ -38,10 +42,10 @@ public class StatusApiRestControllerTest2 {
     @Autowired
     private StatusApiRestController statusApiRestController;
 
+    private String statusName = "TestNameForStatus";
+
     @Test
     public void addStatusApi() throws Exception {
-
-        String statusName = "TestNameForStatus"; //На всякий пожарный проверять, есть ли такое имя в базе!
 
         int response = this.mockMvc.perform(post(baseUri + "/" + statusName))
                 .andDo(print())
@@ -58,14 +62,16 @@ public class StatusApiRestControllerTest2 {
     @Test
     public void getStatusApi() throws Exception {
 
-        int status = this.mockMvc.perform(get(baseUri + "/64").contentType(MediaType.APPLICATION_JSON))
+        Long status_id = statusService.getStatusByName(statusName).get().getId();
+
+        int status = this.mockMvc.perform(get(baseUri + "/" + status_id).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getStatus();
 
-        int desired = statusApiRestController.getStatusById(64L).getStatusCode().value();
+        int desired = statusApiRestController.getStatusById(status_id).getStatusCode().value();
 
         Assert.assertEquals(status, desired);
 
@@ -74,7 +80,7 @@ public class StatusApiRestControllerTest2 {
     @Test
     public void updateStatusApi() throws Exception {
 
-        Status status = statusService.get(64L).get();
+        Status status = statusService.getStatusByName(statusName).get();
         status.setName("TestNameToo");
         status.setRole(Collections.emptyList()); // Без этого не работает!
 
@@ -91,13 +97,15 @@ public class StatusApiRestControllerTest2 {
                 .andExpect(status().isOk());
 
         Assert.assertEquals(statusCode, 200);
-
+        statusName = "TestNameToo";
     }
 
     @Test
     public void deleteStatusApi() throws Exception {
 
-        int response = this.mockMvc.perform(delete(baseUri + "/57"))
+        Long status_id = statusService.getStatusByName(statusName).get().getId();
+
+        int response = this.mockMvc.perform(delete(baseUri + "/" + status_id))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()

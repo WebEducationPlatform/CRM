@@ -81,8 +81,8 @@
             </button>
         </div>
         <br/>
-        <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal"
+        <div id="notification-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#notification-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
                 Настройка оповещений
             </button>
@@ -270,7 +270,7 @@
 <div th:replace="fragments/birthday-modal::birthDayModal"></div>
 <div th:replace="fragments/auto-answer-modal::autoAnswerModal"></div>
 <div th:replace="fragments/contract-user-setting-modal::contractUserSettingModal"></div>
-<div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
+<div th:replace="fragments/notification-modal::notificationModal"></div>
 <div th:replace="fragments/telegram-auth-modal::telegramAuthModal"></div>
 <div th:replace="fragments/new-student-config-modal::newStudentConfigModal"></div>
 <script type="text/javascript" th:src="@{/js/vk-auth.js}"></script>

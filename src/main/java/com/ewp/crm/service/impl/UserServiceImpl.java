@@ -4,6 +4,7 @@ import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.Role;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.UserRoutes;
 import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
@@ -13,6 +14,7 @@ import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserRoutesService;
 import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.UserStatusService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +46,15 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private final EntityManager entityManager;
     private final RoleService roleService;
     private final UserRoutesService userRoutesService;
+    private final UserStatusService userStatusService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator,
-                           Environment env, EntityManager entityManager, RoleService roleService, UserRoutesService userRoutesService) {
+                           Environment env, EntityManager entityManager, RoleService roleService,
+                           UserRoutesService userRoutesService, UserStatusService userStatusService) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
@@ -58,6 +62,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         this.entityManager = entityManager;
         this.roleService = roleService;
         this.userRoutesService = userRoutesService;
+        this.userStatusService = userStatusService;
     }
 
     @Override
@@ -81,7 +86,31 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         logger.info("{}: user saved successfully", UserServiceImpl.class.getName());
-        return userDAO.saveAndFlush(user);
+        User addUser = userDAO.saveAndFlush(user);
+        if (addUser != null) {
+            userStatusService.addUserForAllStatuses(addUser.getId());
+        }
+        return addUser;
+    }
+
+    @Override
+    public void delete(Long user_id) {
+        logger.info("{} deleting of the user...", UserServiceImpl.class.getName());
+        Optional<User> optional = userDAO.findById(user_id);
+        User user = null;
+        if (optional.isPresent()) {
+            user = optional.get();
+        }
+        userDAO.delete(user);
+        userStatusService.deleteUser(user_id);
+        logger.info("{} user deleted successfully...", UserServiceImpl.class.getName());
+    }
+
+    @Override
+    public void delete(User user) {
+        logger.info("{} deleting of the user...", UserServiceImpl.class.getName());
+        delete(user.getId());
+        logger.info("{} user deleted successfully...", UserServiceImpl.class.getName());
     }
 
     @Override
@@ -118,6 +147,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             userFromDb.setEnableAsignMentorMailNotifications(user.isEnableAsignMentorMailNotifications());
             userFromDb.setIsVerified(user.isVerified());
             userFromDb.setEnabled(user.isEnabled());
+            userFromDb.setRowStatusDirection(user.getRowStatusDirection());
             if (user.getPassword().length() > 0) {
                 if (!user.getPassword().equals(userFromDb.getPassword())){
                     userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));

@@ -1,4 +1,4 @@
-var invisibleStatuses, emailTmpl, verifiedUsers, newUsers, mentors, usersWithoutMentors;
+var invisibleStatuses, emailTmpl, verifiedUsers, newUsers, mentors, usersWithoutMentors, srchStr;
 
 //Search clients in main
 function clientsSearch() {
@@ -19,6 +19,19 @@ function clientsSearch() {
                 jo[i].style.display = 'block';
             }
         }
+    });
+}
+
+function statusesSearch() {
+    $("#search-statuses").keyup(function () {
+        _this = this;
+        $.each($("#table-hidden-statuses tbody tr"), function () {
+            if ($(this).text().toLowerCase().replace('показать', "").indexOf($(_this).val().toLowerCase()) === -1) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
     });
 }
 
@@ -210,9 +223,22 @@ function drawVerifiedUsersTable() {
     getVerifiedUsers();
     let element = $('#tr-verified-users');
     let trHTML = '';
+    let grHTML = '';
     //Очистка содержимого таблицы после ключевого элемента
     element.nextAll().remove();
+    //Ячейки с заголовками для групп сотрудников
+    grHTML += '<tr id="admin"><th colspan="2" style="text-align:center">Админ</th></tr>' +
+        '<tr id="mento"><th colspan="2" style="text-align:center">Ментор</th></tr>' +
+        '<tr id="hr"><th colspan="2" style="text-align:center">Координатор</th></tr>';
+
+    element.after(grHTML);
+
+    let admGroup = $("#admin");
+    let hrGroup = $("#hr");
+    let mentorGroup = $("#mento");
+
     if (verifiedUsers.length !=0) {
+        //Заполняем ячейки для каждлго сотрудника
         for (let i = 0; i < verifiedUsers.length; i++) {
             if (verifiedUsers[i].enabled) {
                 trHTML += "<tr><td>" + verifiedUsers[i].firstName +
@@ -233,12 +259,53 @@ function drawVerifiedUsersTable() {
                         "data-id='" + verifiedUsers[i].id + "' onclick='fillUsersTableForDelete(this)'></button>";
                 }
             }
+
             trHTML += "</td></tr>";
+            //Привязывая сотрудника к группе
+            for (let j = 0; j < verifiedUsers[i].role.length; j++) {
+                if (verifiedUsers[i].role[j].roleName === "ADMIN") {
+                    admGroup.after(trHTML);
+                    trHTML = '';
+                    break;
+                }
+                if (verifiedUsers[i].role[j].roleName === "HR") {
+                    hrGroup.after(trHTML);
+                    trHTML = '';
+                    break;
+                }
+                if (verifiedUsers[i].role[j].roleName === "MENTOR") {
+                    mentorGroup.after(trHTML);
+                    trHTML = '';
+                    break;
+                }
+            }
         }
-        element.after(trHTML);
+
     } else {
         element.after("<p>Пусто</p>");
     }
+}
+
+
+//Фильтр. Отображать только сотрудников, соответствующих результатам поиска (по имени)
+function showUserMatchCondition() {
+    $('#searchInput').keyup(function(){
+        srchStr = this.value.toLowerCase();
+        if (srchStr!=="") {
+            drawVerifiedUsersTable();
+            $("#tbl-verified-users tr").each(function () {
+                if ($(this).text().toLowerCase().startsWith(srchStr) | $(this).text() == 'Админ' | $(this).text() == 'Координатор' | $(this).text() == 'Ментор') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        } else {
+            $("#tbl-verified-users tr").each(function () {
+                $(this).hide();
+            });
+        }
+    });
 }
 
 //Заполняем таблицу новых (неверифицированных) пользователей

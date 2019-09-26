@@ -34,7 +34,7 @@ import java.util.Objects;
 
 
 @Controller
-@PreAuthorize("hasAnyAuthority('OWNER','ADMIN','MENTOR')")
+@PreAuthorize("hasAnyAuthority('OWNER','ADMIN','MENTOR','HR')")
 @RequestMapping("/mentors")
 @PropertySource({"file:./slackbot.properties", "file:./mentors.properties"})
 public class MentorsController {
