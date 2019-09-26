@@ -145,6 +145,7 @@ $(document).ready(function () {
                 if (userLoggedIn.authorities.some(arrayEl => (arrayEl.authority === 'OWNER') || (arrayEl.authority === 'ADMIN') || (arrayEl.authority === 'HR'))) {
                     showUserMatchCondition();
                     drawNewUsersTable();
+                    drawVerifiedUsersTable();
                 }
             };
             var hidePanel = function () {
