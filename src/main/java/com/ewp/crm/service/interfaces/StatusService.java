@@ -46,8 +46,6 @@ public interface StatusService {
 
     List<Status> getAllStatusesForStudents();
 
-    List<StatusDto> getAllStatusesIdsForStudents();
-
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible(User user);
