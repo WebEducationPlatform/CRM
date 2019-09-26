@@ -180,6 +180,12 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         return result;
     }
 
+    /**
+     * Если id соц.сети не нужны, то можно удалить ДТО соц.сети и использовать
+     * непосредственно сам класс SocialProfile.java
+     * @param clientId - получаем при прогонке по циклу студентов в методе getStudentDtoForAllStudentsPage().
+     * @return
+     */
     private List<SocialNetworkDto> getStudentProfiles(long clientId) {
         List<SocialNetworkDto> profiles = new ArrayList<>();
         List<Tuple> socialProfiles = entityManager.createNativeQuery(
