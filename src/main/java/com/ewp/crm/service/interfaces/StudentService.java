@@ -20,8 +20,6 @@ public interface StudentService extends CommonService<Student> {
 
     List<Student> getStudentsWithTodayTrialNotificationsEnabled();
 
-    long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses);
-
     void detach(Student student);
 
     Optional<Student> getStudentByClientId(Long clientId);
