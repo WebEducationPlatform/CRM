@@ -163,4 +163,33 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="Sergey Kozionov" id="902">
+        <sql>
+            CREATE TABLE `course` (
+            `course_id` bigint NOT NULL AUTO_INCREMENT,
+            `course_name` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`course_id`))
+            ENGINE = INNODB;
+
+            CREATE TABLE `courses_clients` (
+            `course_id` bigint NOT NULL,
+            `client_id` bigint NOT NULL,
+            CONSTRAINT FK_COURSE_US FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+            CONSTRAINT FK_CLIENT FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE )
+            ENGINE = INNODB;
+
+            CREATE TABLE `courses_mentors` (
+            `course_id` bigint NOT NULL,
+            `mentor_id` bigint NOT NULL,
+            CONSTRAINT FK_COURSE_CL FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+            CONSTRAINT FK_MENTOR FOREIGN KEY (mentor_id) REFERENCES mentor(user_id) ON DELETE CASCADE )
+            ENGINE = INNODB;
+        </sql>
+        <rollback>
+            DROP TABLE `courses_mentors`;
+            DROP TABLE `courses_clients`;
+            DROP TABLE `course`;
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>
