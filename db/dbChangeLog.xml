@@ -1,10 +1,72 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
-                   http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet author="Tyurin Denis" id="885">
+        <comment>
+            Реорганизация БД для сокращения количества таблиц и удаления избыточных связей при работе с комментариями
+            (comment) и ответами на комментарии (comment_answer). Количество таблиц, обеспечиваюих данный функционал,
+            сократится с шести до трех: comment, comment_answer, client_comment.
+            Будут удалены таблицы: user_id, comment_comment_answer, client_comment_answer.
+            Ответ на комментарий будет связан с оригинальным комментарием и пользователем, который его оставил. Связь
+            с клиентом (client) будет удалена, как избыточная, так как с клиентом уже связан оригинальный комментарий.
+        </comment>
+        <sql>
+            <!-- создаем резервные копии модифицируемых\удаляемых таблиц -->
+            CREATE TABLE ___comment_answer SELECT * FROM comment_answer;
+            CREATE TABLE ___user_id SELECT * FROM crm.user_id;
+            CREATE TABLE ___comment_comment_answer SELECT * FROM crm.comment_comment_answer;
+            CREATE TABLE ___client_comment_answer SELECT * FROM crm.client_comment_answer;
 
+            <!-- удаляем из таблицы user_id записи, ссылающиеся на несуществующего пользователя (user) -->
+            DELETE FROM crm.user_id WHERE user_user_id NOT IN (SELECT user_id FROM crm.user);
 
+            <!-- удаляем из таблицы comment_comment_answer записи, ссылающиеся на несуществующий комментарий (comment)-->
+            DELETE FROM crm.comment_comment_answer WHERE comment_id NOT IN (SELECT comment_id FROM crm.comment);
+
+            <!-- добавляем в таблицу comment_answer столбцы comment_id и user_id -->
+            ALTER TABLE `crm`.`comment_answer`
+            ADD COLUMN `comment_id` BIGINT(20) AFTER `date`,
+            ADD COLUMN `user_id` BIGINT(20) AFTER `comment_id`,
+            ADD INDEX `comment_id_idx` (`comment_id` ASC),
+            ADD INDEX `user_id_idx` (`user_id` ASC);
+
+            <!-- превращаем столбцы comment_id и user_id в столбцы соединения, связывающие таблицу comment_answer с таблицами comment и user -->
+            ALTER TABLE `crm`.`comment_answer`
+            ADD CONSTRAINT `comment_id`
+            FOREIGN KEY (`comment_id`)
+            REFERENCES `crm`.`comment` (`comment_id`)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+            ADD CONSTRAINT `user_id`
+            FOREIGN KEY (`user_id`)
+            REFERENCES `crm`.`user` (`user_id`)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE;
+
+            <!-- заполняем столбец соединения в таблице comment_answer данными из таблицы user_id -->
+            UPDATE comment_answer, user_id SET comment_answer.user_id = user_id.user_user_id WHERE
+            comment_answer.answer_id = user_id.answer_id;
+
+            <!-- заполняем столбец соединения в таблице comment_answer данными из таблицы comment_comment_answer -->
+            UPDATE comment_answer, comment_comment_answer SET comment_answer.comment_id =
+            comment_comment_answer.comment_id
+            WHERE comment_answer.answer_id = comment_comment_answer.answer_id;
+
+            <!-- удаляем таблицы comment_comment_answer, user_id, client_comment_answer -->
+            DROP TABLE user_id, comment_comment_answer, client_comment_answer;
+        </sql>
+
+        <rollback>
+            DROP TABLE comment_answer;
+
+            CREATE TABLE comment_answer SELECT * FROM ___comment_answer;
+            CREATE TABLE user_id SELECT * FROM ___user_id;
+            CREATE TABLE comment_comment_answer SELECT * FROM ___comment_comment_answer;
+            CREATE TABLE client_comment_answer SELECT * FROM ___client_comment_answer;
+
+            DROP TABLE ___comment_answer, ___user_id, ___comment_comment_answer, ___client_comment_answer;
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

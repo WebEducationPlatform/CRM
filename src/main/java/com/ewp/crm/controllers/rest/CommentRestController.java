@@ -53,9 +53,9 @@ public class CommentRestController {
 	                                          @RequestParam(name = "content") String content,
 											  @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
-		if (client == null) { // TODO если клиент в этом момент не может быть удален, то проверка избыточна
+		if (client == null) {
 			logger.error("Can`t add comment, client with id {} not found", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // TODO ?????
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 		sendNotificationService.sendNotification(content, client);
 		Comment newComment = new Comment(userFromSession, client, content);
@@ -73,19 +73,17 @@ public class CommentRestController {
 		sendNotificationService.sendNotification(content, client);
 		CommentAnswer commentAnswer = new CommentAnswer(currentUser, content, originalComment);
 		commentAnswerService.addCommentAnswer(commentAnswer);
-//		originalComment.addAnswer(commentAnswer); //TODO просить Стаса почему этот вызов не нужен!
 		return ResponseEntity.ok(commentAnswer);
 	}
 
 	@PostMapping(value = "/delete/answer")
 	public ResponseEntity deleteCommentAnswer(@RequestParam(name = "id") Long id,
 											  @AuthenticationPrincipal User userFromSession) {
-		//TODO если пользователя, который создал комментарий уже не существует, то как его удалять??
 		if (commentAnswerService.get(id).getUser().equals(userFromSession)) {
 			commentAnswerService.delete(id);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // TODO зачем???
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
 
@@ -99,7 +97,7 @@ public class CommentRestController {
 			commentAnswerService.update(commentAnswer);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // TODO зачем?
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
 
@@ -110,7 +108,7 @@ public class CommentRestController {
 			commentService.delete(id);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // TODO зачем?
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
 
@@ -118,7 +116,7 @@ public class CommentRestController {
 	public ResponseEntity editComment(@RequestParam(name = "id") Long id,
                                       @RequestParam(name = "content") String content,
 									  @AuthenticationPrincipal User userFromSession) {
-		if (commentService.get(id).getUser().equals(userFromSession)) { // TODO зачем? От кого эта защита?
+		if (commentService.get(id).getUser().equals(userFromSession)) {
 			Comment comment = commentService.get(id);
 			comment.setContent(content);
 			commentService.update(comment);

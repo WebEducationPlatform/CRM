@@ -45,16 +45,11 @@ public class Comment {
 	 * We use FetchType.LAZY for lazy initialization.
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "originalComment")
-//	@OrderBy("date DESC")
-//	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//	@JoinTable(name = "comment_comment_answer",
-//			joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))},
-//			inverseJoinColumns = {@JoinColumn(name = "answer_id", foreignKey = @ForeignKey(name = "FK_ANSWER"))})
 	private List<CommentAnswer> commentAnswers;
 
 	public Comment() {
-	}
 
+	}
 
 	public Comment(User user, Client client, String content) {
 		this.user = user;
@@ -103,39 +98,40 @@ public class Comment {
 		this.dateFormat = dateFormat;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Comment comment = (Comment) o;
-		if (!Objects.equals(id, comment.id)) return false;
-		if (!Objects.equals(user, comment.user)) return false;
-		if (!Objects.equals(client, comment.client)) return false;
-		if (!Objects.equals(dateFormat, comment.dateFormat)) return false;
-		return Objects.equals(content, comment.content);
-	}
-
-	@Override
-	public int hashCode() {
-		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (user != null ? user.hashCode() : 0);
-		result = 31 * result + (client != null ? client.hashCode() : 0);
-		result = 31 * result + (dateFormat != null ? dateFormat.hashCode() : 0);
-		result = 31 * result + (content != null ? content.hashCode() : 0);
-		return result;
-	}
-
 	public List<CommentAnswer> getCommentAnswers() {
 		return commentAnswers;
 	}
 
-	//TODO проверить используется ли метод и удалить если нет
-	public void setCommentAnswers(List<CommentAnswer> commentAnswers) {
+    //TODO проверить используется ли метод и удалить если нет
+    public void setCommentAnswers(List<CommentAnswer> commentAnswers) {
 		this.commentAnswers = commentAnswers;
 	}
 
-	public void addAnswer(CommentAnswer commentAnswer) {
+    public void addAnswer(CommentAnswer commentAnswer) {
 		this.commentAnswers.add(commentAnswer);
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Comment comment = (Comment) o;
+        if (!Objects.equals(id, comment.id)) return false;
+        if (!Objects.equals(user, comment.user)) return false;
+        if (!Objects.equals(client, comment.client)) return false;
+        if (!Objects.equals(dateFormat, comment.dateFormat)) return false;
+        return Objects.equals(content, comment.content);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (client != null ? client.hashCode() : 0);
+        result = 31 * result + (dateFormat != null ? dateFormat.hashCode() : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        return result;
+    }
+
 }

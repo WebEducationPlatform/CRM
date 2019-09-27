@@ -19,7 +19,7 @@ public class CommentAnswer {
 	private User user;
 
 	@Column(name = "date")
-	private ZonedDateTime dateFormat;
+	private ZonedDateTime dateFormat; // имя переменной вводит в заблуждение
 
 	@Column(name = "content")
 	@Lob
