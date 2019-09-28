@@ -24,7 +24,7 @@ public class StudentEducationStage {
 
     @Column (name = "education_stage_level", unique = true)
     private Integer educationStageLevel;
-//
+//Для создания однонаправленной связи удалить @OneToMany(mappedBy = "studentEducationStage") геттры и сеттеры
     @OneToMany(mappedBy = "studentEducationStage")
     @JsonIgnore
     private Set<Student> student;
