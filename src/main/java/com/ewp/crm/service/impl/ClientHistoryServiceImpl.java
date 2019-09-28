@@ -4,7 +4,6 @@ import com.ewp.crm.controllers.rest.IPTelephonyRestController;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
-import com.ewp.crm.service.interfaces.AssignSkypeCallService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
 import org.apache.commons.lang3.builder.DiffResult;
@@ -29,15 +28,12 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	private final ClientHistoryRepository clientHistoryRepository;
 	private final MessageService messageService;
-	private final AssignSkypeCallService assignSkypeCallService;
 
 	@Autowired
 	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository,
-									MessageService messageService,
-									AssignSkypeCallService assignSkypeCallService) {
+									MessageService messageService) {
 		this.clientHistoryRepository = clientHistoryRepository;
 		this.messageService = messageService;
-		this.assignSkypeCallService = assignSkypeCallService;
 	}
 
 	@Override
@@ -94,7 +90,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	@Override
 	public Optional<ClientHistory> createHistory(User user, Client client, ClientHistory.Type type) {
 		logger.info("creation of client history...");
-		Optional<AssignSkypeCall> assignSkypeCall;
 		ClientHistory clientHistory = new ClientHistory(type);
 		String action = user.getFullName() + " " + type.getInfo();
 		StringBuilder title = new StringBuilder(action);
@@ -114,16 +109,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 			case SKYPE_UPDATE:
 			case SKYPE_DELETE:
-				assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
-				if (assignSkypeCall.isPresent()) {
-					title.append(" ");
-					title.append("(");
-					title.append(ZonedDateTime.parse(
-							assignSkypeCall.get().getSkypeCallDate().toString())
-							.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
-					title.append(")");
-				}
-				break;
 			case STATUS:
 				title.append(" ").append(client.getStatus());
 				break;

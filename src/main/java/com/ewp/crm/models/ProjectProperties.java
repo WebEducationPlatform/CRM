@@ -44,11 +44,11 @@ public class ProjectProperties {
     private MessageTemplate paymentMessageTemplate;
 
     /**
-     * Message template for scheduled payment notification.
+     * Message template for scheduled trial notification.
      */
     @OneToOne
-    @JoinColumn(name = "new_client_message_template")
-    private MessageTemplate newClientMessageTemplate;
+    @JoinColumn(name = "trial_message_template")
+    private MessageTemplate trialMessageTemplate;
 
     /**
      * Message template for birth day notification.
@@ -68,6 +68,18 @@ public class ProjectProperties {
      */
     @Column(name = "payment_notification_enabled")
     private boolean paymentNotificationEnabled = false;
+
+    /**
+     * Time of the day trial notification invoked in.
+     */
+    @Column(name = "trial_notification_time")
+    private LocalTime trialNotificationTime;
+
+    /**
+     * Is trial notification enabled.
+     */
+    @Column(name = "trial_notification_enabled")
+    private boolean trialNotificationEnabled = false;
 
     /**
      * Auto-answer template for requests from java-mentor.com
@@ -200,6 +212,30 @@ public class ProjectProperties {
         this.paymentNotificationEnabled = paymentNotificationEnabled;
     }
 
+    public MessageTemplate getTrialMessageTemplate() {
+        return trialMessageTemplate;
+    }
+
+    public void setTrialMessageTemplate(MessageTemplate trialMessageTemplate) {
+        this.trialMessageTemplate = trialMessageTemplate;
+    }
+
+    public LocalTime getTrialNotificationTime() {
+        return trialNotificationTime;
+    }
+
+    public void setTrialNotificationTime(LocalTime trialNotificationTime) {
+        this.trialNotificationTime = trialNotificationTime;
+    }
+
+    public boolean isTrialNotificationEnabled() {
+        return trialNotificationEnabled;
+    }
+
+    public void setTrialNotificationEnabled(boolean trialNotificationEnabled) {
+        this.trialNotificationEnabled = trialNotificationEnabled;
+    }
+
     public String getStatusColor() {
         return statusColor;
     }
@@ -296,14 +332,6 @@ public class ProjectProperties {
         this.bankIdentificationCode = bankIdentificationCode;
     }
 
-    public MessageTemplate getNewClientMessageTemplate() {
-        return newClientMessageTemplate;
-    }
-
-    public void setNewClientMessageTemplate(MessageTemplate newClientMessageTemplate) {
-        this.newClientMessageTemplate = newClientMessageTemplate;
-    }
-
     public Long getClientFirstPayStatus() {
         return clientFirstPayStatus;
     }
@@ -349,9 +377,28 @@ public class ProjectProperties {
         return "ProjectProperties{" +
                 "id=" + id +
                 ", technicalAccountToken='" + technicalAccountToken + '\'' +
+                ", repeatedDefaultStatusId=" + repeatedDefaultStatusId +
+                ", newClientStatus=" + newClientStatus +
+                ", clientRejectStudentStatus=" + clientRejectStudentStatus +
+                ", clientFirstPayStatus=" + clientFirstPayStatus +
+                ", firstSkypeCallAfterStatus=" + firstSkypeCallAfterStatus +
                 ", paymentMessageTemplate=" + paymentMessageTemplate +
+                ", birthDayMessageTemplate=" + birthDayMessageTemplate +
                 ", paymentNotificationTime=" + paymentNotificationTime +
                 ", paymentNotificationEnabled=" + paymentNotificationEnabled +
+                ", autoAnswerTemplate=" + autoAnswerTemplate +
+                ", statusColor='" + statusColor + '\'' +
+                ", defaultPricePerMonth=" + defaultPricePerMonth +
+                ", defaultPayment=" + defaultPayment +
+                ", defaultStudentStatus=" + defaultStudentStatus +
+                ", contractLastId=" + contractLastId +
+                ", contractTemplate=" + contractTemplate +
+                ", slackDefaultUsers='" + slackDefaultUsers + '\'' +
+                ", slackInviteLink='" + slackInviteLink + '\'' +
+                ", inn='" + inn + '\'' +
+                ", checkingAccount='" + checkingAccount + '\'' +
+                ", correspondentAccount='" + correspondentAccount + '\'' +
+                ", bankIdentificationCode='" + bankIdentificationCode + '\'' +
                 '}';
     }
 }

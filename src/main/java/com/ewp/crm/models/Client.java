@@ -188,22 +188,7 @@ public class Client implements Serializable, Diffable<Client> {
     @BatchSize(size = 25)
     private List<ClientHistory> history = new ArrayList<>();
 
-    /**
-     * OrderBy determines the ordering of the elements.
-     * We use CascadeType.ALL to manage entity through Client's entity.
-     * OrphanRemoval needs for a disconnected instance is automatically removed.
-     * OneToMany uses FetchType.LAZY by default.
-     * We use BatchSize to control our queries and not request too many entities.
-     */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "feedback_client",
-            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))})
-    @OrderBy("id DESC")
-    @BatchSize(size = 25)
-    private List<ClientFeedback> feedback = new ArrayList<>();
-
-    /**
+      /**
      * We use CascadeType.ALL to manage entity through Client's entity.
      * OrphanRemoval needs for a disconnected instance is automatically removed.
      * OneToMany uses FetchType.LAZY by default.
@@ -305,6 +290,9 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "minutes_to_first_call_with_hr")
     private Integer minutesToFirstCallWithHr;
+
+    @ManyToMany(mappedBy = "clients")
+    private List<Course> courses = new ArrayList<>();
 
     public Client() {}
 
@@ -655,6 +643,13 @@ public class Client implements Serializable, Diffable<Client> {
         this.otherInformationLinkData = otherInformationLinkData;
     }
 
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -718,18 +713,6 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void addCallRecord(CallRecord callRecord) {
         this.callRecords.add(callRecord);
-    }
-
-    public List<ClientFeedback> getFeedback() {
-        return feedback;
-    }
-
-    public void setFeedback(List<ClientFeedback> feedback) {
-        this.feedback = feedback;
-    }
-
-    public void addFeedback(ClientFeedback feedback) {
-        this.feedback.add(feedback);
     }
 
     @Override

@@ -48,46 +48,15 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     @Override
-    public long countActiveByDateAndStatuses(ZonedDateTime day, List<Long> studentStatuses) {
-        String query = "SELECT COUNT(*) FROM (" +
-                "SELECT csch.client_id FROM client_status_changing_history csch " +
-                "RIGHT JOIN status s " +
-                "ON " +
-                "   s.status_id = csch.new_status_id " +
-                "WHERE " +
-                "   csch.new_status_id IN (:statuses) AND" +
-                "   csch.date <= :day AND" +
-                "   csch.client_id NOT IN (" +
-                "       SELECT csch.client_id FROM client_status_changing_history csch" +
-                "       RIGHT JOIN status s " +
-                "       ON " +
-                "           s.status_id = csch.new_status_id" +
-                "       LEFT JOIN (" +
-                "           SELECT csch.client_id, MAX(csch.date) AS date FROM client_status_changing_history csch" +
-                "           RIGHT JOIN status s " +
-                "           ON " +
-                "               s.status_id = csch.new_status_id" +
-                "           WHERE " +
-                "               csch.new_status_id IN (:statuses) AND" +
-                "               csch.date <= :day" +
-                "           GROUP BY csch.client_id" +
-                "       ) d ON d.client_id = csch.client_id" +
-                "       WHERE " +
-                "           csch.date <= :day AND" +
-                "           csch.date > d.date" +
-                "       GROUP BY csch.client_id" +
-                "   )" +
-                "GROUP BY csch.client_id" +
-                ") x;";
-        try {
-            return ((BigInteger) entityManager.createNativeQuery(query)
-                    .setParameter("day", day)
-                    .setParameter("statuses", studentStatuses)
-                    .getSingleResult()).longValue();
-        } catch (Exception e) {
-            logger.error("Failed to count students by date {}", day, e);
-        }
-        return 0;
+    public List<Student> getStudentsWithTodayTrialNotificationsEnabled() {
+        // Получаем всех студентов, у которых статус клиента = 3 (На пробных), включен любой способ нотификации
+        // и дата удовлетворяет заданному условию
+        return entityManager.createNativeQuery(
+                "SELECT * FROM student s WHERE (((s.notify_email = '1') OR (s.notify_sms = '1') OR " +
+                        "(s.notify_vk = '1') OR (s.notify_slack = '1')) AND " +
+                        "(s.end_trial >= CURDATE() AND s.end_trial < CURDATE() + INTERVAL 1 DAY)) AND " +
+                        "s.client_id IN (SELECT sc.user_id FROM status_clients sc WHERE sc.status_id = '3');", Student.class)
+                .getResultList();
     }
 
     @Override

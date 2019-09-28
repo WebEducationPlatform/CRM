@@ -1,33 +1,16 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.ConditionToDownload;
-import com.ewp.crm.models.FilteringCondition;
-import com.ewp.crm.models.Message;
-import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.StudentStatus;
-import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientCardDtoBuilder;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.MessageService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.ReportService;
-import com.ewp.crm.service.interfaces.SocialProfileService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -37,13 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -628,7 +606,7 @@ public class ClientRestController {
 
     @PostMapping("/emails/statuses")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
-    public ResponseEntity<List<String>> getClientsEmailsByStatuses(@RequestParam(name="statuses") List<Long> statuses) {
+    public ResponseEntity<List<String>> getClientsEmailsByStatuses(@RequestParam(name = "statuses") List<Long> statuses) {
         if (clientService.getClientsEmailsByStatusesIds(statuses).isPresent()) {
             return new ResponseEntity<>(clientService.getClientsEmailsByStatusesIds(statuses).get(), HttpStatus.OK);
         } else {
@@ -638,40 +616,39 @@ public class ClientRestController {
 
     @PostMapping("/emails/filters")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
-    public ResponseEntity<List<String>> getClientsEmailsByStatuses(@RequestParam(name="country") String country,
-                                                                   @RequestParam(name="city") String city,
-                                                                   @RequestParam(name="age_min") String age_min,
-                                                                   @RequestParam(name="age_max") String age_max,
+    public ResponseEntity<List<String>> getClientsEmailsByStatuses(@RequestParam(name = "country") String country,
+                                                                   @RequestParam(name = "city") String city,
+                                                                   @RequestParam(name = "age_min") String age_min,
+                                                                   @RequestParam(name = "age_max") String age_max,
 
-                                                                   @RequestParam(name="sex") String sex) {
+                                                                   @RequestParam(name = "sex") String sex) {
 
         FilteringCondition filteringCondition = new FilteringCondition();
-        if (!age_min.equals("-1")){
-            filteringCondition.setAgeFrom(Integer.valueOf(age_min)) ;
+        if (!age_min.equals("-1")) {
+            filteringCondition.setAgeFrom(Integer.valueOf(age_min));
         }
-        if ( !age_max.equals("-1")){
+        if (!age_max.equals("-1")) {
             filteringCondition.setAgeTo(Integer.valueOf(age_max));
         }
-        if(country.length() > 0) {
+        if (country.length() > 0) {
             filteringCondition.setCountry(country);
         }
-        if (city.length() > 0){
+        if (city.length() > 0) {
             filteringCondition.setCity(city);
         }
         if (!sex.equalsIgnoreCase("ANY")) {
-            if (sex.equalsIgnoreCase("MALE")){
+            if (sex.equalsIgnoreCase("MALE")) {
                 filteringCondition.setSex(Client.Sex.MALE);
-            }
-            else {
+            } else {
                 filteringCondition.setSex(Client.Sex.FEMALE);
             }
         }
-            return new ResponseEntity<>(clientService.getFilteredClientsEmail(filteringCondition), HttpStatus.OK);
+        return new ResponseEntity<>(clientService.getFilteredClientsEmail(filteringCondition), HttpStatus.OK);
     }
 
     @PostMapping("/phones/statuses")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
-    public ResponseEntity<List<String>> getClientsPhoneNumbersByStatuses(@RequestParam(name="statuses") List<Long> statuses) {
+    public ResponseEntity<List<String>> getClientsPhoneNumbersByStatuses(@RequestParam(name = "statuses") List<Long> statuses) {
         if (clientService.getClientsPhoneNumbersByStatusesIds(statuses).isPresent()) {
             return new ResponseEntity<>(clientService.getClientsPhoneNumbersByStatusesIds(statuses).get(), HttpStatus.OK);
         } else {
@@ -681,12 +658,17 @@ public class ClientRestController {
 
     @GetMapping("/names")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
-    public List<Optional<Client>> getClientsByFullName (@RequestParam("full_names") List<String> fullNames) {
+    public List<Optional<Client>> getClientsByFullName(@RequestParam("full_names") List<String> fullNames) {
         List<Optional<Client>> clients = new ArrayList<>();
         fullNames.forEach(fullName -> {
             String[] splitedNames = fullName.split(" ");
             clients.add(clientService.findByNameAndLastNameIgnoreCase(splitedNames[0], splitedNames[1]));
         });
         return clients;
+    }
+
+    @GetMapping("/export_in_excel_or_csv")
+    public void createFileForBitrix24(@RequestParam("formatFile") String formatFile) {
+        fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile);
     }
 }

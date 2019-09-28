@@ -31,7 +31,11 @@ public class MessageTemplateRestController {
 
     @GetMapping
     public ResponseEntity<List<MessageTemplate>> getAllMessageTemplates() {
-        return new ResponseEntity<>(messageTemplateService.getAll(), HttpStatus.OK);
+        List<MessageTemplate> messageTemplate = messageTemplateService.getAll();
+        if (messageTemplate == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(messageTemplate, HttpStatus.OK);
     }
 
     @PostMapping

@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 @RequestMapping("/rest/admin/status")
 public class AdminRestStatusController {
 
@@ -47,6 +46,7 @@ public class AdminRestStatusController {
 			status.get().setTrialOffset(newStatus.getTrialOffset());
 			status.get().setNextPaymentOffset(newStatus.getNextPaymentOffset());
 			status.get().setRole(newStatus.getRole());
+			status.get().setTemplateId(newStatus.getTemplateId());
 			statusService.update(status.get());
 			logger.info("{} has updated status {}", currentAdmin.getFullName(), newStatus.getName());
 			return ResponseEntity.ok().build();
@@ -63,7 +63,6 @@ public class AdminRestStatusController {
 			for (Client client : clients) {
 				notificationService.deleteNotificationsByClient(client);
 			}
-			userStatusService.deleteStatus(deleteId);
 			statusService.delete(deleteId);
 			logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
 			return ResponseEntity.ok().build();

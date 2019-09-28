@@ -39,6 +39,7 @@
 
                 <ul id="nav-bar-list" class="nav navbar-nav">
                     <li><a href="/client">Доска</a></li>
+                    <li><a href="/courses">Направления</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Клиенты
@@ -50,7 +51,6 @@
                             <li><a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')" class="dropdown-item" href="/hr/students">Пропавшие студенты</a></li>
                         </ul>
                     </li>
-                    <li><a href="/firstCallClients" sec:authorize="hasAnyAuthority('OWNER', 'MENTOR', 'HR')">Первые</a></li>
 <!--                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы-->
 <!--                        обучения</a></li>-->
                     <li class="nav-item dropdown">
@@ -67,16 +67,40 @@
 <!--                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>-->
                     <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
                     <li class="nav-item dropdown">
-                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Сотрудники
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <li><a class="dropdown-item" href="/mentors">Менторы</a></li>
-                            <li><a class="dropdown-item" href="/hr/managers">Координаторы</a></li>
+                            <li><a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="dropdown-item" href="/hr/managers">Координаторы</a></li>
                         </ul>
                     </li>
                     <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
+
+                    <li class="nav-item dropdown">
+                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuImport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Экспорт
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="#" onclick="exportForBitrix24('csv')">Список клиентов (*.csv)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportForBitrix24('xlsx')">Список клиентов (*.xlsx)</a></li>
+                            <script>
+                                function exportForBitrix24(formatFile) {
+                                    $.ajax({
+                                        async: false,
+                                        url: '/rest/client/export_in_excel_or_csv',
+                                        method: 'GET',
+                                        data: {formatFile: formatFile},
+                                        success: function (strDir) {
+                                            window.location.replace("/rest/client/getClientsData");
+                                        }
+                                    });
+                                }
+                            </script>
+                        </ul>
+                    </li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
@@ -147,12 +171,12 @@
                                         </li>
                                     </th:block>
                                     <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).NEW_USER}">
+                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).EDIT_STATUS}">
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
                                                th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
-                                               th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
+                                               th:text="${'У клиента - ' + notification.client.name + ' ' + notification.client.lastName + ' статус изменился на ' + notification.information}">
                                             </a>
                                         </li>
                                     </th:block>
@@ -440,134 +464,6 @@
     </div>
 </th:block>
 
-<th:block th:fragment="deleteVkTrackedClub">
-    <div th:each="club : ${vkTrackedClub}">
-        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-cfontent">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Подтвердите свое действие</h5>
-                    </div>
-                    <div class="modal-body">
-                        <h6>Вы уверены, что хотите удалить отслеживаемую группу ВК?</h6>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary"
-                                th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Да
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</th:block>
-
-<th:block th:fragment="deleteVkTrackedClub">
-    <div th:each="club : ${vkTrackedClub}">
-        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Подтвердите свое действие</h5>
-                    </div>
-                    <div class="modal-body">
-                        <h6>Вы уверены, что хотите удалить отслеживаемую группу ВК?</h6>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary"
-                                th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Удалить
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</th:block>
-
-<th:block th:fragment="updateVkTrackedClub">
-    <div th:each="club : ${vkTrackedClub}">
-        <div class="modal fade" th:id="'updateVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Изменить данные сообщества</h5>
-                    </div>
-                    <div class="modal-body">
-                        <label for="groupName">Name</label>
-                        <input type="text" id="groupName" name="groupName"
-                               class="form-control"
-                               th:value="${club.groupName}"/>
-                        <label for="groupId">GroupId</label>
-                        <input type="text" id="groupId" name="groupId"
-                               class="form-control" disabled="disabled"
-                               th:value="${club.groupId}"/>
-                        <label for="token">token</label>
-                        <input type="text" id="token" name="token"
-                               class="form-control"
-                               th:value="${club.token}"/>
-                        <label for="clientId">clientId</label>
-                        <input type="text" id="clientId" name="clientId"
-                               class="form-control" disabled="disabled"
-                               th:value="${club.clientId}"/>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary"
-                                th:onclick="'updateVkTrackedClub('+ ${club.id} + ')'">Обновить
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</th:block>
-
-<th:block th:fragment="addVkTrackedClub">
-    <div class="modal fade" th:id="addVkTrackedClubModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Добавить новое отслеживаемое сообщество</h5>
-                </div>
-                <div class="modal-body">
-                    <label for="groupName">Name</label> <span class="glyphicon glyphicon-question-sign"
-                                                              title="Введите название отслеживаемой группы"
-                                                              aria-hidden="true"></span>
-                    <input type="text" id="newGroupName" name="groupName"
-                           class="form-control"/>
-                    <label for="groupId">GroupId</label> <span class="glyphicon glyphicon-question-sign"
-                                                               title="Введите id группы
-                                                                             пример: https://vk.com/club171490538, id = 171490538"
-                                                               aria-hidden="true"></span>
-                    <input type="text" id="newGroupId" name="groupId"
-                           class="form-control"/>
-                    <label for="token">token</label> <span class="glyphicon glyphicon-question-sign"
-                                                           title="Защищенный ключ доступа сообщества(своего)
-                                                           перейдите в группу, затем перейдите в раздел управление - работа с API и скопируйте ключ доступа(если ключа нет - нажмите сгенерировать ключ)"
-                                                           aria-hidden="true"></span>
-                    <input type="text" id="newToken" name="token"
-                           class="form-control"/>
-                    <label for="clientId">clientId</label> <span class="glyphicon glyphicon-question-sign"
-                                                                 title="Перейдите в раздел - для разработчиков, выберите свое приложение, перейдите в настройки и скрпипуйие id приложения"
-                                                                 aria-hidden="true"></span>
-                    <input type="text" id="newClientId" name="clientId"
-                           class="form-control"/>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" th:onclick="'addVkTrackedClub()'">Добавить</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</th:block>
-
 <th:block th:fragment="addSocialNetworkType">
     <div id="addSocialType" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -630,21 +526,19 @@
                             </tr>
                         </table>
 
-<!--                        Станислав Сорокин сказал что это не актуально-->
-<!--                        <div class="form-group" th:id="'checkbox_status_roles_' + ${status.id} "-->
-<!--                             sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">-->
-<!--                            <label th:for="'checkbox_status_roles_' + ${status.id} ">Роли</label>-->
-<!--                            <div th:id="'current_status_roles_' + ${status.id} ">-->
-<!--                                <span th:each="role : ${status.role}" th:value="${role.id}"></span>-->
-<!--                            </div>-->
-<!--                            <div class="checkbox" th:each="role : ${roles}">-->
-<!--                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}"-->
-<!--                                       th:value="${role.id}"/>-->
-<!--                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}"-->
-<!--                                       th:text="${role.roleName}"></label>-->
-<!--                            </div>-->
-<!--                        </div>-->
                     </div>
+
+                    <div class="form-group">
+                        <label>Шаблон для уведомления клиента при изменении статуса</label>
+                        <select class="form-control" th:id="'edit-status-template' + ${status.id}">
+                            <option id="0" value="0" selected="true">Выберите шаблон</option>
+                            <option th:each="template : ${emailTmpl}" th:value="${template.id}" th:id="'template' + ${status.id} + '-' + ${template.id}"
+                                    th:selected="${status.templateId == template.id}"
+                                    th:text="${template.name}">
+                            </option>
+                        </select>
+                    </div>
+
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"
                             th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить

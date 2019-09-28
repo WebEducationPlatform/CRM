@@ -8,12 +8,7 @@ import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +37,7 @@ public class StatusServiceImpl implements StatusService {
     private final UserService userService;
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private Environment env;
+    private final UserStatusService userStatusService;
 
 
     private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
@@ -49,7 +45,9 @@ public class StatusServiceImpl implements StatusService {
     @Autowired
     public StatusServiceImpl(StatusRepository statusDAO, ProjectPropertiesService propertiesService,
                              SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
-                             Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
+                             Environment env, UserService userService,
+                             ClientStatusChangingHistoryService clientStatusChangingHistoryService,
+                             UserStatusService userStatusService) {
         this.statusDAO = statusDAO;
         this.propertiesService = propertiesService;
         this.sortedStatusesRepository = sortedStatusesRepository;
@@ -57,6 +55,7 @@ public class StatusServiceImpl implements StatusService {
         this.env = env;
         this.userService = userService;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+        this.userStatusService = userStatusService;
     }
 
     @Autowired
@@ -116,6 +115,10 @@ public class StatusServiceImpl implements StatusService {
         status.setRole(new ArrayList<>(roles));
         status.setPosition(position);
         statusDAO.saveAndFlush(status);
+        Status addStatus = statusDAO.getStatusByName(status.getName());
+        if (addStatus != null) {
+            userStatusService.addStatusForAllUsers(addStatus.getId());
+        }
         logger.info("{} status added successfully...", StatusServiceImpl.class.getName());
     }
 
@@ -124,6 +127,10 @@ public class StatusServiceImpl implements StatusService {
         checkStatusUnique(status);
         logger.info("{} adding of a new status...", StatusServiceImpl.class.getName());
         statusDAO.saveAndFlush(status);
+        Status addStatus = statusDAO.getStatusByName(status.getName());
+        if (addStatus != null) {
+            userStatusService.addStatusForAllUsers(addStatus.getId());
+        }
         logger.info("{} status added successfully...", StatusServiceImpl.class.getName());
     }
 
@@ -187,6 +194,7 @@ public class StatusServiceImpl implements StatusService {
         }
         transferStatusClientsBeforeDelete(statusFromDB);
         statusDAO.delete(statusFromDB);
+        userStatusService.deleteStatus(statusFromDB.getId());
         logger.info("{} status deleted successfully...", StatusServiceImpl.class.getName());
     }
 
@@ -209,14 +217,6 @@ public class StatusServiceImpl implements StatusService {
     @Override
     public List<Status> getAllStatusesForStudents() {
         return statusDAO.getAllStatusesForStudents();
-    }
-
-    @Override
-    public List<StatusDto> getAllStatusesIdsForStudents() {
-        return statusDAO.getAllStatusesIdsForStudents().stream()
-                .map(BigInteger::longValue)
-                .map(id -> new StatusDto(id, statusDAO.getStatusNameById(id)))
-                .collect(Collectors.toList());
     }
 
     @Override

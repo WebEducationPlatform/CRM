@@ -34,7 +34,7 @@ public class UserStatusDAOImpl implements UserStatusDAO {
 
     @Override
     public void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position) {
-        entityManager.createNativeQuery("insert into user_status values (0, :status_id, 0, 0, :user_id, :is_invisible, :position);")
+        entityManager.createNativeQuery("insert into user_status(is_invisible,position,status_id,user_id) values ( :is_invisible, :position ,:status_id,:user_id);")
                 .setParameter("is_invisible", is_invisible)
                 .setParameter("position", position)
                 .setParameter("user_id", user_id)
@@ -102,4 +102,12 @@ public class UserStatusDAOImpl implements UserStatusDAO {
         return userStatusList;
     }
 
+    @Override
+    public void updateUserStatusNotifications(Long user_id, Long status_id, boolean send_notifications){
+        entityManager.createNativeQuery("update user_status set send_notifications = :send_notifications where user_id = :user_id and status_id = :status_id")
+                .setParameter("user_id", user_id)
+                .setParameter("status_id", status_id)
+                .setParameter("send_notifications", send_notifications)
+                .executeUpdate();
+    }
 }
