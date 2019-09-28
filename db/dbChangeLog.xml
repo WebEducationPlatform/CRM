@@ -56,6 +56,16 @@
             <!-- удаляем таблицы comment_comment_answer, user_id, client_comment_answer -->
             DROP TABLE user_id, comment_comment_answer, client_comment_answer;
         </sql>
+        <rollback>
+            <!-- запускать с опцией spring.jpa.hibernate.ddl-auto = update, чтобы восстановились связи таблиц -->
+            DROP TABLE comment_answer;
+            CREATE TABLE comment_answer SELECT * FROM ___comment_answer;
+            CREATE TABLE user_id SELECT * FROM ___user_id;
+            CREATE TABLE comment_comment_answer SELECT * FROM ___comment_comment_answer;
+            CREATE TABLE client_comment_answer SELECT * FROM ___client_comment_answer;
+            DROP TABLE ___comment_answer, ___user_id, ___comment_comment_answer, ___client_comment_answer;
+        </rollback>
+    </changeSet>
 
     <changeSet author="Eduard Nabiev" id="834">
         <sql>
@@ -110,7 +120,8 @@
         <rollback>
             INSERT INTO `crm`.`message_template`
             (`name`, `other_text`, `template_text`, `theme`)
-            VALUES ('Оповещение новая заявка', 'Поступила новая заявка из %from% %link% %coordinator%', '<p>Поступила новая заявка из %from% %link% %coordinator%</p>', NULL);
+            VALUES ('Оповещение новая заявка', 'Поступила новая заявка из %from% %link% %coordinator%', '<p>Поступила
+            новая заявка из %from% %link% %coordinator%</p>', NULL);
             ;
             ALTER TABLE `crm`.`project_properties`
             ADD COLUMN `new_client_message_template` BIGINT(20) NULL DEFAULT NULL AFTER `default_student_status`;
@@ -126,7 +137,8 @@
             ON UPDATE RESTRICT;
             ;
             UPDATE `crm`.`project_properties`
-            SET `new_client_message_template` = (SELECT id FROM crm.message_template where name = 'Оповещение новая заявка') WHERE `id` = 1;
+            SET `new_client_message_template` = (SELECT id FROM crm.message_template where name = 'Оповещение новая
+            заявка') WHERE `id` = 1;
             ;
             ALTER TABLE `crm`.`user`
             ADD COLUMN `new_client_notify_is_enabled` BIT(1) NULL DEFAULT NULL AFTER `last_name`;
@@ -136,7 +148,7 @@
 
     <changeSet author="Vladimir Nomokonov" id="919-1">
         <sql>
-            DROP TABLE IF  EXISTS `vk_tracked_club`;
+            DROP TABLE IF EXISTS `vk_tracked_club`;
 
             DROP TABLE IF EXISTS youtube_client_youtube_tracking_card;
             DROP TABLE IF EXISTS youtube_tracking_card;
@@ -210,11 +222,6 @@
             KEY `FK_CLIENT` (`client_id`),
             CONSTRAINT `FK_FEEDBACK` FOREIGN KEY (`feedback_id`) REFERENCES `feedback` (`feedback_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        <rollback>
-            <!-- запускать с опцией spring.jpa.hibernate.ddl-auto = update, чтобы восстановились связи таблиц -->
-            DROP TABLE comment_answer;
-
-
         </rollback>
     </changeSet>
 
@@ -244,14 +251,6 @@
             DROP TABLE `courses_mentors`;
             DROP TABLE `courses_clients`;
             DROP TABLE `course`;
-        </rollback>
-    </changeSet>
-            CREATE TABLE comment_answer SELECT * FROM ___comment_answer;
-            CREATE TABLE user_id SELECT * FROM ___user_id;
-            CREATE TABLE comment_comment_answer SELECT * FROM ___comment_comment_answer;
-            CREATE TABLE client_comment_answer SELECT * FROM ___client_comment_answer;
-
-            DROP TABLE ___comment_answer, ___user_id, ___comment_comment_answer, ___client_comment_answer;
         </rollback>
     </changeSet>
 
