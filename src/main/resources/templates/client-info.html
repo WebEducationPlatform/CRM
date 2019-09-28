@@ -138,8 +138,38 @@
                         </button>
                     </div>
                     <p></p>
+                    <div class="form-group col-md-4">
+                        <label for="userPhoneList">Номера телефонов</label>
+                        <select multiple class="form-control" id="userPhoneList" disabled="disabled" size="5">
+                            <option th:each="phones, iterStat : ${client.clientPhones}" th:if="${phones != ''}"
+                                    th:text="${phones}">Number phone
+                            </option>
+                        </select>
+                        <button type="button" class="btn btn-md btn-info my-1" disabled="disabled" id="removePhones"
+                                onclick="removeSelectPhones()">Удалить выбранные
+                        </button>
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label for="newPhoneNumber">Добавить номер:</label>
+                        <input type="tel" pattern="(\+79[0-9]{9}|8[0-9]{10})" autocomplete="off"  class="form-control mb-3" id="newPhoneNumber"
+                               disabled="disabled"  title="Номер +7 или 8  и 10 цифр" />
+                            <button type="button" class="btn btn-md btn-info my-1" disabled="disabled" id="addNewPhone"
+                                    onclick="addNewPhoneExtra()">Добавить
+                            </button>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="defaultPhone">Основной номер:</label>
+                        <input type="tel" pattern="(\+79[0-9]{9}|8[0-9]{10})" autocomplete="off"
+                               class="form-control mb-3" id="defaultPhone"
+                               disabled="disabled"/>
+                        <button type="button" class="btn btn-md btn-info my-1" disabled="disabled" id="setDefSelPhone"
+                                onclick="setDefSelPhoneExtra()">Установить выбранный
+                        </button>
+                    </div>
+
                     <div class="form-group">
                         <label>Номера телефонов</label>
+
                         <table class="table table-hover" th:id="AdditionalPhones">
                             <thead class="thead-inverse">
                             <tr>
@@ -160,7 +190,7 @@
                         </table>
                     </div>
                     <div>
-                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewPhone" th:onclick="'addNewPhoneExtra()'">Добавить телефон
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewPhoneN" th:onclick="'addNewPhoneExtra()'">Добавить телефон
                         </button>
                     </div>
                     <p></p>

@@ -192,4 +192,16 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="Vladimir Nomokonov" id="923">
+        <sql>
+            ALTER TABLE client_phones
+            ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT FALSE;
+
+        </sql>
+        <rollback>
+            alter table  client_phones
+            drop column is_default
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

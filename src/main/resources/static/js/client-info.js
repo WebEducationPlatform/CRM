@@ -160,27 +160,14 @@ function changeClient(id) {
 
 
     var Phones = [];
-    $th = $('#AdditionalPhones').find('th');
-    try {
-        $('#AdditionalPhones').find('tbody tr').each(function (i, tr) {
-            var obj = {}, $tds = $(tr).find('td');
-            $th.each(function (index, th) {
-                if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
-                    var current = document.getElementById("message");
-                    current.textContent = "Заполните пустые поля в таблице 'Номера телефонов'";
-                    current.style.color = "red";
-                    throw new Error("Пустые поля в таблице 'Номера телефонов'")
-                }
-                if ($(th).attr('abbr') !== "") {
-                    obj = $tds.eq(index).text();
-                }
-            });
-            Phones.push(obj);
-        });
-    } catch (e) {
-        return;
-    }
 
+    if ( $('#userPhoneList option').length > 0){
+        let obj = {};
+        $('#userPhoneList option').each(function (i, item) {
+            obj = $(item).val();
+            Phones.push(obj);
+        })
+    }
 
     let url = '/rest/admin/client/update';
     let wrap = {
@@ -331,11 +318,26 @@ function addNewEmailExtra() {
 }
 
 function addNewPhoneExtra() {
-    var size = ($("#phones-table-body")[0]).rows.length;
-    $("#phones-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td><button type=\"button\" onclick=\"deletePhone(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+    if ($('#newPhoneNumber').val().length > 0) {
+        let addOpt = '<option value="' + $('#newPhoneNumber').val()  + '"> ' + $('#newPhoneNumber').val() + '</option>';
+        $('#userPhoneList').prepend(addOpt);
+        $('#newPhoneNumber').val("");
+    }
 }
 
-function revertUnable() {
+function removeSelectPhones(){
+    $('#userPhoneList option:selected').remove();
+}
+
+function setDefSelPhoneExtra(){
+     let phoneList = $('#userPhoneList option:selected');
+    if ( phoneList.length == 1) {
+        $('#defaultPhone').val(phoneList.val());
+    }
+}
+
+
+function revertUnable(){
     var column1 = $('#column1');
     column1.find('input').each(function () {
         if ($(this)[0].disabled === true) {
@@ -355,10 +357,14 @@ function revertUnable() {
             $(this)[0].disabled = $(this)[0].disabled !== true;
         }
     });
+
     $("#addNewSN")[0].disabled = $("#addNewSN")[0].disabled !== true;
     $("#addNewJob")[0].disabled = $("#addNewJob")[0].disabled !== true;
     $("#addNewEmail")[0].disabled = $("#addNewEmail")[0].disabled !== true;
     $("#addNewPhone")[0].disabled = $("#addNewPhone")[0].disabled !== true;
+    $("#removePhones")[0].disabled = $("#removePhones")[0].disabled !== true;
+    $("#setDefSelPhone")[0].disabled = $("#setDefSelPhone")[0].disabled !== true;
+
 }
 
 $(function () {
