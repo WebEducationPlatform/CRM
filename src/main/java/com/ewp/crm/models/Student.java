@@ -97,6 +97,14 @@ public class Student implements Diffable<Student> {
     @Column (name = "color")
     private String color;
 
+    /**
+     * Связь с таблицей "Уровень обучения"
+     */
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "student_education_id")
+    private StudentEducationStage studentEducationStage;
+
     public Student() {
     }
 
@@ -109,6 +117,28 @@ public class Student implements Diffable<Student> {
         this.payLater = payLater;
         this.status = status;
         this.notes = notes;
+    }
+
+    public Student(Client client, LocalDateTime trialEndDate, LocalDateTime nextPaymentDate, BigDecimal price,
+                   BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes,
+                   StudentEducationStage studentEducationStage) {
+        this.client = client;
+        this.trialEndDate = trialEndDate;
+        this.nextPaymentDate = nextPaymentDate;
+        this.price = price;
+        this.paymentAmount = paymentAmount;
+        this.payLater = payLater;
+        this.status = status;
+        this.notes = notes;
+        this.studentEducationStage = studentEducationStage;
+    }
+
+    public StudentEducationStage getStudentEducationStage() {
+        return studentEducationStage;
+    }
+
+    public void setStudentEducationStage(StudentEducationStage studentEducationStage) {
+        this.studentEducationStage = studentEducationStage;
     }
 
     public String getColor() {
@@ -236,6 +266,7 @@ public class Student implements Diffable<Student> {
         return "Student{" +
                 "id=" + id +
                 ", client=" + client +
+                ", student_education_stage='" + studentEducationStage +
                 ", trialEndDate=" + trialEndDate +
                 ", nextPaymentDate=" + nextPaymentDate +
                 ", lastPaymentNotification=" + lastPaymentNotification +
