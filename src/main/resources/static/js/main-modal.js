@@ -691,7 +691,8 @@ $(function () {
                 /* Client history first loading */
                 $.ajax({
                     method: 'GET',
-                    url: '/rest/client/history/getHistory/' + client.id,
+                    // url: '/rest/client/history/getHistory/' + client.id,
+                    url: '/client/history/rest/getHistory/' + client.id,
                     data: {
                         page: 0,
                         isAsc: false
@@ -1417,8 +1418,10 @@ $(function () {
 document.querySelector('.modal-comments').onclick = (e) => {
     const target = e.target;
     const area = target.getAttribute('id');
-    if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
-        mentionUser();
+    if (area != null) {
+        if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
+            mentionUser();
+        }
     }
 };
 //функция упоминания юзера

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("rest/api/comment")
-//@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 public class CommentApiRestController {
 
 	private static Logger logger = LoggerFactory.getLogger(CommentApiRestController.class);
@@ -51,14 +49,12 @@ public class CommentApiRestController {
 	@PostMapping(value = "/add")
 	public ResponseEntity<Comment> addComment(@RequestParam(name = "clientId") Long clientId,
 	                                          @RequestParam(name = "content") String content,
-                                              @RequestParam(name = "email") String email
-                                        /*, @AuthenticationPrincipal User userFromSession*/) {
+                                              @RequestParam(name = "email") String email) {
 		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add comment, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
-
 		//added 10.09.2019
 		Optional<User> optionalUser = userService.getUserByEmail(email);
 		User user;
@@ -68,10 +64,10 @@ public class CommentApiRestController {
             logger.error("Can`t add comment, user with email {} not found", email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-//		sendNotificationService.sendNotification(content, client);
+		sendNotificationService.sendNotification(content, client);
 		Comment newComment = new Comment(user, client, content);
 		commentService.add(newComment);
-		return ResponseEntity.status(HttpStatus.OK).body(newComment);
+		return ResponseEntity.ok(newComment);
 	}
 
 	@PostMapping(value = "/add/answer")
@@ -88,22 +84,11 @@ public class CommentApiRestController {
             logger.error("Can`t add comments answer, user with email {} not found", email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-		User fromDB = userService.get(user.getId());
-		Comment comment = commentService.get(commentId);
-		Client client = comment.getClient();
-//		sendNotificationService.sendNotification(content, client);
-		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, comment);
-//		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
+		//TODO по идее надо проверять и существование комментария к которому создается ответ
+        Comment comment = commentService.get(commentId);
+		CommentAnswer commentAnswer = new CommentAnswer(user, content, comment);
 		comment.addAnswer(commentAnswer);
-		commentService.update(comment);
 		return ResponseEntity.ok(commentAnswer);
-
-//		if (answer.isPresent()) {
-//			comment.addAnswer(answer.get());
-//			commentService.update(comment);
-//			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
-//		}
-//		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/delete/answer")
