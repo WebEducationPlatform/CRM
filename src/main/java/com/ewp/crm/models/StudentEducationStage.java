@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -22,19 +21,33 @@ public class StudentEducationStage {
     @Column (name = "education_stage_name")
     private String educationStageName;
 
-    @Column (name = "education_stage_level", unique = true)
+    @Column (name = "education_stage_level")
     private Integer educationStageLevel;
 //Для создания однонаправленной связи удалить @OneToMany(mappedBy = "studentEducationStage") геттры и сеттеры
     @OneToMany(mappedBy = "studentEducationStage")
     @JsonIgnore
     private Set<Student> student;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
     public StudentEducationStage(){}
 
-    public StudentEducationStage(String educationStageName, @UniqueElements Integer educationStageLevel, Set<Student> student) {
+    public StudentEducationStage(String educationStageName, Integer educationStageLevel,
+                                 Set<Student> student, Course course) {
         this.educationStageName = educationStageName;
         this.educationStageLevel = educationStageLevel;
         this.student = student;
+        this.course = course;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public Long getId() {
@@ -76,6 +89,7 @@ public class StudentEducationStage {
                 ", educationStageName='" + educationStageName + '\'' +
                 ", educationStageLevel=" + educationStageLevel +
                 ", student=" + student +
+                ", course=" + course +
                 '}';
     }
 }
