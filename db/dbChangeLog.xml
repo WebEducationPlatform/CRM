@@ -190,6 +190,6 @@
             DROP TABLE `courses_clients`;
             DROP TABLE `course`;
         </rollback>
-    </changeSet>git
+    </changeSet>
 
 </databaseChangeLog>
