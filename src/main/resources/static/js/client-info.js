@@ -79,6 +79,16 @@ function doCities(cid) {
     });
 }
 
+function GetStringList(Phones, selectItem) {
+    if (selectItem.length > 0) {
+        let obj = {};
+        selectItem.each(function (i, item) {
+            obj = $(item).val();
+            Phones.push(obj);
+        })
+    }
+}
+
 function changeClient(id) {
     if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
         return;
@@ -160,14 +170,7 @@ function changeClient(id) {
 
 
     var Phones = [];
-
-    if ( $('#userPhoneList option').length > 0){
-        let obj = {};
-        $('#userPhoneList option').each(function (i, item) {
-            obj = $(item).val();
-            Phones.push(obj);
-        })
-    }
+    GetStringList(Phones,$('#userPhoneList option'));
 
     let url = '/rest/admin/client/update';
     let wrap = {
@@ -320,7 +323,7 @@ function addNewEmailExtra() {
 function addNewPhoneExtra() {
     if ($('#newPhoneNumber').val().length > 0) {
         let addOpt = '<option value="' + $('#newPhoneNumber').val()  + '"> ' + $('#newPhoneNumber').val() + '</option>';
-        $('#userPhoneList').prepend(addOpt);
+        $('#userPhoneList').append(addOpt);
         $('#newPhoneNumber').val("");
     }
 }
@@ -332,7 +335,20 @@ function removeSelectPhones(){
 function setDefSelPhoneExtra(){
      let phoneList = $('#userPhoneList option:selected');
     if ( phoneList.length == 1) {
-        $('#defaultPhone').val(phoneList.val());
+        let defPhone = phoneList.val();
+        $('#defaultPhone').val(defPhone);
+        //первый в списке будет по-умолчанию  - основным номером
+        let listPhones = [];
+        GetStringList(listPhones,$('#userPhoneList option'));
+        let index_item = listPhones.indexOf(defPhone);
+        if ( index_item !== -1){
+            listPhones[index_item] = listPhones[0];
+            listPhones[0] = defPhone;
+        }
+        $('#userPhoneList').empty();
+        $.each(listPhones, function(key, value) {
+            $('#userPhoneList').append('<option value="' + value + '">' + value + '</option>');
+        });
     }
 }
 

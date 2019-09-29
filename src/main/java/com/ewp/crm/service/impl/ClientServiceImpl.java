@@ -564,6 +564,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			// Если почты не равны взводим флаг что нужн доп апдейт клиента
 			if (!emails.get(i).equals(emailsFromDb.get(i))) {
 				emailsFromDb.clear();
+				clientFromDB.setClientEmails(emails);
 				needUpdateClient = true;
 				break;
 			}
@@ -576,6 +577,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				// Если почты не равны взводим флаг что нужн доп апдейт клиента
 				if (!phones.get(i).equals(phonesFromDb.get(i))) {
 					phonesFromDb.clear();
+					clientFromDB.setClientPhones(phones);
 					needUpdateClient = true;
 					break;
 				}
