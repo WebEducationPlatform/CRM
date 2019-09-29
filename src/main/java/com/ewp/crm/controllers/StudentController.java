@@ -5,7 +5,6 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,15 +22,17 @@ public class StudentController {
     private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
+    private final CourseService courseService;
 
     @Autowired
     public StudentController(StudentService studentService, StatusService statusService, SlackService slackService,
-                             MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+                             MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, CourseService courseService) {
         this.slackService = slackService;
         this.studentService = studentService;
         this.statusService = statusService;
         this.messageTemplateService = messageTemplateService;
         this.projectPropertiesService = projectPropertiesService;
+        this.courseService = courseService;
     }
 
     @GetMapping(value = "/all")
@@ -46,6 +47,7 @@ public class StudentController {
         }
         modelAndView.addObject("students", studentService.getAll());
         modelAndView.addObject("statuses", statusService.getAll());
+        modelAndView.addObject("courses", courseService.getAll());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         return modelAndView;

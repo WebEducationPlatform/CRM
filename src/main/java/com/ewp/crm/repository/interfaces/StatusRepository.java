@@ -25,9 +25,6 @@ public interface StatusRepository extends JpaRepository<Status, Long>, StatusRep
     @Query("SELECT s FROM Status s WHERE s.createStudent = true")
     List<Status> getAllStatusesForStudents();
 
-    @Query(value = "SELECT s.status_id FROM status s WHERE s.create_student IS TRUE", nativeQuery = true)
-    List<BigInteger> getAllStatusesIdsForStudents();
-
     @Query(value = "SELECT us FROM UserStatus us WHERE us.isInvisible = 0 and us.user_id = :user_id")
     List<UserStatus> getAllIdsWhichNotInvisible(Long user_id);
 

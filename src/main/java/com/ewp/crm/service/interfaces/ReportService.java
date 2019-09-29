@@ -37,4 +37,6 @@ public interface ReportService {
     void processLinksInStatusChangingHistory();
 
     void setCreationsInStatusChangingHistory();
+
+    String fillExcelOrCsvFileForBitrix24(String formatFile);
 }

@@ -69,8 +69,6 @@ public interface VKService {
 
     String getLongIDFromShortName(String vkGroupShortName);
 
-    Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
-
     Optional<String> getIdFromLink(String link);
 
     void markAsRead(String userId, String token, String startMessageId);
