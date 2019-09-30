@@ -1,8 +1,12 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 /*
 Направления
  */
@@ -29,6 +33,11 @@ public class Course {
             inverseJoinColumns = {@JoinColumn(name = "mentor_id", foreignKey = @ForeignKey(name = "FK_MENTOR"))})
     private List<Mentor> mentors  = new ArrayList<>();
 
+//Для оздания однонаправленной связи допускается удаление
+    @OneToMany(mappedBy = "course")
+    @JsonIgnore
+    private Set<StudentEducationStage> studentEducationStage;
+
 //Конструкторы
     public Course() {
     }
@@ -47,6 +56,15 @@ public class Course {
         this.clients = clients;
         this.mentors = mentors;
     }
+
+    public Course(String name, List<Client> clients, List<Mentor> mentors,
+                  Set<StudentEducationStage> studentEducationStage) {
+        this.name = name;
+        this.clients = clients;
+        this.mentors = mentors;
+        this.studentEducationStage = studentEducationStage;
+    }
+
 //Геттеры, сеттеры
     public Long getId() {
         return id;
@@ -74,5 +92,17 @@ public class Course {
 
     public void setMentors(List<Mentor> mentors) {
         this.mentors = mentors;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Set<StudentEducationStage> getStudentEducationStage() {
+        return studentEducationStage;
+    }
+
+    public void setStudentEducationStage(Set<StudentEducationStage> studentEducationStage) {
+        this.studentEducationStage = studentEducationStage;
     }
 }
