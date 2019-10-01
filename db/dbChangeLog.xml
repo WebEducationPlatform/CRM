@@ -13,34 +13,38 @@
         </comment>
         <sql>
             <!-- создаем резервные копии модифицируемых\удаляемых таблиц -->
-            CREATE TABLE ___comment_answer SELECT * FROM comment_answer;
-            CREATE TABLE ___user_id SELECT * FROM crm.user_id;
-            CREATE TABLE ___comment_comment_answer SELECT * FROM crm.comment_comment_answer;
-            CREATE TABLE ___client_comment_answer SELECT * FROM crm.client_comment_answer;
+            CREATE TABLE ___comment_answer LIKE comment_answer;
+            INSERT INTO ___comment_answer SELECT * FROM comment_answer;
+            CREATE TABLE ___user_id LIKE user_id;
+            INSERT INTO ___user_id SELECT * FROM crm.user_id;
+            CREATE TABLE ___comment_comment_answer LIKE comment_comment_answer;
+            INSERT INTO ___comment_comment_answer SELECT * FROM comment_comment_answer;
+            CREATE TABLE ___client_comment_answer LIKE client_comment_answer;
+            INSERT INTO ___client_comment_answer SELECT * FROM client_comment_answer;
 
             <!-- удаляем из таблицы user_id записи, ссылающиеся на несуществующего пользователя (user) -->
-            DELETE FROM crm.user_id WHERE user_user_id NOT IN (SELECT user_id FROM crm.user);
+            DELETE FROM user_id WHERE user_user_id NOT IN (SELECT user_id FROM user);
 
             <!-- удаляем из таблицы comment_comment_answer записи, ссылающиеся на несуществующий комментарий (comment)-->
-            DELETE FROM crm.comment_comment_answer WHERE comment_id NOT IN (SELECT comment_id FROM crm.comment);
+            DELETE FROM comment_comment_answer WHERE comment_id NOT IN (SELECT comment_id FROM comment);
 
             <!-- добавляем в таблицу comment_answer столбцы comment_id и user_id -->
-            ALTER TABLE `crm`.`comment_answer`
-            ADD COLUMN `comment_id` BIGINT(20) AFTER `date`,
-            ADD COLUMN `user_id` BIGINT(20) AFTER `comment_id`,
-            ADD INDEX `comment_id_idx` (`comment_id` ASC),
-            ADD INDEX `user_id_idx` (`user_id` ASC);
+            ALTER TABLE comment_answer
+            ADD COLUMN comment_id BIGINT(20) AFTER date,
+            ADD COLUMN user_id BIGINT(20) AFTER comment_id,
+            ADD INDEX comment_id_idx (comment_id ASC),
+            ADD INDEX user_id_idx (user_id ASC);
 
             <!-- превращаем столбцы comment_id и user_id в столбцы соединения, связывающие таблицу comment_answer с таблицами comment и user -->
-            ALTER TABLE `crm`.`comment_answer`
-            ADD CONSTRAINT `comment_id`
-            FOREIGN KEY (`comment_id`)
-            REFERENCES `crm`.`comment` (`comment_id`)
+            ALTER TABLE comment_answer
+            ADD CONSTRAINT comment_id
+            FOREIGN KEY (comment_id)
+            REFERENCES comment (comment_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE,
-            ADD CONSTRAINT `user_id`
-            FOREIGN KEY (`user_id`)
-            REFERENCES `crm`.`user` (`user_id`)
+            ADD CONSTRAINT user_id
+            FOREIGN KEY (user_id)
+            REFERENCES user (user_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE;
 
@@ -57,13 +61,11 @@
             DROP TABLE user_id, comment_comment_answer, client_comment_answer;
         </sql>
         <rollback>
-            <!-- запускать с опцией spring.jpa.hibernate.ddl-auto = update, чтобы восстановились связи таблиц -->
             DROP TABLE comment_answer;
-            CREATE TABLE comment_answer SELECT * FROM ___comment_answer;
-            CREATE TABLE user_id SELECT * FROM ___user_id;
-            CREATE TABLE comment_comment_answer SELECT * FROM ___comment_comment_answer;
-            CREATE TABLE client_comment_answer SELECT * FROM ___client_comment_answer;
-            DROP TABLE ___comment_answer, ___user_id, ___comment_comment_answer, ___client_comment_answer;
+            RENAME TABLE ___comment_answer TO comment_answer;
+            RENAME TABLE ___user_id TO user_id;
+            RENAME TABLE ___comment_comment_answer TO comment_comment_answer;
+            RENAME TABLE ___client_comment_answer TO client_comment_answer;
         </rollback>
     </changeSet>
 
