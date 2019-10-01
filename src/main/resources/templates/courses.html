@@ -40,7 +40,7 @@
                             <!--Edit button-->
                         <td>
                             <button class="btn btn-info btn-lg" type="button" data-toggle="modal" th:attr="data-target='#'+${course.id}" >Edit</button>
-<!--                            Модалка для кнопки редактирования-->
+                            <!--Модалка для кнопки редактирования-->
                             <div class="modal fade" th:attr="id=${course.id}">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -69,6 +69,10 @@
                                     </div>
                                 </div>
                             </div>
+                        </td>
+                        <!--Кнопка перехода к странице управления наборами-->
+                        <td>
+                            <a class="btn btn-info btn-lg" type="button" th:href="@{/courses/set(id=${course.id})}" >Наборы</a>
                         </td>
                     </tr>
                     </tbody>
