@@ -651,6 +651,10 @@ public class Client implements Serializable, Diffable<Client> {
         this.courses = courses;
     }
 
+    public void setCourse(Course course) {
+        courses.add(course);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

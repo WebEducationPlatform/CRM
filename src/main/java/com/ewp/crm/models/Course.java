@@ -38,6 +38,10 @@ public class Course {
     @JsonIgnore
     private Set<StudentEducationStage> studentEducationStage;
 
+    @OneToMany(mappedBy = "course")
+    @JsonIgnore
+    private Set<CourseSet> courseSets;
+
 //Конструкторы
     public Course() {
     }
@@ -104,5 +108,13 @@ public class Course {
 
     public void setStudentEducationStage(Set<StudentEducationStage> studentEducationStage) {
         this.studentEducationStage = studentEducationStage;
+    }
+
+    public Set<CourseSet> getCourseSets() {
+        return courseSets;
+    }
+
+    public void setCourseSets(Set<CourseSet> courseSets) {
+        this.courseSets = courseSets;
     }
 }
