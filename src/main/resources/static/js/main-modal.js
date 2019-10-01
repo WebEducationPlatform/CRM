@@ -267,6 +267,10 @@ $(function () {
                 var status = clientCard.statuses;
                 var client = clientCard.client;
 
+                $('#client-course-list').empty();
+
+                $('#client-courseSet-list').empty();
+
                 $('#client-status-list').empty();
                 $.each(status, function (i, s) {
                     $('#client-status-list').append(

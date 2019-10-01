@@ -21,16 +21,45 @@
                             class="modal-title-profile">
                         </h4>
                     </div>
-                    <div>
-                        <div style="margin-top: 15px" class="btn-group">
-                            <button th:id="'client-set-status-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Status <span class="caret"></span>
-                            </button>
-                            <ul th:id="client-status-list" class="dropdown-menu">
-                                <li><a href="#">Status 1</a></li>
-                                <li><a href="#">Status 2</a></li>
-                                <li><a href="#">Status 3</a></li>
-                            </ul>
+                    <div class="row">
+<!--                    Кнопка с выпадающим списком выбора Статуса-->
+                        <div class="col-md-2">
+                            <div style="margin-top: 15px" class="btn-group">
+                                <button th:id="'client-set-status-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Status <span class="caret"></span>
+                                </button>
+                                <ul th:id="client-status-list" class="dropdown-menu">
+                                    <li><a href="#">Status 1</a></li>
+                                    <li><a href="#">Status 2</a></li>
+                                    <li><a href="#">Status 3</a></li>
+                                </ul>
+                            </div>
+                        </div>
+<!--                    Кнопка с выпадающим списком выбора Направления-->
+                        <div class="col-md-2">
+                            <div style="margin-top: 15px" class="btn-group">
+                                <button id="'client-set-course-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Направление <span class="caret"></span>
+                                </button>
+                                <ul id="client-course-list" class="dropdown-menu">
+                                    <li><a href="#">Course 1</a></li>
+                                    <li><a href="#">Course 2</a></li>
+                                    <li><a href="#">Course 3</a></li>
+                                </ul>
+                            </div>
+                        </div>
+    <!--                    Кнопка с выпадающим списком выбора Набора-->
+                        <div class="col-md-2">
+                            <div style="margin-top: 15px" class="btn-group">
+                                <button id="'client-set-courseSet-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Набор <span class="caret"></span>
+                                </button>
+                                <ul id="client-courseSet-list" class="dropdown-menu">
+                                    <li><a href="#">Course Set 1</a></li>
+                                    <li><a href="#">Course Set 2</a></li>
+                                    <li><a href="#">Course Set 3</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
