@@ -105,7 +105,7 @@ public class Student implements Diffable<Student> {
     @JoinColumn(name = "student_education_id")
     private StudentEducationStage studentEducationStage;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "course_set_id")
     private CourseSet courseSet;
 

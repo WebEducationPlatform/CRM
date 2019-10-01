@@ -204,7 +204,7 @@
             ENGINE = INNODB
             DEFAULT CHARACTER SET = utf8;
 
-            ALTER TABLE `student` ADD column course_set_id bigint NOT NULL AFTER student_education_id;
+            ALTER TABLE `student` ADD column course_set_id bigint NULL AFTER student_education_id;
             SET FOREIGN_KEY_CHECKS=0;
             ALTER TABLE `student` ADD CONSTRAINT FK_STUDENT_SET FOREIGN KEY (course_set_id) REFERENCES course_set(course_set_id);
         </sql>
