@@ -192,4 +192,26 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="Sergey Kozionov" id="927">
+        <sql>
+            CREATE TABLE `course_set` (
+            `course_set_id` bigint NOT NULL AUTO_INCREMENT,
+            `course_set_name` VARCHAR(255) NOT NULL,
+            `start_date` DATE NOT NULL,
+            `course_id` bigint NOT NULL,
+            CONSTRAINT FK_COURSE_SET FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+            PRIMARY KEY (`course_set_id`))
+            ENGINE = INNODB
+            DEFAULT CHARACTER SET = utf8;
+
+            ALTER TABLE `student` ADD column course_set_id bigint NOT NULL AFTER student_education_id;
+            SET FOREIGN_KEY_CHECKS=0;
+            ALTER TABLE `student` ADD CONSTRAINT FK_STUDENT_SET FOREIGN KEY (course_set_id) REFERENCES course_set(course_set_id);
+        </sql>
+        <rollback>
+            ALTER TABLE `student` DROP FOREIGN KEY `FK_STUDENT_SET`;
+            ALTER TABLE `student` drop column course_set_id;
+            DROP TABLE `course_set`;
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
