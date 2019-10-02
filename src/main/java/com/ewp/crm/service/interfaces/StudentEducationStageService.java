@@ -12,4 +12,5 @@ public interface StudentEducationStageService {
     List<StudentEducationStage> getAll();
     StudentEducationStage getStudentEducationStage(Long id);
     List<StudentEducationStage> getStudentEducationStageByCourse(Course course);
+    public void deleteCustom(StudentEducationStage studentEducationStage);
 }

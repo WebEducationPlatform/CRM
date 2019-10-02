@@ -9,5 +9,5 @@ public interface StudentEducationStageRepositoryCustom {
     void update(StudentEducationStage studentEducationStage, Course course);
     List<StudentEducationStage> getStudentEducationStageByCourse(Course course);
     void add(StudentEducationStage studentEducationStage, Course course);
-
+    void deleteCustom(StudentEducationStage studentEducationStage);
 }

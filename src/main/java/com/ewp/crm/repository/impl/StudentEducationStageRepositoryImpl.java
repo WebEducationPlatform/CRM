@@ -138,7 +138,19 @@ public class StudentEducationStageRepositoryImpl implements StudentEducationStag
         entityManager.merge(studentEducationStage);
     }
 
-    public void delete(StudentEducationStage studentEducationStage) {
-
+    @Override
+    @Transactional
+    public void deleteCustom(StudentEducationStage studentEducationStage) {
+        Course course = studentEducationStage.getCourse();
+        Set<StudentEducationStage> studentEducationStageSet = course.getStudentEducationStage();
+        if(studentEducationStageSet.size()>(studentEducationStage.getEducationStageLevel()+1)) {
+            for(StudentEducationStage set : studentEducationStageSet) {
+                if(set.getEducationStageLevel() > studentEducationStage.getEducationStageLevel()) {
+                    set.setEducationStageLevel(set.getEducationStageLevel()-1);
+                    entityManager.merge(set);
+                }
+            }
+        }
+        entityManager.remove(studentEducationStage);
     }
 }

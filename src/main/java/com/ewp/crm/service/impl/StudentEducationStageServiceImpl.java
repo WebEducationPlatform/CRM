@@ -36,4 +36,9 @@ public class StudentEducationStageServiceImpl extends CommonServiceImpl<StudentE
     public List<StudentEducationStage> getStudentEducationStageByCourse(Course course) {
         return studentEducationStageRepository.getStudentEducationStageByCourse(course);
     }
+
+    @Override
+    public void deleteCustom(StudentEducationStage studentEducationStage) {
+        studentEducationStageRepository.deleteCustom(studentEducationStage);
+    }
 }
