@@ -823,7 +823,6 @@ function getClientCourses(clientId) {
         url: '/rest/client/courses/get/' + clientId,
         success: function (courses) {
             //Изменяем текст на кнопке выбора набора
-            console.log(courses);
             if(courses.length!=0){
                 $('#client-set-course-button').text(courses[0].name);
             } else {
