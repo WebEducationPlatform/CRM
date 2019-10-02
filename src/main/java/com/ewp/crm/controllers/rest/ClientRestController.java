@@ -53,6 +53,7 @@ public class ClientRestController {
     private final StudentService studentService;
     private final StudentStatusService studentStatusService;
     private final ReportService reportService;
+    private final CourseService courseService;
     private String fileName;
     private final ClientRepository clientRepository;
     private Environment env;
@@ -72,7 +73,7 @@ public class ClientRestController {
                                 StudentService studentService,
                                 StudentStatusService studentStatusService,
                                 ReportService reportService,
-                                ClientRepository clientRepository, Environment env) {
+                                CourseService courseService, ClientRepository clientRepository, Environment env) {
         this.clientService = clientService;
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
@@ -84,6 +85,7 @@ public class ClientRestController {
         this.studentService = studentService;
         this.studentStatusService = studentStatusService;
         this.reportService = reportService;
+        this.courseService = courseService;
         this.fileName = new String();
         this.clientRepository = clientRepository;
         this.env = env;
@@ -670,5 +672,25 @@ public class ClientRestController {
     @GetMapping("/export_in_excel_or_csv")
     public void createFileForBitrix24(@RequestParam("formatFile") String formatFile) {
         fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile);
+    }
+
+    //Запись клиента на Направление
+    @PostMapping(value = "/course/add/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity clientAddCourse(@PathVariable Long id,
+                                          @RequestParam Long courseId) {
+        Course course = courseService.getCourse(courseId);
+        course.setClient(clientService.get(id));
+        courseService.update(course);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    //Получение Направлений для Клиента
+    @GetMapping(value = "/courses/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity<List<Course>> studentGetCourseSet(@PathVariable Long clientId) {
+        Client client = clientService.get(clientId);
+        List<Course> list = courseService.getCoursesByClient(client);
+        return ResponseEntity.ok(list);
     }
 }
