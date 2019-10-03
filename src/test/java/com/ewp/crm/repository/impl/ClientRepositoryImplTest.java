@@ -52,9 +52,9 @@ class ClientRepositoryImplTest {
      */
     @BeforeAll
     public void before() {
-        Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
-        Status status0 = new Status("New clients", false, 1L, false, 0, 0);
-        Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
+        Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0, 1L);
+        Status status0 = new Status("New clients", false, 1L, false, 0, 0, 1L);
+        Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33, 1L);
         statusService.addInit(status0);
         statusService.addInit(status1);
         statusService.addInit(defaultStatus);

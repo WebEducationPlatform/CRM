@@ -54,7 +54,7 @@ public interface StatusService {
 
     Optional<SortingType> findOrderForChosenStatusForCurrentUser(Long statusId, User userFromSession);
 
-    List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role);
+    List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role, Long boardId);
 
     List<StatusDto> getStatusesForMailing();
 }

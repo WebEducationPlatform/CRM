@@ -35,11 +35,30 @@
                            placeholder="Новый статус..."/>
                 </div>
                 <div class="form-actions">
-                    <button type="button" id="create-new-status" class="btn btn-success btn-sm"
+                    <button type="button" id="create-new-status" th:value="${board.id}" class="btn btn-success btn-sm"
                             onclick="createNewStatus()">
                         Сохранить
                     </button>
                     <button type="button" id="create-new-status-cancelbtn"
+                            class="glyphicon glyphicon-remove"></button>
+                </div>
+            </form>
+        </div>
+
+        <div class="create-new-board-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+            <button type="button" id="create-new-board-btn">Новая доска...</button>
+            <form role="form" id="new-board-form">
+                <div class="form-group" id="new-board-formgr">
+                    <div id="sendSocialTemplateBoard"></div>
+                    <input type="text" class="form-control" required="required" id="new-board-name"
+                           placeholder="Новая доска..."/>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="create-new-board" class="btn btn-success btn-sm"
+                            onclick="createNewBoard()">
+                        Сохранить
+                    </button>
+                    <button type="button" id="create-new-board-cancelbtn"
                             class="glyphicon glyphicon-remove"></button>
                 </div>
             </form>
@@ -67,6 +86,7 @@
                     <div id="collapseStatuses" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div class="search-place">
+                                <input th:value="${board.id}" id="board-statuses" type="hidden"/>
                                 <input id="search-statuses" type="text" class="form-control" name="search" placeholder="Search"/>
                             </div>
                             <!--Таблица скрытых статусов, отрисовка на клиенте-->

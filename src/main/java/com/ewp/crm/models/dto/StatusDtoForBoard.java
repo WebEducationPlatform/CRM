@@ -23,6 +23,7 @@ public class StatusDtoForBoard {
     private Set<SortedStatuses> sortedStatuses = new HashSet<>();
     private Long templateId = 0L;
     private boolean sendNotifications;
+    private Long board;
 
     public StatusDtoForBoard() {
     }
@@ -37,7 +38,9 @@ public class StatusDtoForBoard {
                              Integer trialOffset,
                              Integer nextPaymentOffset,
                              Long templateId,
-                             boolean sendNotifications) {
+                             boolean sendNotifications,
+                             Long board
+                             ) {
         this.id = id;
         this.name = name;
         this.isInvisible = isInvisible;
@@ -49,6 +52,15 @@ public class StatusDtoForBoard {
         this.nextPaymentOffset = nextPaymentOffset;
         this.templateId = templateId;
         this.sendNotifications = sendNotifications;
+        this.board = board;
+    }
+
+    public Long getBoard() {
+        return board;
+    }
+
+    public void setBoard(Long board) {
+        this.board = board;
     }
 
     public Long getId() {
@@ -162,6 +174,7 @@ public class StatusDtoForBoard {
         statusDtoForBoard.nextPaymentOffset = status.getNextPaymentOffset();
         statusDtoForBoard.sortedStatuses = status.getSortedStatuses();
         statusDtoForBoard.templateId = status.getTemplateId();
+        statusDtoForBoard.board = status.getBoard_id();
 
         return statusDtoForBoard;
     }

@@ -1,9 +1,6 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.interfaces.*;
@@ -49,6 +46,7 @@ public class ClientController {
     private final SlackService slackService;
     private final StatusController statusController;
     private final UserStatusService userStatusService;
+    private final BoardService boardService;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -66,7 +64,8 @@ public class ClientController {
                             StudentStatusService studentStatus,
                             ListMailingTypeService listMailingTypeService,
                             SlackService slackService, StatusController statusController,
-                            UserStatusService userStatusService) {
+                            UserStatusService userStatusService,
+                            BoardService boardService) {
         this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
@@ -81,6 +80,7 @@ public class ClientController {
         this.listMailingTypeService = listMailingTypeService;
         this.statusController = statusController;
         this.userStatusService = userStatusService;
+        this.boardService = boardService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -132,7 +132,59 @@ public class ClientController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+//        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+//        modelAndView.addObject("statuses", statuses);
+
+        modelAndView.addObject("counter", new AtomicInteger(0));
+
+        List<User> userList = userService.getAll();
+        modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+        modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
+
+        List<Role> roles = roleService.getAll();
+        roles.remove(roleService.getRoleByName("OWNER"));
+        modelAndView.addObject("roles", roles);
+
+        modelAndView.addObject("boards", boardService.getAll());
+
+        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+
+        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
+        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+
+        statusController.prepareCachedStatusModelAttributes(userFromSession);
+
+        return modelAndView;
+    }
+
+    @GetMapping(value = "/client/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'MENTOR', 'HR', 'USER')")
+    public ModelAndView getBoard(@PathVariable("id") Long boardId,
+            @AuthenticationPrincipal User userFromSession) {
+
+        ModelAndView modelAndView = new ModelAndView("main-client-table");
+
+        modelAndView.addObject("user", userFromSession);
+
+        List<Role> sessionRoles = userFromSession.getRole();
+        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
+            role = roleService.getRoleByName(ROLE_NAME_MENTOR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_HR))) {
+            role = roleService.getRoleByName(ROLE_NAME_HR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_ADMIN))) {
+            role = roleService.getRoleByName(ROLE_NAME_ADMIN);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
+            role = roleService.getRoleByName(ROLE_NAME_OWNER);
+        }
+
+        // modelAndView.addObject("boardStatuses", boardService.get(id).getStatuses());
+
+
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
         modelAndView.addObject("statuses", statuses);
 
         modelAndView.addObject("counter", new AtomicInteger(0));
@@ -144,6 +196,9 @@ public class ClientController {
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         modelAndView.addObject("roles", roles);
+
+        modelAndView.addObject("boards", boardService.getAll());
+        modelAndView.addObject("board", boardService.get(boardId));
 
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
 

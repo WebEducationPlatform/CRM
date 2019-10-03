@@ -3,6 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -95,6 +96,13 @@ public class Status implements Serializable {
 	private Integer nextPaymentOffset = 0;
 
 	/**
+	 * На какой доске статус
+	 */
+	@ColumnDefault(value = "1")
+	@Column(name = "board_id")
+	private Long boardId;
+
+	/**
 	 * OneToMany uses FetchType.LAZY by default.
 	 * We use FetchMode.SUBSELECT because we have limited quantity of sortedStatuses,
 	 * and almost all of them are in the session.
@@ -109,30 +117,41 @@ public class Status implements Serializable {
 	private Long templateId = 0L;
 
 
-	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
+	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset, Long boardId) {
 		this.name = name;
 		this.isInvisible = isInvisible;
 		this.position = position;
 		this.createStudent = createStudent;
 		this.trialOffset = trialOffset;
 		this.nextPaymentOffset = nextPaymentOffset;
+		this.boardId = boardId;
 	}
 
-	public Status(String name, Integer trialOffset, Integer nextPaymentOffset, List<Role> role) {
+	public Status(String name, Integer trialOffset, Integer nextPaymentOffset, List<Role> role, Long boardId) {
 		this.name = name;
 		this.trialOffset = trialOffset;
 		this.nextPaymentOffset = nextPaymentOffset;
 		this.role = role;
+		this.boardId = boardId;
 	}
 
-	public Status(String name) {
+	public Status(String name, Long boardId) {
 		this.name = name;
+		this.boardId = boardId;
 		this.createStudent = false;
 		this.trialOffset = 0;
 		this.nextPaymentOffset = 0;
 	}
 
 	public Status() {
+	}
+
+	public Long getBoard_id() {
+		return boardId;
+	}
+
+	public void setBoard_id(Long boardId) {
+		this.boardId = boardId;
 	}
 
 	public Long getPosition() {

@@ -38,7 +38,17 @@
             <div class="navbar-collapse collapse">
 
                 <ul id="nav-bar-list" class="nav navbar-nav">
-                    <li><a href="/client">Доска</a></li>
+<!--                    <li><a href="/client">Доски</a></li>-->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Доски
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a th:each="board : ${boards}" th:text="${board.name}" class="dropdown-item" th:href="'/client/'+${board.id}">Основная</a></li>
+<!--                            <li><a class="dropdown-item" th:href="'/client'">Основная</a></li>-->
+                        </ul>
+                    </li>
                     <li><a href="/courses">Направления</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

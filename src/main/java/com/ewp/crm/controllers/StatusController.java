@@ -108,7 +108,8 @@ public class StatusController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        cachedStatusModelAttributes.statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+        //TODO Передавать сюда id доски
+        cachedStatusModelAttributes.statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, 1L);
 
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));

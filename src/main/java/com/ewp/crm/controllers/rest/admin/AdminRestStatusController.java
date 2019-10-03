@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.BoardService;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.UserStatusService;
@@ -14,8 +15,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/rest/admin/status")
@@ -26,14 +29,17 @@ public class AdminRestStatusController {
 	private final StatusService statusService;
 	private final NotificationService notificationService;
 	private final UserStatusService userStatusService;
+	private final BoardService boardService;
 
 	@Autowired
 	public AdminRestStatusController(StatusService statusService,
 									 NotificationService notificationService,
-									 UserStatusService userStatusService) {
+									 UserStatusService userStatusService,
+									 BoardService boardService) {
 		this.statusService = statusService;
 		this.notificationService = notificationService;
 		this.userStatusService = userStatusService;
+		this.boardService = boardService;
 	}
 
 	@PostMapping(value = "/edit")
