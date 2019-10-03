@@ -204,13 +204,16 @@
             ENGINE = INNODB
             DEFAULT CHARACTER SET = utf8;
 
-            ALTER TABLE `student` ADD column course_set_id bigint NULL AFTER student_education_id;
-            SET FOREIGN_KEY_CHECKS=0;
-            ALTER TABLE `student` ADD CONSTRAINT FK_STUDENT_SET FOREIGN KEY (course_set_id) REFERENCES course_set(course_set_id);
+            CREATE TABLE `course_set_students` (
+            `course_set_id` bigint(20) NOT NULL,
+            `students_id` bigint(20) NOT NULL,
+            PRIMARY KEY (`course_set_id`,`students_id`),
+            UNIQUE KEY `UK_STUDENTS_ID` (`students_id`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8
+
         </sql>
         <rollback>
-            ALTER TABLE `student` DROP FOREIGN KEY `FK_STUDENT_SET`;
-            ALTER TABLE `student` drop column course_set_id;
+            DROP TABLE `course_set_students`;
             DROP TABLE `course_set`;
         </rollback>
     </changeSet>
