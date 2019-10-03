@@ -1608,8 +1608,10 @@ $(function () {
 document.querySelector('.modal-comments').onclick = (e) => {
     const target = e.target;
     const area = target.getAttribute('id');
-    if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
-        mentionUser();
+    if (area != null) {
+        if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
+            mentionUser();
+        }
     }
 };
 //функция упоминания юзера

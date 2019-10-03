@@ -18,7 +18,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("rest/api/comment")
-//@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 public class CommentApiRestController {
 
 	private static Logger logger = LoggerFactory.getLogger(CommentApiRestController.class);
@@ -50,100 +49,77 @@ public class CommentApiRestController {
 
 	@PostMapping(value = "/add")
 	public ResponseEntity<Comment> addComment(@RequestParam(name = "clientId") Long clientId,
-											  @RequestParam(name = "content") String content,
-											  @RequestParam(name = "email") String email
-			/*, @AuthenticationPrincipal User userFromSession*/) {
+	                                          @RequestParam(name = "content") String content,
+                                              @RequestParam(name = "email") String email) {
 		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add comment, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
-
 		//added 10.09.2019
 		Optional<User> optionalUser = userService.getUserByEmail(email);
 		User user;
 		if (optionalUser.isPresent()) {
-			user = optionalUser.get();
-		} else {
-			logger.error("Can`t add comment, user with email {} not found", email);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
-//		sendNotificationService.sendNotification(content, client);
+		    user = optionalUser.get();
+        } else {
+            logger.error("Can`t add comment, user with email {} not found", email);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+		sendNotificationService.sendNotification(content, client);
 		Comment newComment = new Comment(user, client, content);
 		commentService.add(newComment);
-		return ResponseEntity.status(HttpStatus.OK).body(newComment);
+		return ResponseEntity.ok(newComment);
 	}
 
 	@PostMapping(value = "/add/answer")
 	public ResponseEntity<CommentAnswer> addAnswer(@RequestParam(name = "content") String content,
-												   @RequestParam(name = "commentId") Long commentId,
-												   @RequestParam(name = "email") String email
-			/* @AuthenticationPrincipal User userFromSession*/) {
-
-		Optional<User> optionalUser = userService.getUserByEmail(email);
-		User user;
-		if (optionalUser.isPresent()) {
-			user = optionalUser.get();
-		} else {
-			logger.error("Can`t add comments answer, user with email {} not found", email);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
-		User fromDB = userService.get(user.getId());
-		Comment comment;
-		CommentAnswer commentAnswer;
-
-		try {
-			comment = commentService.get(commentId);
-			Client client = comment.getClient();
-//		sendNotificationService.sendNotification(content, client);
-			commentAnswer = new CommentAnswer(fromDB, content, client);
-		} catch (NullPointerException e) {
-			logger.error("Can`t add comments answer, comment id {} or clien not found", commentId);
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-
-		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
-		if (answer.isPresent()) {
-			comment.addAnswer(answer.get());
-			commentService.update(comment);
-			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                                                   @RequestParam(name = "commentId") Long commentId,
+                                                   @RequestParam(name = "email") String email) {
+        //added 10.09.2019
+        Optional<User> optionalUser = userService.getUserByEmail(email);
+        User user;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
+            logger.error("Can`t add comments answer, user with email {} not found", email);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+		//TODO по идее надо проверять и существование комментария к которому создается ответ
+        Comment comment = commentService.get(commentId);
+		CommentAnswer commentAnswer = new CommentAnswer(user, content, comment);
+		comment.addAnswer(commentAnswer);
+		return ResponseEntity.ok(commentAnswer);
 	}
 
 	@PostMapping(value = "/delete/answer/{id}")
-	public ResponseEntity deleteCommentAnswer(@PathVariable Long id,
-											  @RequestParam(name = "email") String email
-			/* @AuthenticationPrincipal User userFromSession*/) {
-
+	public HttpStatus deleteCommentAnswer(@PathVariable Long id,
+											  @RequestParam(name = "email") String email) {
 		Optional<User> optionalUser = userService.getUserByEmail(email);
 		User user;
 		if (optionalUser.isPresent()) {
 			user = optionalUser.get();
 		} else {
 			logger.error("Can`t delete comments answer, user with email {} not found", email);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return HttpStatus.BAD_REQUEST;
 		}
 
 		try {
 			if (commentAnswerService.get(id).getUser().equals(user)) {
 				commentAnswerService.delete(id);
-				return ResponseEntity.ok(HttpStatus.OK);
+				return HttpStatus.OK;
 			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+				return HttpStatus.BAD_REQUEST;
 			}
 		} catch (EntityNotFoundException | NullPointerException e) {
 			logger.error("Can`t delete comments answer, {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return HttpStatus.BAD_REQUEST;
 		}
 	}
 
 	@PostMapping(value = "/edit/answer/{id}")
 	public ResponseEntity<CommentAnswer> editCommentAnswer(@PathVariable Long id,
 														   @RequestParam(name = "content") String content,
-														   @RequestParam(name = "email") String email
-			/*@AuthenticationPrincipal User userFromSession*/) {
-
+														   @RequestParam(name = "email") String email) {
 		Optional<User> optionalUser = userService.getUserByEmail(email);
 		User user;
 		if (optionalUser.isPresent()) {
@@ -158,7 +134,7 @@ public class CommentApiRestController {
 				CommentAnswer commentAnswer = commentAnswerService.get(id);
 				commentAnswer.setContent(content);
 				commentAnswerService.update(commentAnswer);
-				return ResponseEntity.status(HttpStatus.OK).body(commentAnswerService.get(id));
+				return ResponseEntity.ok(commentAnswerService.get(id));
 			} else {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 			}
@@ -169,38 +145,34 @@ public class CommentApiRestController {
 	}
 
 	@PostMapping(value = "/delete/{id}")
-	public ResponseEntity deleteComment(@PathVariable Long id,
-										@RequestParam(name = "email") String email
-			/*@AuthenticationPrincipal User userFromSession*/) {
-
+	public HttpStatus deleteComment(@PathVariable Long id,
+										@RequestParam(name = "email") String email) {
 		Optional<User> optionalUser = userService.getUserByEmail(email);
 		User user;
 		if (optionalUser.isPresent()) {
 			user = optionalUser.get();
 		} else {
 			logger.error("Can`t delete comment, user with email {} not found", email);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return HttpStatus.BAD_REQUEST;
 		}
 
 		try {
 			if (commentService.get(id).getUser().equals(user)) {
 				commentService.delete(id);
-				return ResponseEntity.ok(HttpStatus.OK);
+				return HttpStatus.OK;
 			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+				return HttpStatus.BAD_REQUEST;
 			}
 		} catch (EntityNotFoundException | NullPointerException e) {
 			logger.error("Can`t delete comments, {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return HttpStatus.BAD_REQUEST;
 		}
 	}
 
 	@PostMapping(value = "/edit/{id}")
 	public ResponseEntity<Comment> editComment(@PathVariable Long id,
 											   @RequestParam(name = "content") String content,
-											   @RequestParam(name = "email") String email
-			/*  @AuthenticationPrincipal User userFromSession*/) {
-
+											   @RequestParam(name = "email") String email) {
 		Optional<User> optionalUser = userService.getUserByEmail(email);
 		User user;
 		if (optionalUser.isPresent()) {
@@ -214,7 +186,7 @@ public class CommentApiRestController {
 				Comment comment = commentService.get(id);
 				comment.setContent(content);
 				commentService.update(comment);
-				return ResponseEntity.status(HttpStatus.OK).body(commentService.get(id));
+				return ResponseEntity.ok(commentService.get(id));
 			} else {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 			}
@@ -223,4 +195,5 @@ public class CommentApiRestController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
+
 }
