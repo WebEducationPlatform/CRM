@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>Наборы</title>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
+    <link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body
+<div style="margin: 2%">
+    <!--Навигационная панель-->
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+    <!--Основное содержание-->
+    <div class="container-fluid">
+        <div><h1>Наборы</h1></div>
+        <!--Кнопка добавления набора-->
+        <div class="row">
+            <a th:href="@{/courses/set/add(id=${course.id})}" class="btn btn-info" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">Новый набор</a>
+        </div>
+        <!--CourseSets table-->
+        <div class="col-md-6 col-md-offset-3" >
+            <div class="table-responsive">
+                <table class="table table-hover table-fixed">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Дата старта</th>
+                    </tr>
+                    </thead>
+                    <tbody >
+                    <tr th:each="courseSet : ${courseSets}">
+                        <td th:text="${courseSet.id}">id</td>
+                        <td th:text="${courseSet.name}">name</td>
+                        <td th:text="${courseSet.startDate}">name</td>
+                        <!--Edit button-->
+                        <td>
+                            <button class="btn btn-info btn-lg" type="button" data-toggle="modal" th:attr="data-target='#'+${courseSet.id}" >Edit</button>
+                            <!--Модалка для кнопки редактирования-->
+                            <div class="modal fade" th:attr="id=${courseSet.id}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header"><button class="close" type="button" data-dismiss="modal">×</button>
+                                            <h4 class="modal-title">Редактор</h4>
+                                        </div>
+                                        <form>
+                                            <div class="modal-body">
+                                                <div class="center-block"  style="width:400px";>
+                                                    <div class="form-group">
+                                                        <input class="form-control" id="disabledInput" type="hidden" name="courseId"  th:attr="value=${course.id}" readonly="readonly"/>
+                                                        <br>
+                                                        <p align="center"><b>Набор:</b></p>
+                                                        <input class="form-control" type="text" name="courseSetName" th:attr="value=${courseSet.name}" placeholder="Enter name"/>
+                                                        <br>
+                                                        <p align="center"><b>Дата старта:</b></p>
+                                                        <input class="form-control" type="date" name="courseSetStartDate" th:attr="value=${courseSet.startDate}" placeholder="Enter start date"/>
+                                                        <br>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-default" type="button" data-dismiss="modal">Закрыть</button>
+                                                <button class="btn btn-info" type="submit" name="update" th:attr="value=${courseSet.id}"formaction="/courses/set/update" formmethod="post">Обновить</button>
+                                                <button class="btn btn-info" type="submit" name="delete" th:attr="value=${courseSet.id}" formaction="/courses/set/delete" formmethod="post">Удалить</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <!--Add Students button-->
+                        <td>
+                            <button class="btn btn-info btn-lg" type="button" th:onclick="|selectStudentsForCourseSet(${courseSet.id})|">Студенты</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+<!--            Выбор студентов для зачисления в Набор-->
+            <div>
+                <div id="divTableStdntCrsSt" style="text-align: center; color: red">
+                    <!-- Уведомления. Заполняется из скрипта -->
+                </div>
+                <!-- Кнопка Зачислить выбранных -->
+                <div style="text-align: center; margin-bottom: 10px">
+                    <button class="btn btn-info btn-lg" id="EnrollBtn" type="button" style="visibility: hidden">Зачислить выбранных</button>
+                </div>
+                <!-- Список статусов для фильтрации -->
+                <div style="margin-bottom: 10px" onchange="changeFunc();">
+                    <select id="statuses" class="form-control" style="visibility: hidden"></select>
+                </div>
+                <!-- Таблица выбора студентов для зачисления в Набор-->
+                <table style="visibility: hidden" id="students-CourseSet" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Имя</th>
+                            <th scope="col">Фамилия</th>
+                            <th scope="col">Город</th>
+                        </tr>
+                    </thead>
+                    <tbody id="students-CourseSet-body">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/course-sets.js}"></script>
+</body>
+</html>

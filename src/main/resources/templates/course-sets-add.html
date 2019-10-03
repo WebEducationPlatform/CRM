@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Новый набор</title>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/autocomplete.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div style="margin: 2%">
+    <!--Навигационная панель-->
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+    <!--Основное содержание-->
+    <div class="container-fluid">
+        <div><h1>Новый набор</h1></div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form action="/courses/set/add">
+                    <div class="center-block"  style="width:400px";>
+                        <div class="form-group">
+                            <input class="form-control" type="hidden" name="courseId" th:value="${course.id}"/>
+                            <p align="center"><b>Название:</b></p>
+                            <input class="form-control" type="text" name="courseSetName" placeholder="Enter course set name"/>
+                            <br>
+                            <p align="center"><b>Дата старта:</b></p>
+                            <input class="form-control" type="date" name="courseSetStartDate" placeholder="Enter course set start date"/>
+                            <br>
+                            <div align="center">
+                                <button class="btn btn-success btn-lg" formmethod="post" type="submit" value="Add" name="addCourseSet">Добавить набор</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
