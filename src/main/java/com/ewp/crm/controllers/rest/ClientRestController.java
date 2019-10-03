@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.dto.ClientCardDtoBuilder;
+import com.ewp.crm.models.dto.ClientDtoForCourseSetTable;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -692,5 +693,12 @@ public class ClientRestController {
         Client client = clientService.get(clientId);
         List<Course> list = courseService.getCoursesByClient(client);
         return ResponseEntity.ok(list);
+    }
+
+    @PostMapping(value = "/filtrationForCourseSet", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+    public ResponseEntity<List<ClientDtoForCourseSetTable>> getAllWithConditionsForCourseSet(@RequestBody FilteringCondition filteringCondition) {
+        List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
+        return ResponseEntity.ok(ClientDtoForCourseSetTable.getListDtoClients(clients));
     }
 }

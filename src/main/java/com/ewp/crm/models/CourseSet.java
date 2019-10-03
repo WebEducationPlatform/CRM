@@ -74,7 +74,7 @@ public class CourseSet {
     }
 
     public void setStudents(Set<Student> students) {
-        this.students = students;
+        this.students.addAll(students);
     }
 
     public void setStudent(Student student) {
