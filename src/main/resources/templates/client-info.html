@@ -17,8 +17,6 @@
             <div class="col-md-6" id="column1">
                 <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR', 'HR')" type="button" class="btn btn-primary"
                         id="editClientBtn" onclick="revertUnable()">Редактировать</button>
-                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
-                        style="margin-bottom: 10px" id="feedbackClientBtn" th:onclick="'getFeedback('+ ${client.id} + ')'">смотреть отзывы</button>
                 <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-danger"
                         style="margin-bottom: 10px; margin-left: 15px" data-toggle="modal" data-target="#modalRemove">Удалить</button>
                 <!-- Modal -->
@@ -277,10 +275,8 @@
     </div>
 </div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
-<div th:replace="fragments/modal-client-feedback::modalClientFeedback"></div>
 <script type="text/javascript" th:src="@{/js/client-info.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
-<script type="text/javascript" th:src="@{/js/clientFeedback.js}"></script>
 <script th:src="@{/js/validator.min.js}"></script>
 </body>
 </html>

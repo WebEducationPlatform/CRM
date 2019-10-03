@@ -13,7 +13,6 @@ import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkRequestForm;
-import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.models.conversation.ChatMessage;
 import com.ewp.crm.models.conversation.ChatType;
 import com.ewp.crm.models.dto.VkProfileInfo;
@@ -29,7 +28,6 @@ import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.VkMemberService;
 import com.ewp.crm.service.interfaces.VkRequestFormService;
-import com.ewp.crm.service.interfaces.YoutubeClientService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -101,7 +99,6 @@ import java.util.regex.Pattern;
 @PropertySource(value = "file:./anti-captcha.properties")
 public class VKServiceImpl implements VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
-    private final YoutubeClientService youtubeClientService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
     private final ClientService clientService;
@@ -153,7 +150,6 @@ public class VKServiceImpl implements VKService {
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
-                         YoutubeClientService youtubeClientService,
                          SocialProfileService socialProfileService,
                          ClientHistoryService clientHistoryService,
                          ClientService clientService,
@@ -182,7 +178,6 @@ public class VKServiceImpl implements VKService {
         vkReportChatId = vkConfig.getVkReportChatId();
         firstSkypeNotifyChatId = vkConfig.getFirstSkypeNotifyChatId();
         vkAppAccessToken = vkConfig.getVkAppAccessToken();
-        this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
         this.clientService = clientService;
@@ -1075,59 +1070,7 @@ public class VKServiceImpl implements VKService {
         return null;
     }
 
-    @Override
-    public Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient) {
-        if (hasTechnicalAccountToken()) {
-            youtubeClient.setChecked(true);
-            youtubeClientService.update(youtubeClient);
-            String fullName = youtubeClient.getFullName().replaceAll("(?U)[\\pP\\s]", "%20");
-            logger.info("VKService: getting client from YouTube Live Stream by name: " + fullName);
-            String uriGetClient = vkApi + "users.search?" +
-                    "q=" + fullName +
-                    "&count=1" +
-                    "&group_id=" + youtubeClient.getYouTubeTrackingCard().getVkGroupID() +
-                    "&v=" + version +
-                    "&access_token=" + technicalAccountToken;
-
-            HttpGet httpGetClient = new HttpGet(uriGetClient);
-            HttpClient httpClient = getHttpClient();
-            try {
-                HttpResponse response = httpClient.execute(httpGetClient);
-                String result = EntityUtils.toString(response.getEntity());
-                JSONObject json = new JSONObject(result);
-                JSONObject responseObject = json.getJSONObject("response");
-
-                if (responseObject.getString("count").equals("0")) {
-                    logger.warn("VKService: response is empty");
-                    return Optional.empty();
-                } else {
-                    logger.info("VKService: processing of response...");
-                    JSONArray jsonUsers = responseObject.getJSONArray("items");
-                    JSONObject jsonUser = jsonUsers.getJSONObject(0);
-                    long id = jsonUser.getLong("id");
-                    String firstName = jsonUser.getString("first_name");
-                    String lastName = jsonUser.getString("last_name");
-                    String vkLink = "https://vk.com/id" + id;
-                    PotentialClient potentialClient = new PotentialClient(firstName, lastName);
-                    SocialProfile socialProfile = new SocialProfile(vkLink);
-                    socialProfile.setSocialNetworkType(SocialNetworkType.VK);
-                    List<SocialProfile> socialProfiles = new ArrayList<>();
-                    socialProfiles.add(socialProfile);
-                    potentialClient.setSocialProfiles(socialProfiles);
-                    return Optional.of(potentialClient);
-                }
-            } catch (JSONException e) {
-                logger.error("Can not read message from JSON or YoutubeClient don't exist in VK group", e);
-            } catch (IOException e) {
-                logger.error("Failed to connect to VK server ", e);
-            }
-        } else {
-            logger.error("VK access token has not got");
-        }
-        return Optional.empty();
-    }
-
-    @Override
+     @Override
     public String getVkPhotoLinkByClientProfileId(String vkProfileId) {
         logger.info("Getting vk profile photo link for " + vkProfileId);
 

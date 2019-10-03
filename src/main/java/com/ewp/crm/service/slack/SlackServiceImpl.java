@@ -48,7 +48,6 @@ public class SlackServiceImpl implements SlackService {
     private final String legacyToken;
     private final String generalChannelId;
     private final String defaultPrivateGroupNameTemplate;
-    private final AssignSkypeCallService assignSkypeCallService;
     private final MessageTemplateService messageTemplateService;
     private final StudentRepository studentRepository;
 
@@ -57,7 +56,6 @@ public class SlackServiceImpl implements SlackService {
                             ClientService clientService,
                             SocialProfileService socialProfileService,
                             ProjectPropertiesService projectPropertiesService,
-                            AssignSkypeCallService assignSkypeCallService,
                             MessageTemplateService messageTemplateService,
                             StudentRepository studentRepository) {
         this.appToken = assignPropertyToString(environment,
@@ -79,7 +77,6 @@ public class SlackServiceImpl implements SlackService {
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
         this.projectProperties = projectPropertiesService.getOrCreate();
-        this.assignSkypeCallService = assignSkypeCallService;
         this.messageTemplateService = messageTemplateService;
         this.studentRepository = studentRepository;
     }
@@ -172,18 +169,10 @@ public class SlackServiceImpl implements SlackService {
     @Override
     public boolean trySendSlackMessageToStudent(long clientId, String text) {
         Optional<Client> clientOptional = clientService.getClientByID(clientId);
-        Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(clientId);
         Client client;
-        AssignSkypeCall skypeCall;
-        ZonedDateTime zonedDateTime;
         String body = "";
         if (clientOptional.isPresent()) {
             client = clientOptional.get();
-            if (assignSkypeCall.isPresent()) {
-                skypeCall = assignSkypeCall.get();
-                zonedDateTime = skypeCall.getSkypeCallDate();
-                body = zonedDateTime.format(DateTimeFormatter.ofPattern("dd.MM.YY в HH-mm"));
-            }
             List<SocialProfile> profiles = client.getSocialProfiles();
             for (SocialProfile socialProfile :profiles) {
                 if ("slack".equals(socialProfile.getSocialNetworkType().getName())) {

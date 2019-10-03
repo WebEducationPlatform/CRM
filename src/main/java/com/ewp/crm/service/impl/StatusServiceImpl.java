@@ -220,14 +220,6 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public List<StatusDto> getAllStatusesIdsForStudents() {
-        return statusDAO.getAllStatusesIdsForStudents().stream()
-                .map(BigInteger::longValue)
-                .map(id -> new StatusDto(id, statusDAO.getStatusNameById(id)))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
     public void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser) {
         Optional<Status> optionalStatus = get(statusId);

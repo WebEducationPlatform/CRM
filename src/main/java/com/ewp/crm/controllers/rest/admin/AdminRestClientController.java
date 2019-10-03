@@ -4,7 +4,6 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.AssignSkypeCallService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -23,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,14 +35,11 @@ public class AdminRestClientController {
     private final ClientHistoryService clientHistoryService;
     private final StatusService statusService;
     private final StudentService studentService;
-    private final AssignSkypeCallService assignSkypeCallService;
 
     @Autowired
-    public AdminRestClientController(AssignSkypeCallService assignSkypeCallService,
-                                     ClientService clientService,
+    public AdminRestClientController(ClientService clientService,
                                      ClientHistoryService clientHistoryService,
                                      StatusService statusService, StudentService studentService) {
-        this.assignSkypeCallService = assignSkypeCallService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
         this.statusService = statusService;
