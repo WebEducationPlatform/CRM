@@ -25,7 +25,9 @@ public class CourseSet {
     @JoinColumn (name = "course_id")
     private Course course;
 
-    @OneToMany(mappedBy = "courseSet")
+    @ElementCollection
+    @CollectionTable(name = "course_set_students", joinColumns = @JoinColumn(name = "course_set_id"))
+    @Column(name = "student")
     @JsonIgnore
     private Set<Student> students = new HashSet<>();
 
@@ -74,7 +76,7 @@ public class CourseSet {
     }
 
     public void setStudents(Set<Student> students) {
-        this.students.addAll(students);
+        this.students = students;
     }
 
     public void setStudent(Student student) {

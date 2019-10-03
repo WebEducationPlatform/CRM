@@ -1,7 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Course;
+
 import com.ewp.crm.models.CourseSet;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -17,6 +16,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -36,26 +38,32 @@ public class CourseSetRestController {
     }
 
     //Запись списка студентов в Набор
-    @PostMapping(value = "/student/addAll/{courseSetId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/student/addAll/{courseSetId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
-    public ResponseEntity getCourseSets(@PathVariable Long courseSetId,
-                                        @RequestBody String arr) throws IOException {
-        Long[] clientIds = new ObjectMapper().readValue(arr, Long[].class); //Получаем список ID Клиентов
-        CourseSet courseSet = null;
-        Client client = null;
-        Course course = null;
-        Student student = null;
+    public ResponseEntity addStudentToCourseSet(@PathVariable Long courseSetId,
+                                        @RequestBody String clientsId) throws IOException {
+        Long[] clientIds = new ObjectMapper().readValue(clientsId, Long[].class);
+        //Получаем список студентов
+        List<Student> students = new ArrayList<>();
         for (Long id : clientIds) {
-            client = clientService.getClientByID(id).get(); //Получаем Клиента
-            student = client.getStudent(); //Получаем Студента
-            courseSet = courseSetService.get(courseSetId); //Получаем Набор
-            student.setCourseSet(courseSet); //Записываем Студента в Набор
-            studentService.update(student); //Обновляем Студента
-            //А клиента записываем на соответствующее Набору Направление
-            course = courseService.getCourse(courseSet.getCourse().getId());
-            course.setClient(client);
-            courseService.update(course);
+            students.add(clientService.getClientByID(id).get().getStudent());
         }
+        /*Т.к. связь Направление-Студенты один-ко-многим, то сначала нужно удалить из таблицы course_set_students
+        запись для каждого студента, если она существует*/
+        List<CourseSet> listCourseSet = courseSetService.getAll();
+        for (Student stdnt : students) {
+             for (CourseSet cs : listCourseSet) {
+                courseSetService.removeFromSetIfContains(cs, stdnt);
+            }
+        }
+        //Теперь можно записать Студента в Набор
+        Set<Student> set = courseSetService.get(courseSetId).getStudents();
+        for (Student stdnt : students) {
+            set.add(stdnt);
+        }
+        CourseSet courseSet = courseSetService.get(courseSetId);
+        courseSet.setStudents(set);
+        courseSetService.update(courseSet);
         return new ResponseEntity(HttpStatus.OK);
     }
 }
