@@ -252,8 +252,19 @@ public class StudentRestController {
     public ResponseEntity studentAddCourseSet(@PathVariable Long clientId,
                                           @RequestParam Long courseSetId) {
         Student student = clientService.getClientByID(clientId).get().getStudent();
-        student.setCourseSet(courseSetService.get(courseSetId));
-        studentService.update(student);
+        /*Т.к. связь Направление-Студенты один-ко-многим, то сначала нужно удалить из таблицы course_set_students
+        запись для студента, если она существует*/
+        List<CourseSet> listCourseSet = courseSetService.getAll();
+        for (CourseSet cs:listCourseSet) {
+            courseSetService.removeFromSetIfContains(cs, student);
+        }
+        //Теперь можно записать Студента в Набор
+        CourseSet courseSet = courseSetService.get(courseSetId);
+        Set<Student> set = courseSet.getStudents();
+        set.add(student);
+        courseSet.setStudents(set);
+        courseSetService.update(courseSet);
+
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -262,6 +273,11 @@ public class StudentRestController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
     public ResponseEntity<CourseSet> studentGetCourseSet(@PathVariable Long clientId) {
         Student student = clientService.getClientByID(clientId).get().getStudent();
-        return ResponseEntity.ok(student.getCourseSet());
+        for (CourseSet cs : courseSetService.getAll()) {
+            if (cs.getStudents().contains(student)) {
+                return ResponseEntity.ok(cs);
+            }
+        }
+        return null;
     }
 }

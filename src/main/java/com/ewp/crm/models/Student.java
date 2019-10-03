@@ -105,10 +105,6 @@ public class Student implements Diffable<Student> {
     @JoinColumn(name = "student_education_id")
     private StudentEducationStage studentEducationStage;
 
-    @ManyToOne
-    @JoinColumn(name = "course_set_id")
-    private CourseSet courseSet;
-
     public Student() {
     }
 
@@ -263,14 +259,6 @@ public class Student implements Diffable<Student> {
 
     public void setNotifySlack(boolean notifySlack) {
         this.notifySlack = notifySlack;
-    }
-
-    public CourseSet getCourseSet() {
-        return courseSet;
-    }
-
-    public void setCourseSet(CourseSet courseSet) {
-        this.courseSet = courseSet;
     }
 
     @Override
