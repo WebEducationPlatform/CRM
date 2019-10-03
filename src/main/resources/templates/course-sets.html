@@ -76,27 +76,33 @@
                         </td>
                         <!--Add Students button-->
                         <td>
-                            <button class="btn btn-info btn-lg" type="button" th:onclick="|studentsForCourseSet(${courseSet.id})|">Студенты</button>
+                            <button class="btn btn-info btn-lg" type="button" th:onclick="|selectStudentsForCourseSet(${courseSet.id})|">Студенты</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
             </div>
-<!--            Таблица для выбора студентов для зачисления в Набор-->
+<!--            Выбор студентов для зачисления в Набор-->
             <div>
-                <table style="visibility: hidden" id="students-CourseSet">
-
+                <div id="divTableStdntCrsSt" style="text-align: center; color: red">
+                    <!-- Уведомления. Заполняется из скрипта -->
+                </div>
+                <!-- Кнопка Зачислить выбранных -->
+                <div style="text-align: center; margin-bottom: 10px">
+                    <button class="btn btn-info btn-lg" id="EnrollBtn" type="button" style="visibility: hidden">Зачислить выбранных</button>
+                </div>
+                <!-- Список статусов для фильтрации -->
+                <div style="margin-bottom: 10px" onchange="changeFunc();">
+                    <select id="statuses" class="form-control" style="visibility: hidden"></select>
+                </div>
+                <!-- Таблица выбора студентов для зачисления в Набор-->
+                <table style="visibility: hidden" id="students-CourseSet" class="table table-hover">
                     <thead>
                         <tr>
-                            <td colspan="4">
-                                <button class="btn btn-info btn-lg" id="StudentsOrEnrollBtn" type="button">Зачислить выбранных</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>ID</th>
-                            <th>Имя</th>
-                            <th>Фамилия</th>
-                            <th>Город</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Имя</th>
+                            <th scope="col">Фамилия</th>
+                            <th scope="col">Город</th>
                         </tr>
                     </thead>
                     <tbody id="students-CourseSet-body">
