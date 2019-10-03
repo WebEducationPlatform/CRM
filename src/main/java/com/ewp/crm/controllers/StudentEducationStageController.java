@@ -7,12 +7,13 @@ import com.ewp.crm.service.interfaces.StudentEducationStageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNEN', 'HR', 'MENTOR')")
-@RequestMapping(value = "/educationstage")
+@RequestMapping(value = "/studenteducationstage")
 public class StudentEducationStageController {
 
     private final StudentEducationStageService studentEducationStageService;
@@ -27,7 +28,8 @@ public class StudentEducationStageController {
     @GetMapping(value = "/{courseId}")
     public ModelAndView getAllStudentEducationStageByCourse(@PathVariable("courseId") Long courseId) {
         Course course = courseService.getCourse(courseId);
-        ModelAndView modelAndView = new ModelAndView("student_education_stage");
+        ModelAndView modelAndView = new ModelAndView("studenteducationstage");
+        modelAndView.addObject("courses", course);
         modelAndView.addObject("student_education_stage", studentEducationStageService.getStudentEducationStageByCourse(course));
         return modelAndView;
     }
@@ -37,15 +39,43 @@ public class StudentEducationStageController {
        return "/add";
     }
     @PostMapping (value = "/add")
-    public String addStudentEducationStage(@RequestParam("studentEducationStageName") String studentEducationStageName,
-                                           @PathVariable("studentEducationStageLevel") Integer studentEducationStageLevel, @RequestParam("courseId") Long courseId) {
+    public String addStudentEducationStage(@PathVariable("studentEducationStageName") String studentEducationStageName,
+                                           @PathVariable("studentEducationStageLevel") Integer studentEducationStageLevel,
+                                           @PathVariable("courseId") Long courseId) {
+        ModelAndView modelAndView = new ModelAndView("studenteducationstage");
         StudentEducationStage studentEducationStage = new StudentEducationStage();
         studentEducationStage.setEducationStageLevel(studentEducationStageLevel);
         studentEducationStage.setEducationStageName(studentEducationStageName);
         Course course = courseService.getCourse(courseId);
         studentEducationStageService.add(studentEducationStage, course);
-        return "redirect:/courses";
+        return "redirect:/{courseId}";
     }
 
-    @RequestMapping
+    @RequestMapping(value = "delete/{studentEducationStageId}")
+    public String deleteStudentEducationStageBy(@PathVariable("studentEducationStageId") Long studentEducationStageId, Model model) {
+        StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(studentEducationStageId);
+        Long courseId = 0l;
+        if(studentEducationStage!=null) {
+            courseId = studentEducationStage.getCourse().getId();
+            studentEducationStageService.deleteCustom(studentEducationStage);
+        }
+        model.addAttribute("courseId", courseId);
+        return "redirect:/{courseId}";
+    }
+
+    @GetMapping(value = "/update/{id}")
+    public String updateStudentEducationStage(@PathVariable("id") Long id, Model model){
+        StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(id);
+        if(studentEducationStage!=null) {
+            model.addAttribute("studentEducationStage", studentEducationStage);
+        }
+        return "redirect:/update";
+    }
+
+    @PostMapping(value = "/update")
+    public String updateStudentEducationStage(@ModelAttribute StudentEducationStage studentEducationStage, Model model) {
+        Long courseId = studentEducationStage.getCourse().getId();
+        studentEducationStageService.update(studentEducationStage, studentEducationStage.getCourse());
+        return "redirect:/{courseId}";
+    }
 }

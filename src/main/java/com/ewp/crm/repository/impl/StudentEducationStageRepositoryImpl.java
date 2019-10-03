@@ -88,7 +88,9 @@ public class StudentEducationStageRepositoryImpl implements StudentEducationStag
         Course courseTemp = entityManager.find(Course.class, course.getId());
         if(course!=null) {
             List<StudentEducationStage> studentEducationStageList = new ArrayList<StudentEducationStage>();
-            if(studentEducationStageList.add((StudentEducationStage) courseTemp.getStudentEducationStage())) {
+            Set<StudentEducationStage> studentEducationStageSet = courseTemp.getStudentEducationStage();
+            if(studentEducationStageSet!=null) {
+                studentEducationStageList.addAll(studentEducationStageSet);
                 return studentEducationStageList;
             }
         }
