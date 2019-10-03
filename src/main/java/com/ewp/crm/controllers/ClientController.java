@@ -110,52 +110,52 @@ public class ClientController {
         return modelAndView;
     }
 
-    @GetMapping(value = "/client")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'MENTOR', 'HR', 'USER')")
-    public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
-
-        ModelAndView modelAndView = new ModelAndView("main-client-table");
-
-        modelAndView.addObject("user", userFromSession);
-
-        List<Role> sessionRoles = userFromSession.getRole();
-        Role role = roleService.getRoleByName(ROLE_NAME_USER);
-        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
-            role = roleService.getRoleByName(ROLE_NAME_MENTOR);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_HR))) {
-            role = roleService.getRoleByName(ROLE_NAME_HR);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_ADMIN))) {
-            role = roleService.getRoleByName(ROLE_NAME_ADMIN);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
-            role = roleService.getRoleByName(ROLE_NAME_OWNER);
-        }
-//        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+//    @GetMapping(value = "/client")
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'MENTOR', 'HR', 'USER')")
+//    public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
+//
+//        ModelAndView modelAndView = new ModelAndView("main-client-table");
+//
+//        modelAndView.addObject("user", userFromSession);
+//
+//        List<Role> sessionRoles = userFromSession.getRole();
+//        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+//        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
+//            role = roleService.getRoleByName(ROLE_NAME_MENTOR);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_HR))) {
+//            role = roleService.getRoleByName(ROLE_NAME_HR);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_ADMIN))) {
+//            role = roleService.getRoleByName(ROLE_NAME_ADMIN);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
+//            role = roleService.getRoleByName(ROLE_NAME_OWNER);
+//        }
+//        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, 1L);
 //        modelAndView.addObject("statuses", statuses);
-
-        modelAndView.addObject("counter", new AtomicInteger(0));
-
-        List<User> userList = userService.getAll();
-        modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
-        modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
-
-        List<Role> roles = roleService.getAll();
-        roles.remove(roleService.getRoleByName("OWNER"));
-        modelAndView.addObject("roles", roles);
-
-        modelAndView.addObject("boards", boardService.getAll());
-
-        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
-
-        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
-        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-
-        statusController.prepareCachedStatusModelAttributes(userFromSession);
-
-        return modelAndView;
-    }
+//
+//        modelAndView.addObject("counter", new AtomicInteger(0));
+//
+//        List<User> userList = userService.getAll();
+//        modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+//        modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
+//
+//        List<Role> roles = roleService.getAll();
+//        roles.remove(roleService.getRoleByName("OWNER"));
+//        modelAndView.addObject("roles", roles);
+//
+//        modelAndView.addObject("boards", boardService.getAll());
+//
+//        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+//
+//        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
+//        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+//
+//        statusController.prepareCachedStatusModelAttributes(userFromSession);
+//
+//        return modelAndView;
+//    }
 
     @GetMapping(value = "/client/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'MENTOR', 'HR', 'USER')")

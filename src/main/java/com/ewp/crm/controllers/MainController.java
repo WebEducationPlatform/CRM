@@ -12,7 +12,7 @@ public class MainController {
 		if (SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
 			return "login";
 		} else {
-			return "redirect:/client";
+			return "redirect:/client/1";
 		}
 	}
 
