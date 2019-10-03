@@ -49,7 +49,7 @@ public class GoogleOAuthService {
         if (response.getCode() == 200) {
             Gson gson = new Gson();
             GoogleUserDTO person = gson.fromJson(response.getBody(), GoogleUserDTO.class);
-            User userFromGoogle = userService.getUserByEmail("sevostyanovg.d@gmail.com").get();
+            User userFromGoogle = userService.getUserByEmail(person.getEmail()).get();
             UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(userFromGoogle,
                     userFromGoogle.getRole(), userFromGoogle.getAuthorities());
             SecurityContext sc = SecurityContextHolder.getContext();
