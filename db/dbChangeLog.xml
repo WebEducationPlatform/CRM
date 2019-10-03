@@ -273,12 +273,14 @@
             `students_id` bigint(20) NOT NULL,
             PRIMARY KEY (`course_set_id`,`students_id`),
             UNIQUE KEY `UK_STUDENTS_ID` (`students_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8
+            ) ENGINE=INNODB DEFAULT CHARSET=utf8
 
         </sql>
         <rollback>
             DROP TABLE `course_set_students`;
+            SET FOREIGN_KEY_CHECKS=0;
             DROP TABLE `course_set`;
+            SET FOREIGN_KEY_CHECKS=1;
         </rollback>
     </changeSet>
 </databaseChangeLog>
