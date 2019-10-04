@@ -307,6 +307,7 @@ function addNewJob() {
     $("#job-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteJob(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
+//Добавляем Email
 function addNewEmailExtra() {
     if ($('#newEmail').val().length > 0) {
         let addOpt = '<option value="' + $('#newEmail').val() + '"> ' + $('#newEmail').val() + '</option>';
@@ -326,6 +327,7 @@ function addNewPhoneExtra() {
 function removeSelectPhones(){
     $('#userPhoneList option:selected').remove();}
 
+//Удаляем Email
 function removeSelectEmails(){
     $('#userEmailList option:selected').remove();}
 
@@ -349,6 +351,7 @@ function setDefSelPhoneExtra(){
     }
 }
 
+//Устанавливаем Email по умолчанию - для отправки писем
     function setDefEmailExtra(){
         let emailList = $('#userEmailList option:selected');
         if ( emailList.length == 1) {
