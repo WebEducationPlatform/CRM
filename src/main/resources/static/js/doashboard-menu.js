@@ -143,7 +143,7 @@ $(document).ready(function () {
                 fillFilterList();
                 drawHiddenStatusesTable();
                 if (userLoggedIn.authorities.some(arrayEl => (arrayEl.authority === 'OWNER') || (arrayEl.authority === 'ADMIN') || (arrayEl.authority === 'HR'))) {
-                    drawNewUsersTable();
+                    showUserMatchCondition();
                     drawVerifiedUsersTable();
                 }
             };

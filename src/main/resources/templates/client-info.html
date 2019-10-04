@@ -111,37 +111,44 @@
                                th:value="${client.city}"/>
                     </div>
 
-                    <div class="form-group">
-                        <label>Email адреса</label>
-                        <table class="table table-hover" th:id="AdditionalEmails">
-                            <thead class="thead-inverse">
-                            <tr>
-                                <th hidden="hidden" abbr="id">id</th>
-                                <th abbr="email"></th>
-                            </tr>
-                            </thead>
-                            <tbody id="emails-table-body">
-                            <tr th:each="emails, iterStat : ${client.clientEmails}" th:if="${emails != ''}">
-
-                                <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
-                                <td th:value="${emails}" th:text="${emails}"></td>
-                                <td>
-                                    <button disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
-                                            class="glyphicon glyphicon-remove"></button>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить Email
-                        </button>
+                    <!-- Управление Email адресами -->
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="userEmailList">Email адреса</label>
+                            <select multiple class="form-control" id="userEmailList" disabled="disabled" size="3">
+                                <option th:each="emails, iterStat : ${client.clientEmails}" th:text="${emails}">Number phone
+                                </option>
+                            </select>
+                            <button type="button" class="btn btn-md btn-info my-1" disabled="disabled" id="removeEmails"
+                                    onclick="removeSelectEmails()">Удалить выбранные
+                            </button>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="defaultPhone">Основной email:</label>
+                            <input type="text" readonly autocomplete="off"
+                                   class="form-control mb-3" id="defaultEmail"
+                                   disabled="disabled"
+                                   title="Выбрать в спске нужный email, нажать кнопку установить"
+                                   th:value="${client.email.isPresent() ? client.email.get() : ''}"/>
+                            <button type="button" class="btn btn-md btn-info my-1" disabled="disabled" id="setDefEmail"
+                                    onclick="setDefEmailExtra()">Установить выбранный
+                            </button>
+                        </div>
+                        <div class="form-group col-md-5">
+                            <label for="newEmail">Добавить email:</label>
+                            <input type="email" class="form-control mb-3" id="newEmail"
+                                   disabled="disabled"  title="Email" />
+                            <button type="button" class="btn btn-md btn-info my-1" disabled="disabled" id="addNewEmail"
+                                    onclick="addNewEmailExtra()">Добавить
+                            </button>
+                        </div>
                     </div>
                     <p></p>
+                    <!-- Управление номерами телефонов -->
                     <div class="row">
                         <div class="form-group col-md-4">
                             <label for="userPhoneList">Номера телефонов</label>
-                            <select multiple class="form-control" id="userPhoneList" disabled="disabled" size="5">
+                            <select multiple class="form-control" id="userPhoneList" disabled="disabled" size="3">
                                 <option th:each="phones, iterStat : ${client.clientPhones}" th:if="${phones != ''}"
                                         th:text="${phones}">Number phone
                                 </option>

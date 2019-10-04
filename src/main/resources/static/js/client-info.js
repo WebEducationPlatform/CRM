@@ -79,6 +79,16 @@ function doCities(cid) {
     });
 }
 
+function GetStringListEmails(Emails, selectItem) {
+    if (selectItem.length > 0) {
+        let obj = {};
+        selectItem.each(function (i, item) {
+            obj = $(item).val();
+            Emails.push(obj);
+        })
+    }
+}
+
 function GetStringList(Phones, selectItem) {
     if (selectItem.length > 0) {
         let obj = {};
@@ -147,30 +157,12 @@ function changeClient(id) {
     }
 
     var Emails = [];
-    $th = $('#AdditionalEmails').find('th');
-    try {
-        $('#AdditionalEmails').find('tbody tr').each(function (i, tr) {
-            var obj = {}, $tds = $(tr).find('td');
-            $th.each(function (index, th) {
-                if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
-                    var current = document.getElementById("message");
-                    current.textContent = "Заполните пустые поля в таблице 'Email адреса'";
-                    current.style.color = "red";
-                    throw new Error("Пустые поля в таблице 'Email адреса'")
-                }
-                if ($(th).attr('abbr') !== "") {
-                    obj = $tds.eq(index).text();
-                }
-            });
-            Emails.push(obj);
-        });
-    } catch (e) {
-        return;
-    }
+    GetStringListEmails(Emails,$('#userEmailList option'));
 
 
     var Phones = [];
     GetStringList(Phones,$('#userPhoneList option'));
+
 
     let url = '/rest/admin/client/update';
     let wrap = {
@@ -315,9 +307,13 @@ function addNewJob() {
     $("#job-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteJob(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
+//Добавляем Email
 function addNewEmailExtra() {
-    var size = ($("#emails-table-body")[0]).rows.length;
-    $("#emails-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td><button type=\"button\" onclick=\"deleteEmail(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+    if ($('#newEmail').val().length > 0) {
+        let addOpt = '<option value="' + $('#newEmail').val() + '"> ' + $('#newEmail').val() + '</option>';
+        $('#userEmailList').append(addOpt);
+        $('#newEmail').val("");
+    }
 }
 
 function addNewPhoneExtra() {
@@ -329,11 +325,14 @@ function addNewPhoneExtra() {
 }
 
 function removeSelectPhones(){
-    $('#userPhoneList option:selected').remove();
-}
+    $('#userPhoneList option:selected').remove();}
+
+//Удаляем Email
+function removeSelectEmails(){
+    $('#userEmailList option:selected').remove();}
 
 function setDefSelPhoneExtra(){
-     let phoneList = $('#userPhoneList option:selected');
+    let phoneList = $('#userPhoneList option:selected');
     if ( phoneList.length == 1) {
         let defPhone = phoneList.val();
         $('#defaultPhone').val(defPhone);
@@ -352,6 +351,26 @@ function setDefSelPhoneExtra(){
     }
 }
 
+//Устанавливаем Email по умолчанию - для отправки писем
+    function setDefEmailExtra(){
+        let emailList = $('#userEmailList option:selected');
+        if ( emailList.length == 1) {
+            let defEmail = emailList.val();
+            $('#defaultEmail').val(defEmail);
+            //первый в списке будет по-умолчанию  - основным номером
+            let listEmails = [];
+            GetStringList(listEmails,$('#userEmailList option'));
+            let index_item = listEmails.indexOf(defEmail);
+            if ( index_item !== -1){
+                listEmails[index_item] = listEmails[0];
+                listEmails[0] = defEmail;
+            }
+            $('#userEmailList').empty();
+            $.each(listEmails, function(key, value) {
+                $('#userEmailList').append('<option value="' + value + '">' + value + '</option>');
+            });
+        }
+    }
 
 function revertUnable(){
     var column1 = $('#column1');
@@ -380,7 +399,8 @@ function revertUnable(){
     $("#addNewPhone")[0].disabled = $("#addNewPhone")[0].disabled !== true;
     $("#removePhones")[0].disabled = $("#removePhones")[0].disabled !== true;
     $("#setDefSelPhone")[0].disabled = $("#setDefSelPhone")[0].disabled !== true;
-
+    $("#removeEmails")[0].disabled = $("#removeEmails")[0].disabled !== true;
+    $("#setDefEmail")[0].disabled = $("#setDefEmail")[0].disabled !== true;
 }
 
 $(function () {
