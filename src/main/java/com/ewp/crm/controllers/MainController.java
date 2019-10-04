@@ -49,8 +49,7 @@ public class MainController {
 		if (googleOAuthService.GoogleOAuth2(code)) {
 			return "redirect:/client";
 		} else {
-			model.put("message", "Need authorized or Sign in");
-			return "login.html";
+			return "redirect:/login";
 		}
 
 	}

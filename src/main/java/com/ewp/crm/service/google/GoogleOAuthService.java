@@ -12,6 +12,7 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.Gson;
+import jdk.nashorn.internal.runtime.options.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -49,12 +51,18 @@ public class GoogleOAuthService {
         if (response.getCode() == 200) {
             Gson gson = new Gson();
             GoogleUserDTO person = gson.fromJson(response.getBody(), GoogleUserDTO.class);
-            User userFromGoogle = userService.getUserByEmail(person.getEmail()).get();
-            UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(userFromGoogle,
-                    userFromGoogle.getRole(), userFromGoogle.getAuthorities());
-            SecurityContext sc = SecurityContextHolder.getContext();
-            sc.setAuthentication(authReq);
-            return true;
+            Optional<User> userFromGoogle = userService.getUserByEmail(person.getEmail());
+           if (userFromGoogle.isPresent() ) {
+               User user = userFromGoogle.get();
+               UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(user,
+                       user.getRole(), user.getAuthorities());
+               SecurityContext sc = SecurityContextHolder.getContext();
+               sc.setAuthentication(authReq);
+               return true;
+            } else {
+               return false;
+           }
+
         } else {
             return false;
         }
