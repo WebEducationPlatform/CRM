@@ -9,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/rest/board")
@@ -33,9 +34,14 @@ public class BoardRestController {
                                       @AuthenticationPrincipal User currentAdmin) {
 
         final Board board = new Board(boardName);
-        //TODO Добавить добавление доски в таблицу UserStatus и копирование ей всех строк
         boardService.add(board);
         logger.info("{} has added board with name: {}", currentAdmin.getFullName(), board);
         return ResponseEntity.ok("Успешно добавлено");
+    }
+
+    @RequestMapping(value = "/boards", method = RequestMethod.GET)
+    public @ResponseBody
+    List<Board> boardsAjax() {
+        return boardService.getAll();
     }
 }

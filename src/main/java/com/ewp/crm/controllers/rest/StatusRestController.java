@@ -100,8 +100,6 @@ public class StatusRestController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        //TODO Нужно получать параметр id доски
-        System.out.println("ID доски: " + boardId);
         List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
         return ResponseEntity.ok(statuses.stream().filter(StatusDtoForBoard::getInvisible).collect(Collectors.toList()));
     }

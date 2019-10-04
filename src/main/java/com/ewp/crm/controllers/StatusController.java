@@ -93,7 +93,7 @@ public class StatusController {
         return "fragments/htmlFragments::clientsForStatus";
     }
 
-    public void prepareCachedStatusModelAttributes(User userFromSession) {
+    public void prepareCachedStatusModelAttributes(User userFromSession, Long boardId) {
         List<Role> sessionRoles = userFromSession.getRole();
         Role role = roleService.getRoleByName(ROLE_NAME_USER);
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
@@ -108,8 +108,8 @@ public class StatusController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        //TODO Передавать сюда id доски
-        cachedStatusModelAttributes.statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, 1L);
+
+        cachedStatusModelAttributes.statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
 
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));

@@ -14,6 +14,7 @@
     <div th:replace="fragments/status-sticky-header::sticky-style"></div>
     <script th:src="@{/js/main-client-table.js}"></script>
     <script th:src="@{/js/status.js}"></script>
+    <script type="text/javascript" th:src="@{/js/boards.js}"></script>
 </head>
 
 <body>
@@ -27,25 +28,6 @@
         <div th:replace="fragments/list-status::listStatus (${statuses}, ${emailTmpl})"></div>
 
         <div class="create-new-status-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
-            <button type="button" id="create-new-status-btn">Новый статус...</button>
-            <form role="form" id="new-status-form">
-                <div class="form-group" id="new-status-formgr">
-                    <div id="sendSocialTemplateStatus"></div>
-                    <input type="text" class="form-control" required="required" id="new-status-name"
-                           placeholder="Новый статус..."/>
-                </div>
-                <div class="form-actions">
-                    <button type="button" id="create-new-status" th:value="${board.id}" class="btn btn-success btn-sm"
-                            onclick="createNewStatus()">
-                        Сохранить
-                    </button>
-                    <button type="button" id="create-new-status-cancelbtn"
-                            class="glyphicon glyphicon-remove"></button>
-                </div>
-            </form>
-        </div>
-
-        <div class="create-new-board-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
             <button type="button" id="create-new-board-btn">Новая доска...</button>
             <form role="form" id="new-board-form">
                 <div class="form-group" id="new-board-formgr">
@@ -59,6 +41,23 @@
                         Сохранить
                     </button>
                     <button type="button" id="create-new-board-cancelbtn"
+                            class="glyphicon glyphicon-remove"></button>
+                </div>
+            </form>
+
+            <button type="button" id="create-new-status-btn">Новый статус...</button>
+            <form role="form" id="new-status-form">
+                <div class="form-group" id="new-status-formgr">
+                    <div id="sendSocialTemplateStatus"></div>
+                    <input type="text" class="form-control" required="required" id="new-status-name"
+                           placeholder="Новый статус..."/>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="create-new-status" th:value="${board.id}" class="btn btn-success btn-sm"
+                            onclick="createNewStatus()">
+                        Сохранить
+                    </button>
+                    <button type="button" id="create-new-status-cancelbtn"
                             class="glyphicon glyphicon-remove"></button>
                 </div>
             </form>
