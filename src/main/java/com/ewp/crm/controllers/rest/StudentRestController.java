@@ -20,6 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -244,6 +250,14 @@ public class StudentRestController {
         clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT).ifPresent(client::addHistory);
         studentService.update(current);
         clientService.updateClient(client);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity getStudentDtoForPageOfAll() {
+        if (studentService.getStudentDtoForAllStudentsPage() == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(studentService.getStudentDtoForAllStudentsPage());
     }
 
     //Запись Студента в Набор

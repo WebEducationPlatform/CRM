@@ -45,11 +45,12 @@ public class StudentController {
         } else {
             modelAndView.addObject("defaultStatusForRejectedStudent", "");
         }
-        modelAndView.addObject("students", studentService.getAll());
+        modelAndView.addObject("students", studentService.getAll()); //Надо закомментировать, так как будет использоваться рест!
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("courses", courseService.getAll());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         return modelAndView;
     }
+
 }
