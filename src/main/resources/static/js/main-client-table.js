@@ -293,6 +293,7 @@ function drawVerifiedUsersTable() {
 
 //Фильтр. Отображать только сотрудников, соответствующих результатам поиска (по имени)
 function showUserMatchCondition() {
+    drawVerifiedUsersTable();
     $('#searchInput').keyup(function(){
         srchStr = this.value.toLowerCase();
         if (srchStr!=="") {

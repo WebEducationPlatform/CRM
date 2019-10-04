@@ -1,23 +1,12 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.ClientStatusChangingHistory;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -61,11 +50,13 @@ public class StudentRestController {
 
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
 
+    private final CourseSetService courseSetService;
+
     @Autowired
     public StudentRestController(StudentService studentService, ClientService clientService,
                                  ClientHistoryService clientHistoryService, StudentStatusService studentStatusService,
                                  ProjectPropertiesService projectPropertiesService, StatusService statusService,
-                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
+                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService, CourseSetService courseSetService) {
         this.studentService = studentService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -73,6 +64,7 @@ public class StudentRestController {
         this.projectPropertiesService = projectPropertiesService;
         this.statusService = statusService;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+        this.courseSetService = courseSetService;
     }
 
     @GetMapping("/{id}")
@@ -258,5 +250,48 @@ public class StudentRestController {
         clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT).ifPresent(client::addHistory);
         studentService.update(current);
         clientService.updateClient(client);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity getStudentDtoForPageOfAll() {
+        if (studentService.getStudentDtoForAllStudentsPage() == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(studentService.getStudentDtoForAllStudentsPage());
+    }
+
+    //Запись Студента в Набор
+    @PostMapping(value = "/courseSet/add/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity studentAddCourseSet(@PathVariable Long clientId,
+                                          @RequestParam Long courseSetId) {
+        Student student = clientService.getClientByID(clientId).get().getStudent();
+        /*Т.к. связь Направление-Студенты один-ко-многим, то сначала нужно удалить из таблицы course_set_students
+        запись для студента, если она существует*/
+        List<CourseSet> listCourseSet = courseSetService.getAll();
+        for (CourseSet cs:listCourseSet) {
+            courseSetService.removeFromSetIfContains(cs, student);
+        }
+        //Теперь можно записать Студента в Набор
+        CourseSet courseSet = courseSetService.get(courseSetId);
+        Set<Student> set = courseSet.getStudents();
+        set.add(student);
+        courseSet.setStudents(set);
+        courseSetService.update(courseSet);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    //Получение Набора для Студента
+    @GetMapping(value = "/courseSet/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity<CourseSet> studentGetCourseSet(@PathVariable Long clientId) {
+        Student student = clientService.getClientByID(clientId).get().getStudent();
+        for (CourseSet cs : courseSetService.getAll()) {
+            if (cs.getStudents().contains(student)) {
+                return ResponseEntity.ok(cs);
+            }
+        }
+        return null;
     }
 }

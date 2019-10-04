@@ -267,6 +267,15 @@ $(function () {
                 var status = clientCard.statuses;
                 var client = clientCard.client;
 
+                //Вывод списка Направлений и изменение Направления у Клиента
+                $('#client-course-list').empty();
+                getClientCourses(clientId);
+                courseList(clientId);
+                //Вывод списка Наборов  и изменение Набора у Студента
+                $('#client-courseSet-list').empty();
+                getStudentCourseSet(clientId);
+                courseSetList(clientId);
+                //Вывод списка и изменение Статуса
                 $('#client-status-list').empty();
                 $.each(status, function (i, s) {
                     $('#client-status-list').append(
@@ -758,6 +767,135 @@ function sendMessageTemplate(clientId, templateId, body) {
             err.push(valuecheck);
             alert("Не удалось отправить сообщение: " + err);
             console.log(e);
+        }
+    });
+}
+
+
+
+//Вывод списка Направлений
+var courseArr = [];
+function courseList(clientId) {
+    let courses;
+    //Запрашиваем список Направлений
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/courses/',
+        success: function (courses) {
+            //Выводим каждый в выпадающем меню
+            $.each(courses, function (i, s) {
+                courseArr[i+1] = s.name;
+                $('#client-course-list').append(
+                    //При выборе из списка вызываем функцию присвоения Направления клиенту
+                    '<li><a id="CourseId' + s.id + '" onclick="changeCourse(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
+                );
+            });
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//функция присвоения Направления клиенту
+function changeCourse(clientId, courseId) {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/client/course/add/' + clientId,
+        data:  {'courseId': courseId},
+        success: function () {
+            //При успешном присвоении
+            //Изменяем текст на кнопке выбора направлений
+            $('#client-set-course-button').text(courseArr[courseId]);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+//Получение Направления для Клиента
+function getClientCourses(clientId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/courses/get/' + clientId,
+        success: function (courses) {
+            //Изменяем текст на кнопке выбора набора
+            if(courses.length!=0){
+                $('#client-set-course-button').text(courses[0].name);
+            } else {
+                $('#client-set-course-button').text('Направление');
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+var courseSetArr = [];
+//Вывод списка Наборов
+function courseSetList(clientId) {
+    let courseSets;
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/courses/sets',
+        success: function (courseSets) {
+            $.each(courseSets, function (i, s) {
+                  courseSetArr[i] = s;
+                $('#client-courseSet-list').append(
+                    '<li><a id="CourseSetId' + s.id + '" onclick="changeCourseSet(' + clientId + ', '+ s.id + ')" href="#">' + s.name + '</a></li>'
+                );
+            });
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//Изменение Набора и Направления у Студента
+function changeCourseSet(clientId, courseSetId) {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/student/courseSet/add/' + clientId,
+        data:  {'courseSetId': courseSetId},
+        success: function () {
+            $.each(courseSetArr, function (i, s) {
+                if(s.id===courseSetId) {
+                    //Изменяем текст на кнопке выбора набора
+                    $('#client-set-courseSet-button').text(s.name);
+                    //Присваиваем Направление по Набору
+                    changeCourse(clientId, s.course.id);
+                }
+            });
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//Получение Набора для Студента и Вывод текста на кнопке выбора набора
+function getStudentCourseSet(clientId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/student/courseSet/get/' + clientId,
+        success: function (courseSet) {
+            //Изменяем текст на кнопке выбора набора
+            if(courseSet!==''){
+                $('#client-set-courseSet-button').text(courseSet.name);
+            } else {
+                $('#client-set-courseSet-button').text('Набор');
+            }
+        },
+        error: function (error) {
+            console.log(error);
         }
     });
 }
@@ -1470,8 +1608,10 @@ $(function () {
 document.querySelector('.modal-comments').onclick = (e) => {
     const target = e.target;
     const area = target.getAttribute('id');
-    if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
-        mentionUser();
+    if (area != null) {
+        if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
+            mentionUser();
+        }
     }
 };
 //функция упоминания юзера
