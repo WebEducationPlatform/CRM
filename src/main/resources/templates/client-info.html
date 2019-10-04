@@ -111,6 +111,7 @@
                                th:value="${client.city}"/>
                     </div>
 
+                    <!-- Управление Email адресами -->
                     <div class="row">
                         <div class="form-group col-md-4">
                             <label for="userEmailList">Email адреса</label>
@@ -125,7 +126,7 @@
                         <div class="form-group col-md-4">
                             <label for="defaultPhone">Основной email:</label>
                             <input type="text" readonly autocomplete="off"
-                                   class="form-control mb-3" id="defaultPhone"
+                                   class="form-control mb-3" id="defaultEmail"
                                    disabled="disabled"
                                    title="Выбрать в спске нужный email, нажать кнопку установить"
                                    th:value="${client.email.isPresent() ? client.email.get() : ''}"/>
@@ -143,6 +144,7 @@
                         </div>
                     </div>
                     <p></p>
+                    <!-- Управление номерами телефонов -->
                     <div class="row">
                         <div class="form-group col-md-4">
                             <label for="userPhoneList">Номера телефонов</label>
