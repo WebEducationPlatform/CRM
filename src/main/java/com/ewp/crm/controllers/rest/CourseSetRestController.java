@@ -1,6 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
 
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Course;
 import com.ewp.crm.models.CourseSet;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,12 +45,22 @@ public class CourseSetRestController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
     public ResponseEntity addStudentToCourseSet(@PathVariable Long courseSetId,
                                         @RequestBody String clientsId) throws IOException {
+
         Long[] clientIds = new ObjectMapper().readValue(clientsId, Long[].class);
-        //Получаем список студентов
+        CourseSet courseSet = courseSetService.get(courseSetId);
+        Course course = courseSet.getCourse();
+        Set<Client> clientsFromDB = course.getClients();
+        //Получаем список студентов, а клиентов добавляем в список из БД
+        Client client = null;
         List<Student> students = new ArrayList<>();
         for (Long id : clientIds) {
-            students.add(clientService.getClientByID(id).get().getStudent());
+            client = clientService.getClientByID(id).get();
+            clientsFromDB.add(client);
+            students.add(client.getStudent());
         }
+
+        course.setClients(clientsFromDB); //Изменяем список клиентов на Направлении
+
         /*Т.к. связь Направление-Студенты один-ко-многим, то сначала нужно удалить из таблицы course_set_students
         запись для каждого студента, если она существует*/
         List<CourseSet> listCourseSet = courseSetService.getAll();
@@ -57,13 +70,13 @@ public class CourseSetRestController {
             }
         }
         //Теперь можно записать Студента в Набор
-        Set<Student> set = courseSetService.get(courseSetId).getStudents();
+        Set<Student> set = courseSet.getStudents();
         for (Student stdnt : students) {
             set.add(stdnt);
         }
-        CourseSet courseSet = courseSetService.get(courseSetId);
         courseSet.setStudents(set);
-        courseSetService.update(courseSet);
+        courseSetService.update(courseSet); //Обновляем список студентов в Наборе
+        courseService.update(course); //Обновляем список клиентов на Направлении
         return new ResponseEntity(HttpStatus.OK);
     }
 }
