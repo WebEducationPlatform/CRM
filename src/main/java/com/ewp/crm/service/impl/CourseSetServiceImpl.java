@@ -1,12 +1,14 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.CourseSet;
+import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.CourseSetRepository;
 import com.ewp.crm.service.interfaces.CourseSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CourseSetServiceImpl extends CommonServiceImpl<CourseSet> implements CourseSetService {
@@ -45,5 +47,15 @@ public class CourseSetServiceImpl extends CommonServiceImpl<CourseSet> implement
     @Override
     public void delete(CourseSet entity) {
         courseSetRepository.delete(entity);
+    }
+
+    @Override
+    public void removeFromSetIfContains(CourseSet courseSet, Student student) {
+        Set<Student> sSet = courseSet.getStudents();
+        if(sSet.contains(student)) {
+            sSet.remove(student);
+            courseSet.setStudents(sSet);
+            courseSetRepository.saveAndFlush(courseSet);
+        }
     }
 }

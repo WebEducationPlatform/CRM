@@ -1,9 +1,11 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "course_set")
@@ -23,8 +25,11 @@ public class CourseSet {
     @JoinColumn (name = "course_id")
     private Course course;
 
-    @OneToMany(mappedBy = "courseSet")
-    private List<Student> students = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "course_set_students", joinColumns = @JoinColumn(name = "course_set_id"))
+    @Column(name = "student")
+    @JsonIgnore
+    private Set<Student> students = new HashSet<>();
 
     public CourseSet() {
     }
@@ -35,7 +40,7 @@ public class CourseSet {
         this.course = course;
     }
 
-    public CourseSet(String name, LocalDate startDate, Course course, List<Student> students) {
+    public CourseSet(String name, LocalDate startDate, Course course, Set<Student> students) {
         this.name = name;
         this.startDate = startDate;
         this.course = course;
@@ -66,12 +71,16 @@ public class CourseSet {
         this.course = course;
     }
 
-    public List<Student> getStudents() {
+    public Set<Student> getStudents() {
         return students;
     }
 
-    public void setStudents(List<Student> students) {
+    public void setStudents(Set<Student> students) {
         this.students = students;
+    }
+
+    public void setStudent(Student student) {
+        students.add(student);
     }
 
     public Long getId() {

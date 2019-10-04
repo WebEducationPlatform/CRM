@@ -105,7 +105,7 @@ public class UserRestController {
 	@GetMapping("rest/client/getPrincipal")
 
 	public ResponseEntity getPrincipal(@AuthenticationPrincipal User userFromSession) {
-		return ResponseEntity.ok(userFromSession);
+		return ResponseEntity.ok(userService.get(userFromSession.getId()));
 	}
 
 	@PostMapping(value = "/user/ColorBackground")
