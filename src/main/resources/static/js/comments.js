@@ -1,6 +1,6 @@
 function sendComment(id) {
-    var url = '/rest/comment/add';
-    var text = $('#new-text-for-client' + id).val();
+    const url = '/rest/comment/add';
+    const text = $('#new-text-for-client' + id).val();
     if (text === "") {
         return;
     }
@@ -52,8 +52,8 @@ function sendComment(id) {
 }
 
 function sendAnswer(id) {
-    var url = '/rest/comment/add/answer';
-    var text = $('#new-answer-for-comment' + id).val();
+    const url = '/rest/comment/add/answer';
+    const text = $('#new-answer-for-comment' + id).val();
     if (text === "") {
         return;
     }
@@ -100,8 +100,7 @@ function sendAnswer(id) {
 }
 
 function deleteComment(id) {
-    var url = "/rest/comment/delete";
-
+    const url = "/rest/comment/delete";
     $.ajax({
         type: "POST",
         dataType: 'json',
@@ -119,8 +118,8 @@ function deleteComment(id) {
 }
 
 function editComment(id) {
-    var url = "/rest/comment/edit";
-    var content = $('#edit-comment' + id).val();
+    const url = "/rest/comment/edit";
+    const content = $('#edit-comment' + id).val();
     if (content === "") {
         return;
     }
@@ -143,8 +142,7 @@ function editComment(id) {
 }
 
 function deleteCommentAnswer(id) {
-    var url = "/rest/comment/delete/answer";
-
+    const url = "/rest/comment/delete/answer";
     $.ajax({
         type: "POST",
         dataType: 'json',
@@ -162,8 +160,8 @@ function deleteCommentAnswer(id) {
 }
 
 function editCommentAnswer(id) {
-    var url = "/rest/comment/edit/answer";
-    var content = $('#edit-answer' + id).val();
+    const url = "/rest/comment/edit/answer";
+    const content = $('#edit-answer' + id).val();
     if (content === "") {
         return;
     }
@@ -224,11 +222,10 @@ $(document).on('click', '.hide-show', function () {
     $(document).find('.form-edit').hide();
     $(document).find('.comment-text').show();
 
-    e = $(this).closest('.list-group-item').find('.form-answer');
+    let e = $(this).closest('.list-group-item').find('.form-answer');
     if (e.is(':visible')) {
         e.hide();
     } else {
         e.show();
     }
 });
-

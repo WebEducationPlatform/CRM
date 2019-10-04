@@ -15,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/comment")
@@ -61,25 +60,20 @@ public class CommentRestController {
 		sendNotificationService.sendNotification(content, client);
 		Comment newComment = new Comment(userFromSession, client, content);
 		commentService.add(newComment);
-		return ResponseEntity.status(HttpStatus.OK).body(newComment);
+		return ResponseEntity.ok(newComment);
 	}
 
 	@PostMapping(value = "/add/answer")
 	public ResponseEntity<CommentAnswer> addAnswer(@RequestParam(name = "content") String content,
                                                    @RequestParam(name = "commentId") Long commentId,
 												   @AuthenticationPrincipal User userFromSession) {
-		User fromDB = userService.get(userFromSession.getId());
-		Comment comment = commentService.get(commentId);
-		Client client = comment.getClient();
+		User currentUser = userService.get(userFromSession.getId());
+		Comment originalComment = commentService.get(commentId);
+		Client client = originalComment.getClient();
 		sendNotificationService.sendNotification(content, client);
-		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
-		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
-		if (answer.isPresent()) {
-			comment.addAnswer(answer.get());
-			commentService.update(comment);
-			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		CommentAnswer commentAnswer = new CommentAnswer(currentUser, content, originalComment);
+		commentAnswerService.addCommentAnswer(commentAnswer);
+		return ResponseEntity.ok(commentAnswer);
 	}
 
 	@PostMapping(value = "/delete/answer")
