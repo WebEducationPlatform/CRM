@@ -27,4 +27,6 @@ public interface UserStatusDAO {
     void addStatusForUser(Long user_id, Long status_id, boolean is_invisible, Long position);
 
     void updateUserStatusNotifications(Long user_id, Long status_id, boolean send_notifications);
+
+//    List<UserStatus>
 }

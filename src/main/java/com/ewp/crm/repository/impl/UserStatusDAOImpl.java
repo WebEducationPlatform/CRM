@@ -110,4 +110,5 @@ public class UserStatusDAOImpl implements UserStatusDAO {
                 .setParameter("send_notifications", send_notifications)
                 .executeUpdate();
     }
+
 }

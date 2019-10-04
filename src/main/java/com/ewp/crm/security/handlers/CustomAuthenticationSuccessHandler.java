@@ -55,23 +55,23 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (authorities.contains(new Role("OWNER"))) {
             logger.info(user.getEmail() + " has been logged in like OWNER");
-            return "/client";
+            return "/1";
         }
         if (authorities.contains(new Role("ADMIN"))) {
             logger.info(user.getEmail() + " has been logged in like ADMIN");
-            return "/client";
+            return "/1";
         }
         if (authorities.contains(new Role("USER"))) {
             logger.info(user.getEmail() + " has been logged in like USER");
-            return "/client";
+            return "/1";
         }
         if (authorities.contains(new Role("MENTOR"))) {
             logger.info(user.getEmail() + " has been logged in like MENTOR");
-            return "/client";
+            return "/1";
         }
         if (authorities.contains(new Role("HR"))) {
             logger.info(user.getEmail() + " has been logged in like HR");
-            return "/client";
+            return "/1";
         }
         throw new IllegalStateException();
     }

@@ -72,8 +72,8 @@ public class DataInitializer {
     private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-        Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
-        Status status0 = new Status("New clients", false, 1L, false, 0, 0);
+        Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0, 1L);
+        Status status0 = new Status("New clients", false, 1L, false, 0, 0, 1L);
 
         Role[] roles = {new Role("ADMIN"),
                 new Role("MENTOR"),
@@ -221,11 +221,11 @@ public class DataInitializer {
         messageTemplateService.add(messageTemplate5);
         messageTemplateService.add(messageTemplateWithoutTemplate);
 
-        Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
-        Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
-        Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0);
-        Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
-        Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
+        Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33, 1L);
+        Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30, 1L);
+        Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0, 1L);
+        Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0, 1L);
+        Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0, 1L);
 
         Client.Builder clientBuilder1 = new Client.Builder("Юрий", "79999992288", "u.dolg@mail.ru");
         Client client1 = clientBuilder1.lastName("Долгоруков")

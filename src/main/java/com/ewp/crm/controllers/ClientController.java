@@ -1,9 +1,6 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.interfaces.*;
@@ -49,6 +46,7 @@ public class ClientController {
     private final SlackService slackService;
     private final StatusController statusController;
     private final UserStatusService userStatusService;
+    private final BoardService boardService;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -66,7 +64,8 @@ public class ClientController {
                             StudentStatusService studentStatus,
                             ListMailingTypeService listMailingTypeService,
                             SlackService slackService, StatusController statusController,
-                            UserStatusService userStatusService) {
+                            UserStatusService userStatusService,
+                            BoardService boardService) {
         this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
@@ -81,6 +80,7 @@ public class ClientController {
         this.listMailingTypeService = listMailingTypeService;
         this.statusController = statusController;
         this.userStatusService = userStatusService;
+        this.boardService = boardService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -110,9 +110,10 @@ public class ClientController {
         return modelAndView;
     }
 
-    @GetMapping(value = "/client")
+    @GetMapping(value = "/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'MENTOR', 'HR', 'USER')")
-    public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
+    public ModelAndView getBoard(@PathVariable("id") Long boardId,
+            @AuthenticationPrincipal User userFromSession) {
 
         ModelAndView modelAndView = new ModelAndView("main-client-table");
 
@@ -132,7 +133,8 @@ public class ClientController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
         modelAndView.addObject("statuses", statuses);
 
         modelAndView.addObject("counter", new AtomicInteger(0));
@@ -145,12 +147,15 @@ public class ClientController {
         roles.remove(roleService.getRoleByName("OWNER"));
         modelAndView.addObject("roles", roles);
 
+        modelAndView.addObject("boards", boardService.getAll());
+        modelAndView.addObject("board", boardService.get(boardId));
+
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
 
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 
-        statusController.prepareCachedStatusModelAttributes(userFromSession);
+        statusController.prepareCachedStatusModelAttributes(userFromSession, boardId);
 
         return modelAndView;
     }
