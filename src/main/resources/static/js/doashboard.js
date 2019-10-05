@@ -67,6 +67,27 @@ $(document).ready(function () {
         keyboard: false
     }, 'show');
 });
+$(document).ready(function () {
+    let pathArray = window.location.pathname.split('/');
+    let boardId = pathArray[1];
+    let url = "/rest/status/getstatusesforboard/"+boardId;
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: false,
+        success: function (boardstatuses) {
+            statusess = boardstatuses;
+            statusess.forEach(function (status) {
+                    drawingClientsInStatus(status.id);
+
+                }
+            )
+
+        },
+        error: function (error) {
+        }
+    });
+});
 
 function drawingClientsInStatus(statusId) {
     $.get("/rest/client/order", {statusId: statusId})
