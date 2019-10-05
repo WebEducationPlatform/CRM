@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/autocomplete.css"/>
     <script type="text/javascript" th:src="@{/js/add-client.js}"></script>
     <script th:src="@{/js/validator.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/boards.js}"></script>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
@@ -19,7 +20,7 @@
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
                         <a href="/client/allClients"  th:if="${status}==null" th:text="Назад" class="btn btn-primary" id="backToAllClients"></a>
-                        <a href="/client"  th:unless="${status}==null"  th:text="Назад" class="btn btn-primary" id="backToMain"></a>
+                        <a href="/1"  th:unless="${status}==null"  th:text="Назад" class="btn btn-primary" id="backToMain"></a>
 
                         <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'addClient()'">
                             Сохранить
