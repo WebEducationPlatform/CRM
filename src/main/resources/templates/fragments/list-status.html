@@ -92,7 +92,7 @@
         <div th:replace="fragments/htmlFragments::deleteNotifications"
              sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')"></div>
         <!--Блок для вывода карточек клиентов в doashboard.js-->
-        <div id="'clients-for-status'" class="clients-cards"></div>
+        <div th:id="'clients-for-status'+${status.id}" class="clients-cards"></div>
     </div>
 </th:block>
 </body>

@@ -77,11 +77,6 @@ $(document).ready(function () {
         async: false,
         success: function (boardstatuses) {
             statusess = boardstatuses;
-            statusess.forEach(function (status) {
-                    drawingClientsInStatus(status.id);
-
-                }
-            )
 
         },
         error: function (error) {
@@ -107,9 +102,9 @@ $(document).ready(function () {
 //Отрисовка карточек клиентов в статусах, как бы тоже самое, что и сверху,
 // вытащил изнутри, чтобы превратить в отдельную функцию!
 function showUsersInStatuses() {
-    let statuses = $(".column");
+    let statuses = statusess;
     for (var i = 0; i < statuses.length; i++) {
-        let statusId = $(statuses[i]).attr("value");
+        let statusId = statuses[i].id;
         drawingClientsInStatus(statusId);
     }
 }
