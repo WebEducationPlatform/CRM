@@ -3,6 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -91,5 +92,20 @@ public class StudentEducationStage {
                 ", student=" + student +
                 ", course=" + course +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StudentEducationStage that = (StudentEducationStage) o;
+        return educationStageName.equals(that.educationStageName) &&
+                educationStageLevel.equals(that.educationStageLevel) &&
+                course.equals(that.course);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(educationStageName, educationStageLevel, course);
     }
 }

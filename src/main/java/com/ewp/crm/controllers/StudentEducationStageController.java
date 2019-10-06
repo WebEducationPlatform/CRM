@@ -38,17 +38,20 @@ public class StudentEducationStageController {
     public String addStudentEducationStage(){
        return "/add";
     }
+
     @PostMapping (value = "/add")
-    public String addStudentEducationStage(@PathVariable("studentEducationStageName") String studentEducationStageName,
-                                           @PathVariable("studentEducationStageLevel") Integer studentEducationStageLevel,
-                                           @PathVariable("courseId") Long courseId) {
+    public String addStudentEducationStage(@RequestParam (name = "studentEducationStageName") String studentEducationStageName,
+                                           @RequestParam (name = "studentEducationStageLevel", required = false) Integer studentEducationStageLevel,
+                                           @RequestParam (name = "courseId") Long courseId) {
         ModelAndView modelAndView = new ModelAndView("studenteducationstage");
         StudentEducationStage studentEducationStage = new StudentEducationStage();
-        studentEducationStage.setEducationStageLevel(studentEducationStageLevel);
+        if(studentEducationStageLevel!=null) {
+            studentEducationStage.setEducationStageLevel(studentEducationStageLevel);
+        }
         studentEducationStage.setEducationStageName(studentEducationStageName);
         Course course = courseService.getCourse(courseId);
         studentEducationStageService.add(studentEducationStage, course);
-        return "redirect:/{courseId}";
+        return "redirect:/studenteducationstage/"+courseId;
     }
 
     @RequestMapping(value = "delete/{studentEducationStageId}")
@@ -59,12 +62,12 @@ public class StudentEducationStageController {
             courseId = studentEducationStage.getCourse().getId();
             studentEducationStageService.deleteCustom(studentEducationStage);
         }
-        model.addAttribute("courseId", courseId);
-        return "redirect:/{courseId}";
+       // model.addAttribute("courseId", courseId);
+        return "redirect:/studenteducationstage/"+courseId;
     }
 
     @GetMapping(value = "/update/{id}")
-    public String updateStudentEducationStage(@PathVariable("id") Long id, Model model){
+    public String updateStudentEducationStage(@PathVariable(name = "id") Long id, Model model){
         StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(id);
         if(studentEducationStage!=null) {
             model.addAttribute("studentEducationStage", studentEducationStage);
@@ -75,7 +78,7 @@ public class StudentEducationStageController {
     @PostMapping(value = "/update")
     public String updateStudentEducationStage(@ModelAttribute StudentEducationStage studentEducationStage, Model model) {
         Long courseId = studentEducationStage.getCourse().getId();
-        studentEducationStageService.update(studentEducationStage, studentEducationStage.getCourse());
-        return "redirect:/{courseId}";
+        studentEducationStageService.update(studentEducationStage);
+        return "redirect:/studenteducationstage/"+courseId;
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface StudentEducationStageService {
     void add(StudentEducationStage studentEducationStage, Course course);
-    void update(StudentEducationStage studentEducationStage, Course course);
+    void update(StudentEducationStage studentEducationStage);
     void delete(Long id);
     List<StudentEducationStage> getAll();
     StudentEducationStage getStudentEducationStage(Long id);

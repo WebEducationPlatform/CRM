@@ -23,13 +23,13 @@ public class StudentEducationStageServiceImpl extends CommonServiceImpl<StudentE
     }
 
     @Override
-    public void update(StudentEducationStage studentEducationStage, Course course) {
-        studentEducationStageRepository.update(studentEducationStage, course);
+    public void update(StudentEducationStage studentEducationStage) {
+        studentEducationStageRepository.update(studentEducationStage);
     }
 
     @Override
     public StudentEducationStage getStudentEducationStage(Long id) {
-        return studentEducationStageRepository.getOne(id);
+        return studentEducationStageRepository.findStudentEducationStageById(id).get(0);
     }
 
     @Override
