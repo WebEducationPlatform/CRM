@@ -309,6 +309,14 @@
             REFERENCES `crm`.`user` (`user_id`)
             ON DELETE SET NULL;
 
+            ALTER TABLE `crm`.`call_client_info`
+            DROP FOREIGN KEY `FKjiucu462yei9sjmpdhcpct0kg`;
+            ALTER TABLE `crm`.`call_client_info`
+            ADD CONSTRAINT `FKjiucu462yei9sjmpdhcpct0kg`
+            FOREIGN KEY (`calling_user_id`)
+            REFERENCES `crm`.`user` (`user_id`)
+            ON DELETE CASCADE;
+
             SET FOREIGN_KEY_CHECKS=1;
         </sql>
         <rollback>
@@ -332,6 +340,14 @@
             ON DELETE RESTRICT,
             ADD CONSTRAINT `FK27m3qdkf5keet5bxk1gma3oso`
             FOREIGN KEY (`owner_mentor_id`)
+            REFERENCES `crm`.`user` (`user_id`)
+            ON DELETE RESTRICT;
+
+            ALTER TABLE `crm`.`call_client_info`
+            DROP FOREIGN KEY `FKjiucu462yei9sjmpdhcpct0kg`;
+            ALTER TABLE `crm`.`call_client_info`
+            ADD CONSTRAINT `FKjiucu462yei9sjmpdhcpct0kg`
+            FOREIGN KEY (`calling_user_id`)
             REFERENCES `crm`.`user` (`user_id`)
             ON DELETE RESTRICT;
 
