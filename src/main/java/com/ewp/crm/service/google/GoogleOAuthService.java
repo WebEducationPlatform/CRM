@@ -42,17 +42,25 @@ public class GoogleOAuthService {
         this.env = env;
     }
 
+    public OAuth20Service oAuth20Service(boolean isRegister) {
+        return new ServiceBuilder(env.getProperty("google-oauth.apiKey"))
+                .apiSecret(env.getProperty("google-oauth.apiSecret"))
+                .defaultScope(env.getProperty("google-oauth.scopes"))
+                .callback(isRegister ? env.getProperty("google-oauth.callbackregister") : env.getProperty("google-oauth.callback"))
+                .build(GoogleApi20.instance());
+    }
+
     public boolean GoogleOAuth2(String code) throws IOException, InterruptedException, ExecutionException {
-        OAuth2AccessToken accessToken = oAuth20Service().getAccessToken(code);
-//        get Google profile
+        OAuth20Service oAuth20Service = oAuth20Service(false);
+        OAuth2AccessToken accessToken = oAuth20Service.getAccessToken(code);
         OAuthRequest request = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v3/userinfo");
-        oAuth20Service().signRequest(accessToken, request);
-        Response response = oAuth20Service().execute(request);
+        oAuth20Service.signRequest(accessToken, request);
+        Response response = oAuth20Service.execute(request);
         if (response.getCode() == 200) {
             Gson gson = new Gson();
             GoogleUserDTO person = gson.fromJson(response.getBody(), GoogleUserDTO.class);
             Optional<User> userFromGoogle = userService.getUserByEmail(person.getEmail());
-           if (userFromGoogle.isPresent() ) {
+           if (userFromGoogle.isPresent() && userFromGoogle.get().isEnabled()  ) {
                User user = userFromGoogle.get();
                UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(user,
                        user.getRole(), user.getAuthorities());
@@ -69,12 +77,37 @@ public class GoogleOAuthService {
 
     }
 
-    public OAuth20Service oAuth20Service() {
-        return new ServiceBuilder(env.getProperty("google-oauth.apiKey"))
-                .apiSecret(env.getProperty("google-oauth.apiSecret"))
-//                .responseType(env.getProperty("google-oauth.responseType"))
-                .defaultScope(env.getProperty("google-oauth.scopes"))
-                .callback(env.getProperty("google-oauth.callback"))
-                .build(GoogleApi20.instance());
+    public User getGoogleUserDTO (String code ) throws IOException, InterruptedException, ExecutionException {
+        OAuth20Service oAuth20Service = oAuth20Service(true);
+        OAuth2AccessToken accessToken = oAuth20Service.getAccessToken(code);
+        OAuthRequest request = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v3/userinfo");
+        oAuth20Service.signRequest(accessToken, request);
+        Response response = oAuth20Service.execute(request);
+        if (response.getCode() == 200) {
+            Gson gson = new Gson();
+            GoogleUserDTO googleUserDTO = gson.fromJson(response.getBody(), GoogleUserDTO.class);
+            Optional<User> userFromGoogle = userService.getUserByEmail(googleUserDTO.getEmail());
+            if (userFromGoogle.isPresent()  ) {
+
+                return null;
+            } else {
+                User newUser = new User();
+                newUser.setEmail(googleUserDTO.getEmail());
+                newUser.setFirstName(googleUserDTO.getGiven_name());
+                newUser.setLastName(googleUserDTO.getFamily_name());
+                newUser.setPassword(googleUserDTO.getEmail());
+                newUser.setCity("");
+                newUser.setCountry("");
+                newUser.setPhoneNumber("");
+                newUser.setSex("");
+                return userService.add(newUser);
+            }
+
+
+        } else {
+            return null;
+        }
     }
+
+
 }
