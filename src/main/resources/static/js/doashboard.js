@@ -67,6 +67,22 @@ $(document).ready(function () {
         keyboard: false
     }, 'show');
 });
+$(document).ready(function () {
+    let pathArray = window.location.pathname.split('/');
+    let boardId = pathArray[1];
+    let url = "/rest/status/getstatusesforboard/"+boardId;
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: false,
+        success: function (boardstatuses) {
+            statusess = boardstatuses;
+
+        },
+        error: function (error) {
+        }
+    });
+});
 
 function drawingClientsInStatus(statusId) {
     $.get("/rest/client/order", {statusId: statusId})
@@ -86,9 +102,9 @@ $(document).ready(function () {
 //Отрисовка карточек клиентов в статусах, как бы тоже самое, что и сверху,
 // вытащил изнутри, чтобы превратить в отдельную функцию!
 function showUsersInStatuses() {
-    let statuses = $(".column");
+    let statuses = statusess;
     for (var i = 0; i < statuses.length; i++) {
-        let statusId = $(statuses[i]).attr("value");
+        let statusId = statuses[i].id;
         drawingClientsInStatus(statusId);
     }
 }

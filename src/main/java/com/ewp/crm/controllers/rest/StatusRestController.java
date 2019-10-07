@@ -82,6 +82,12 @@ public class StatusRestController {
         System.out.println("WHAT?");
         return statusService.get(id).map(s -> ResponseEntity.ok(clientService.getAllClientsByStatus(s))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+    @GetMapping(value = "/getstatusesforboard/{boardId}")
+    public List<StatusDtoForBoard> getStatusesforBoard(@AuthenticationPrincipal User userFromSession, @PathVariable("boardId") Long boardId) {
+        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
+        return statuses;
+    }
 
     @GetMapping(value = "/all/invisible")
     public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession,
