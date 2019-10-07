@@ -283,4 +283,26 @@
             SET FOREIGN_KEY_CHECKS=1;
         </rollback>
     </changeSet>
+    <changeSet author="Andrew Gurzhi" id="934">
+    <sql>
+        CREATE TABLE IF NOT EXISTS `crm`.`board` (
+        `board_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+        `name` VARCHAR(45) NULL DEFAULT NULL,
+        PRIMARY KEY (`board_id`));
+        INSERT INTO `crm`.`board` (`board_id`, `name`) VALUES ('1', 'main');
+        CREATE TABLE IF NOT EXISTS`crm`.`student_education_stage` (
+        `student_education_id` INT NOT NULL AUTO_INCREMENT,
+        `education_stage_level` INT(11) NULL DEFAULT NULL,
+        `education_stage_name` VARCHAR(45) NULL DEFAULT NULL,
+        `course_id` BIGINT(20) NULL,
+        PRIMARY KEY (`student_education_id`))
+        ENGINE = InnoDB
+        DEFAULT CHARACTER SET = utf8;
+
+    </sql>
+    <rollback>
+        DROP TABLE `crm`.`board`;
+        DROP TABLE `crm`.`student_education_stage`;
+    </rollback>
+    </changeSet>
 </databaseChangeLog>
