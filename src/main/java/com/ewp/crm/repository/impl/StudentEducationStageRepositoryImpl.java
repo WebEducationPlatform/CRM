@@ -15,7 +15,14 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+/*
+* Репозитори добаления, удаление, редактирования уровней обучения. Логика работы построена следующим образом:
+* 1. Урони обучения для одного курса имеют нумерацию по-порядку от нуля.
+* 2. При добалении/удалении уровня обучения - уровни других обучений (studentEducationStageLevel) редактируются
+*   (увеличиваются или уменьшаются) исключая задвоение или пропуски.
+* 3. Усли уровень обучения null или больше максимального +1, то studentEducationStageLevel устанавливается, как
+*   максимальный уровень дли конкретного курса +1.
+* */
 @Repository
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class StudentEducationStageRepositoryImpl implements StudentEducationStageRepositoryCustom {
@@ -137,7 +144,7 @@ public class StudentEducationStageRepositoryImpl implements StudentEducationStag
         }
         courseTemp.setStudentEducationStage(studentEducationStageSet);
         studentEducationStage.setCourse(courseTemp);
-        entityManager.persist(courseTemp);
+  //      entityManager.persist(courseTemp);
         //Добавление нового studentEducationStage
         entityManager.merge(studentEducationStage);
     }
@@ -164,7 +171,7 @@ public class StudentEducationStageRepositoryImpl implements StudentEducationStag
         }
         course.setStudentEducationStage(studentEducationStageSet);
 
-        entityManager.merge(course);
+ //       entityManager.merge(course);
         entityManager.remove(studentEducationStage);
     }
 
