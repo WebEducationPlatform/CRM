@@ -30,7 +30,9 @@ public class StatusApiRestController {
             return (ResponseEntity) ResponseEntity.badRequest();
         }
 
-        Status status = new Status(statusName);
+        //TODO Понять откуда сюда приходит запрос
+        System.out.println("Я запрос! Я пришел!");
+        Status status = new Status(statusName, 1L);
         statusService.add(status);
 
         logger.info("Was added new status with name: " + statusName);

@@ -28,6 +28,17 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
+    $("#create-new-board-btn").click(function () {
+        $(this).hide();
+        $("#new-board-form").show();
+        document.getElementById("new-board-name").focus();
+    });
+
+    $("#create-new-board-cancelbtn").click(function () {
+        $("#new-board-form").hide();
+        $("#create-new-board-btn").show();
+    });
+
     $(".sms-error-btn").on("click", function smsInfoModalOpen() {
         let modal = $("#sms_error_modal"),
             btn = $(this),
@@ -56,6 +67,22 @@ $(document).ready(function () {
         keyboard: false
     }, 'show');
 });
+$(document).ready(function () {
+    let pathArray = window.location.pathname.split('/');
+    let boardId = pathArray[1];
+    let url = "/rest/status/getstatusesforboard/"+boardId;
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: false,
+        success: function (boardstatuses) {
+            statusess = boardstatuses;
+
+        },
+        error: function (error) {
+        }
+    });
+});
 
 function drawingClientsInStatus(statusId) {
     $.get("/rest/client/order", {statusId: statusId})
@@ -75,9 +102,9 @@ $(document).ready(function () {
 //Отрисовка карточек клиентов в статусах, как бы тоже самое, что и сверху,
 // вытащил изнутри, чтобы превратить в отдельную функцию!
 function showUsersInStatuses() {
-    let statuses = $(".column");
+    let statuses = statusess;
     for (var i = 0; i < statuses.length; i++) {
-        let statusId = $(statuses[i]).attr("value");
+        let statusId = statuses[i].id;
         drawingClientsInStatus(statusId);
     }
 }
@@ -318,10 +345,12 @@ function createNewStatus() {
     let url = '/rest/status/add';
     let statusName = $('#new-status-name').val() || $('#default-status-name').val();
     let currentStatus = document.getElementById("sendSocialTemplateStatus");
+    let boardId = $('#create-new-status').val();
 
     if (typeof statusName === "undefined" || statusName === "") return;
     let formData = {
-        statusName: statusName
+        statusName: statusName,
+        boardId: boardId
     };
 
     if(statusName.length < 25) {
@@ -342,6 +371,37 @@ function createNewStatus() {
     else {
         currentStatus.style.color = "red";
         currentStatus.textContent = "Название уменьши ка, будь человеком";
+    }
+}
+
+function createNewBoard() {
+    let url = '/rest/board/add';
+    let boardName = $('#new-board-name').val() || $('#default-board-name').val();
+    let currentBoard = document.getElementById("sendSocialTemplateBoard");
+
+    if (typeof boardName === "undefined" || boardName === "") return;
+    let formData = {
+        boardName: boardName
+    };
+
+    if(boardName.length < 25) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function (result) {
+                //Насколько тут нужна перезагрузка страницы??
+                window.location.reload();
+            },
+            error: function (e) {
+                alert(e.responseText);
+                console.log(e.responseText);
+            }
+        });
+    }
+    else {
+        currentBoard.style.color = "red";
+        currentBoard.textContent = "Название уменьши ка, будь человеком";
     }
 }
 

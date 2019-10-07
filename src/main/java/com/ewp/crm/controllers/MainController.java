@@ -30,7 +30,7 @@ public class MainController {
 			modelAndView.addObject("GoogleAuthorizationUrl", googleOAuthService.oAuth20Service().getAuthorizationUrl());
 
 		} else {
-			 modelAndView =  new ModelAndView("redirect:/client");
+			 modelAndView =  new ModelAndView("redirect:/1");
 		}
 		return modelAndView;
 	}
@@ -47,7 +47,7 @@ public class MainController {
 			Map<String, Object> model) throws InterruptedException, ExecutionException, IOException {
 
 		if (googleOAuthService.GoogleOAuth2(code)) {
-			return "redirect:/client";
+			return "redirect:/1";
 		} else {
 			return "redirect:/login";
 		}

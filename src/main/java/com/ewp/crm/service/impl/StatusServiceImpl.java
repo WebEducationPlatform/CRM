@@ -310,8 +310,16 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role) {
-        return statusDAO.getStatusesForBoard(userFromSession.getId(), userFromSession.getRole(), role.getId());
+    public List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role, Long boardId) {
+
+        List<StatusDtoForBoard> statuses = new ArrayList<>();
+        for (StatusDtoForBoard statusDtoForBoard : statusDAO.getStatusesForBoard(userFromSession.getId(), userFromSession.getRole(), role.getId())){
+            if (statusDtoForBoard.getBoard() == boardId){
+                statuses.add(statusDtoForBoard);
+            }
+        }
+
+        return statuses;
     }
 
     @Override

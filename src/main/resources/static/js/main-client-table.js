@@ -42,11 +42,15 @@ $(document).ready(function renderMainClientTable () {
 
 //Получаем список всех скрытых статусов
 function getInvisibleStatuses() {
+    let boardId = $('#board-statuses').val();
     let url = "/rest/status/all/invisible";
     $.ajax({
         type: 'GET',
         url: url,
         async: false,
+        data: {
+            boardId: boardId
+        },
         success: function (response) {
             invisibleStatuses = response;
         },

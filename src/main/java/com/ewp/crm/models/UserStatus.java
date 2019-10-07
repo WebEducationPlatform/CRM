@@ -4,6 +4,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.springframework.integration.annotation.Default;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "user_status")
@@ -29,6 +30,18 @@ public class UserStatus {
     @ColumnDefault(value = "0")
     @Column(name = "send_notifications", nullable = false)
     private Boolean sendNotifications = false;
+
+    @ColumnDefault(value = "1")
+    @Column(name = "board_id")
+    private Long board_id;
+
+    public Long getBoard_id() {
+        return board_id;
+    }
+
+    public void setBoard_id(Long board_id) {
+        this.board_id = board_id;
+    }
 
     public Long getId() {
         return id;
