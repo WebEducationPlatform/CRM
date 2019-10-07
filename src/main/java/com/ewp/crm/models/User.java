@@ -172,11 +172,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "callingUser", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<CallRecord> callRecords = new ArrayList<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "userToNotify")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Notification> notifications = new ArrayList<>();
-
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
 
