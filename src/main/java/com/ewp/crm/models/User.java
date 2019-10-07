@@ -167,7 +167,7 @@ public class User implements UserDetails {
     private List<Client> clients = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "callingUser")
+    @OneToMany(mappedBy = "callingUser", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<CallRecord> callRecords = new ArrayList<>();
 
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
