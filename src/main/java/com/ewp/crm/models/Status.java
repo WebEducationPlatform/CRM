@@ -143,6 +143,14 @@ public class Status implements Serializable {
 		this.nextPaymentOffset = 0;
 	}
 
+    //Конструктор оставлен для создания FilteringCondition в ClientRestController метод getAllWithConditionsForCourseSet
+    public Status(String name) {
+        this.name = name;
+        this.createStudent = false;
+        this.trialOffset = 0;
+        this.nextPaymentOffset = 0;
+    }
+
 	public Status() {
 	}
 
