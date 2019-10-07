@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -169,6 +171,11 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "callingUser", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<CallRecord> callRecords = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "userToNotify")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Notification> notifications = new ArrayList<>();
 
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
