@@ -173,9 +173,7 @@ public class User implements UserDetails {
     @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
     private Instant lastClientDate;
 
-    /**
-     * Индивидуальная настройка направления отображения статусов на Доске
-     */
+    //Индивидуальная настройка направления отображения статусов на Доске
     @Column(name = "is_row_status_direction", columnDefinition = "BIT(1) DEFAULT 1", nullable = false)
     private boolean isRowStatusDirection;
 
