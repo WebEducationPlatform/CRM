@@ -283,4 +283,46 @@
             SET FOREIGN_KEY_CHECKS=1;
         </rollback>
     </changeSet>
+    <changeSet author="Andrew Gurzhi" id="934">
+    <sql>
+        CREATE TABLE IF NOT EXISTS `crm`.`board` (
+        `board_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+        `name` VARCHAR(45) NULL DEFAULT NULL,
+        PRIMARY KEY (`board_id`));
+        INSERT INTO `crm`.`board` (`board_id`, `name`) VALUES ('1', 'main');
+
+        CREATE TABLE IF NOT EXISTS`crm`.`student_education_stage` (
+        `student_education_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+        `education_stage_level` INT(11) NULL DEFAULT NULL,
+        `education_stage_name` VARCHAR(45) NULL DEFAULT NULL,
+        `course_id` BIGINT(20) NOT NULL,
+        FOREIGN KEY(`course_id`) REFERENCES course(course_id),
+        PRIMARY KEY (`student_education_id`));
+
+
+        ALTER TABLE `crm`.`student`
+        ADD INDEX `student_education_stage_id_idx` (`student_education_id` ASC);
+
+        ALTER TABLE `crm`.`student`
+        ADD CONSTRAINT `student_education_stage_id`
+        FOREIGN KEY (`student_education_id`)
+        REFERENCES `crm`.`student_education_stage` (`student_education_id`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION;
+
+
+    </sql>
+    <rollback>
+        ALTER TABLE `crm`.`student_education_stage`
+        DROP FOREIGN KEY `student_education_stage_ibfk_1`;
+        ALTER TABLE `crm`.`student_education_stage`
+        DROP INDEX `course_id` ;
+        drop table board;
+        ALTER TABLE `crm`.`student`
+        DROP FOREIGN KEY `student_education_stage_id`;
+        ALTER TABLE `crm`.`student`
+        DROP INDEX `student_education_stage_id_idx` ;
+        drop table student_education_stage;
+    </rollback>
+    </changeSet>
 </databaseChangeLog>
