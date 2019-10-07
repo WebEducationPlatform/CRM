@@ -67,14 +67,10 @@ public class GoogleOAuthService {
                SecurityContext sc = SecurityContextHolder.getContext();
                sc.setAuthentication(authReq);
                return true;
-            } else {
-               return false;
-           }
+            }
 
-        } else {
-            return false;
         }
-
+            return false;
     }
 
     public User getGoogleUserDTO (String code ) throws IOException, InterruptedException, ExecutionException {
@@ -87,10 +83,7 @@ public class GoogleOAuthService {
             Gson gson = new Gson();
             GoogleUserDTO googleUserDTO = gson.fromJson(response.getBody(), GoogleUserDTO.class);
             Optional<User> userFromGoogle = userService.getUserByEmail(googleUserDTO.getEmail());
-            if (userFromGoogle.isPresent()  ) {
-
-                return null;
-            } else {
+            if (!userFromGoogle.isPresent()  ) {
                 User newUser = new User();
                 newUser.setEmail(googleUserDTO.getEmail());
                 newUser.setFirstName(googleUserDTO.getGiven_name());
@@ -103,10 +96,8 @@ public class GoogleOAuthService {
                 return userService.add(newUser);
             }
 
-
-        } else {
-            return null;
         }
+            return null;
     }
 
 
