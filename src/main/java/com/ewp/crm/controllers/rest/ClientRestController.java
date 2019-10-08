@@ -698,7 +698,7 @@ public class ClientRestController {
     @PostMapping("/export/{formatFile}")
     public ResponseEntity createFileForBitrix24(@PathVariable String formatFile,
                                                 @RequestBody String statuses) throws IOException {
-        List<Long> statusIds = new ObjectMapper().readValue(statuses, List.class);
+        Long[] statusIds = new ObjectMapper().readValue(statuses, Long[].class);
         fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile, statusIds);
         return new ResponseEntity(HttpStatus.OK);
     }

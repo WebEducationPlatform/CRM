@@ -38,5 +38,5 @@ public interface ReportService {
 
     void setCreationsInStatusChangingHistory();
 
-    String fillExcelOrCsvFileForBitrix24(String formatFile, List<Long> statusIds);
+    String fillExcelOrCsvFileForBitrix24(String formatFile, Long[] statusIds);
 }

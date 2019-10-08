@@ -113,4 +113,6 @@ public interface ClientService extends CommonService<Client> {
 	List<String> getClientsCountries();
 
 	List<String> getClientsCities();
+
+	List<Client> getClientsByStatusIsLike(Status status);
 }

@@ -834,7 +834,7 @@ public class ReportServiceImpl implements ReportService {
         return file;
     }
 
-    public String fillExcelOrCsvFileForBitrix24(String formatFile, List<Long> statusIds) {
+    public String fillExcelOrCsvFileForBitrix24_PAST(String formatFile, List<Long> statusIds) {
         FileOutputStream fileOut = null;
         File file = null;
         if (formatFile.equals("xlsx")) {
@@ -947,4 +947,129 @@ public class ReportServiceImpl implements ReportService {
         }
         return file.getName();
     }
+
+    public String fillExcelOrCsvFileForBitrix24(String formatFile, Long[] statusIds) {
+        FileOutputStream fileOut = null;
+        File file = null;
+        if (formatFile.equals("xlsx")) {
+            file = createFilePath("Clients.xlsx").toFile();
+        }
+        if (formatFile.equals("xls")) {
+            file = createFilePath("Clients.xls").toFile();
+        }
+        if (formatFile.equals("csv")) {
+            file = createFilePath("Clients.csv").toFile();
+        }
+
+        List<Client> clientList = new ArrayList<>();
+
+        for (Long statusID : statusIds) {
+             clientList.addAll(clientService.getClientsByStatusIsLike(statusService.get(statusID).get()));
+        }
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Clients");
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeightInPoints((short) 12);
+        headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        headerCellStyle.setFont(headerFont);
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.setRowStyle(headerCellStyle);
+
+        headerRow.createCell(0).setCellValue("ID");
+        headerRow.createCell(1).setCellValue("Имя");
+        headerRow.createCell(2).setCellValue("Фамилия");
+        headerRow.createCell(3).setCellValue("Имя, Фамилия");
+        headerRow.createCell(4).setCellValue("Дата рождения");
+        headerRow.createCell(5).setCellValue("Мобильный телефон");
+        headerRow.createCell(6).setCellValue("Рабочий e-mail");
+        headerRow.createCell(7).setCellValue("E-mail для рассылок");
+        headerRow.createCell(8).setCellValue("Контакт Facebook");
+        headerRow.createCell(9).setCellValue("Контакт Telegram");
+        headerRow.createCell(10).setCellValue("Контакт ВКонтакте");
+        headerRow.createCell(11).setCellValue("Контакт Skype");
+        headerRow.createCell(12).setCellValue("Другой контакт");
+        headerRow.createCell(13).setCellValue("Другой контакт");
+        headerRow.createCell(14).setCellValue("Тип контакта");
+        headerRow.createCell(15).setCellValue("Экспорт");
+        headerRow.createCell(16).setCellValue("Доступен для всех");
+        headerRow.createCell(17).setCellValue("Статус");
+        headerRow.createCell(18).setCellValue("История");
+        headerRow.createCell(19).setCellValue("Комментарии");
+
+        int rowNum = 1;
+        int colNum;
+        List<SocialProfile> socialProfileList;
+        for (Client client : clientList) {
+            colNum = 0;
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(colNum).setCellValue(client.getId());
+            row.createCell(colNum + 1).setCellValue(client.getName());
+            row.createCell(colNum + 2).setCellValue(client.getLastName());
+            row.createCell(colNum + 3).setCellValue(client.getName() + " " + client.getLastName());
+            row.createCell(colNum + 4).setCellValue(client.getBirthDate() == null ? "" : client.getBirthDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+
+            List<String> phoneNumberList = client.getClientPhones();
+            if (!phoneNumberList.isEmpty()) {
+                row.createCell(colNum + 5).setCellValue(phoneNumberList.get(0));
+            }
+
+            List<String> emailsList = client.getClientEmails();
+            if (!emailsList.isEmpty()) {
+                row.createCell(colNum + 6).setCellValue(emailsList.get(0));
+                row.createCell(colNum + 7).setCellValue(emailsList.get(0));
+            }
+
+            row.createCell(colNum + 11).setCellValue(client.getSkype() == null ? "" : client.getSkype());
+
+            socialProfileList = client.getSocialProfiles();
+            if (!socialProfileList.isEmpty()) {
+                for (SocialProfile socialProfile : socialProfileList) {
+                    if (socialProfile.getSocialNetworkType().getName().equals("FACEBOOK")) {
+                        row.createCell(colNum + 8).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("TELEGRAM")) {
+                        row.createCell(colNum + 9).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("VK")) {
+                        row.createCell(colNum + 10).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("SLACK")) {
+                        row.createCell(colNum + 12).setCellValue(socialProfile.getSocialId());
+                    }
+
+                    if (socialProfile.getSocialNetworkType().getName().equals("WHATSAPP")) {
+                        row.createCell(colNum + 13).setCellValue(socialProfile.getSocialId());
+                    }
+                }
+            }
+            colNum = 14;
+            row.createCell(colNum++).setCellValue("Клиент");
+            row.createCell(colNum++).setCellValue("Да");
+            row.createCell(colNum++).setCellValue("Да");
+
+            row.createCell(colNum++).setCellValue(client.getStatus().getName());
+        }
+
+        try {
+            fileOut = new FileOutputStream(file);
+            workbook.write(fileOut);
+            fileOut.close();
+        } catch (FileNotFoundException e) {
+            logger.error("Can't find file! ", e);
+        } catch (IOException e) {
+            logger.error("Can't fill excel file! ", e);
+        }
+        return file.getName();
+    }
+
+
 }

@@ -77,4 +77,5 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	@Query("SELECT c.id FROM Client c WHERE c.name = ?1 AND c.lastName = ?2")
 	Long getClientByFirstAndLastName(String firstName, String lastName);
 
+	List<Client> getClientsByStatusIsLike(Status status);
 }
