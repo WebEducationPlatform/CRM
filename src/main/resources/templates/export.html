@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Экспорт</title>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/autocomplete.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div style="margin: 2%">
+    <!--Навигационная панель-->
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+    <!--Основное содержание-->
+    <div class="container-fluid">
+        <div><h1>Экспорт данных в Битрикс</h1></div>
+        <!-- Кнопки -->
+        <div class="col-md-3">
+            <button class="btn btn-success btn-lg" onclick="exportForBitrix24('csv')"> Экспорт клиентов (*.csv)</button>
+            <button class="btn btn-success btn-lg" onclick="exportForBitrix24('xlsx')">Экспорт клиентов (*.xlsx)</button>
+        </div>
+        <!-- Таблица для выбора статусов -->
+        <div class="col-md-6">
+            <!-- Заполняется скриптом export.js -->
+            <table style="visibility: hidden" id="statusTableExport" class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Статус</th>
+                </tr>
+                </thead>
+                <tbody id="statusTableExportBody">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/boards.js}"></script>
+<script type="text/javascript" th:src="@{/js/export.js}"></script>
+</body>
+</html>
+

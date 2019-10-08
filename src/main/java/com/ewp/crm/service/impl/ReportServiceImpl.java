@@ -834,7 +834,7 @@ public class ReportServiceImpl implements ReportService {
         return file;
     }
 
-    public String fillExcelOrCsvFileForBitrix24(String formatFile) {
+    public String fillExcelOrCsvFileForBitrix24(String formatFile, List<Long> statusIds) {
         FileOutputStream fileOut = null;
         File file = null;
         if (formatFile.equals("xlsx")) {
