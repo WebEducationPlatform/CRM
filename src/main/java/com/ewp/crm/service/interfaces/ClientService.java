@@ -100,6 +100,8 @@ public interface ClientService extends CommonService<Client> {
 
 	void transferContractSettingsBetweenUsers(User sender, User receiver);
 
+	void transferClientsBetweenMentors(User sender, User receiver);
+
 	void setOtherInformationLink(Long clientId, String hash);
 
   List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
