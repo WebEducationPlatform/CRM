@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.models.dto.GoogleUserDTO;
 import com.ewp.crm.service.google.GoogleOAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +28,7 @@ public class MainController {
 		ModelAndView modelAndView;
 		if (SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
 			 modelAndView = new ModelAndView("login");
-			modelAndView.addObject("GoogleAuthorizationUrl", googleOAuthService.oAuth20Service().getAuthorizationUrl());
+			modelAndView.addObject("GoogleAuthorizationUrl", googleOAuthService.oAuth20Service(false).getAuthorizationUrl());
 
 		} else {
 			 modelAndView =  new ModelAndView("redirect:/1");
@@ -53,4 +54,6 @@ public class MainController {
 		}
 
 	}
+
+
 }
