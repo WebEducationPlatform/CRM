@@ -140,6 +140,8 @@ public class AdminRestUserController {
         User receiver = Optional.of(userService.get(receiverId))
                                 .orElseThrow(() -> new IllegalArgumentException("Wrong receiver user id!"));
         clientService.transferClientsBetweenOwners(deletedUser, receiver);
+        clientService.transferClientsBetweenMentors(deletedUser, receiver);
+        clientService.transferContractSettingsBetweenUsers(deletedUser, receiver);
         commentService.deleteAllCommentsByUserId(deleteId);
         smsInfoService.deleteAllSMSByUserId(deleteId);
         userService.delete(deleteId);

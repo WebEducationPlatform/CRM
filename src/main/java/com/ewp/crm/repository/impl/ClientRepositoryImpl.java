@@ -628,5 +628,23 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .setParameter("receiver", receiver)
                 .executeUpdate();
     }
+
+    @Transactional
+    @Override
+    public void transferContractSettingsBetweenUsers(User sender, User receiver) {
+        entityManager.createQuery("UPDATE ContractSetting cs SET cs.user = :receiver WHERE cs.user = :sender")
+                .setParameter("sender", sender)
+                .setParameter("receiver", receiver)
+                .executeUpdate();
+    }
+
+    @Transactional
+    @Override
+    public void transferClientsBetweenMentors(User sender, User receiver) {
+        entityManager.createQuery("UPDATE Client c SET c.ownerMentor = :receiver WHERE c.ownerMentor = :sender")
+                .setParameter("sender", sender)
+                .setParameter("receiver", receiver)
+                .executeUpdate();
+    }
 }
 

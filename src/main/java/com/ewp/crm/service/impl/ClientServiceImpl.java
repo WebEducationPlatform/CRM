@@ -758,6 +758,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
 	}
 
+	@Override
+	public void transferContractSettingsBetweenUsers(User sender, User receiver) {
+		clientRepository.transferContractSettingsBetweenUsers(sender, receiver);
+		logger.info("Contract Settings has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+	}
+
+	@Override
+	public void transferClientsBetweenMentors(User sender, User receiver) {
+		clientRepository.transferClientsBetweenMentors(sender, receiver);
+		logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+	}
+
 
 	@Override
 	public void setOtherInformationLink(Long clientId, String hash) {
