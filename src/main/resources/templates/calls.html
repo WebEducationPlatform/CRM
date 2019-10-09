@@ -62,16 +62,20 @@
         </div>
         <div class="col-md-4 "  align="center">
             <H3>Пользователи:</H3>
-            <table class=" table table-condensed " >
-                <tr th:each="user:${allUsers}">
-                    <td th:text="${user.fullName} + ' (' + ${user.phoneNumber}+')'"></td>
-                    <td>
-                        <button class="btn btn-default btn btn-light btn-xs callback-call"
-                                th:onclick="'setPhoneInPathAndCall('+${user.phoneNumber}+')'"><span
-                                class="glyphicon glyphicon glyphicon-earphone"></span></button>
-                    </td>
-                </tr>
-            </table>
+            <div class="static-heigth">
+                <table class=" table table-condensed ">
+
+                    <tr th:each="user:${allUsers}">
+                        <td th:text="${user.fullName} + ' (' + ${user.phoneNumber}+')'"></td>
+                        <td>
+                            <button class="btn btn-default btn btn-light btn-xs callback-call"
+                                    th:onclick="'setPhoneInPathAndCall('+${user.phoneNumber}+')'"><span
+                                    class="glyphicon glyphicon glyphicon-earphone"></span></button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
         </div>
     </div>
     <div class="container" style="width: 50%">
