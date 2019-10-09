@@ -51,7 +51,7 @@ public class StudentEducationStageController {
         studentEducationStage.setEducationStageName(studentEducationStageName);
         Course course = courseService.getCourse(courseId);
         studentEducationStageService.add(studentEducationStage, course);
-        return "redirect:/studenteducationstage/"+courseId;
+        return "redirect:/courses";
     }
 
     @RequestMapping(value = "delete/{studentEducationStageId}")
@@ -59,26 +59,32 @@ public class StudentEducationStageController {
         StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(studentEducationStageId);
         Long courseId = 0l;
         if(studentEducationStage!=null) {
-            courseId = studentEducationStage.getCourse().getId();
             studentEducationStageService.deleteCustom(studentEducationStage);
         }
        // model.addAttribute("courseId", courseId);
-        return "redirect:/studenteducationstage/"+courseId;
+        return "redirect:/courses";
     }
 
-    @GetMapping(value = "/update/{id}")
-    public String updateStudentEducationStage(@PathVariable(name = "id") Long id, Model model){
-        StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(id);
-        if(studentEducationStage!=null) {
-            model.addAttribute("studentEducationStage", studentEducationStage);
-        }
-        return "redirect:/update";
-    }
+//    @GetMapping(value = "/update/{id}")
+//    public String updateStudentEducationStage(@PathVariable(name = "id") Long id, Model model){
+//        StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(id);
+//        if(studentEducationStage!=null) {
+//            model.addAttribute("studentEducationStage", studentEducationStage);
+//        }
+//        return "redirect:/update";
+//    }
 
-    @PostMapping(value = "/update")
-    public String updateStudentEducationStage(@ModelAttribute StudentEducationStage studentEducationStage, Model model) {
-        Long courseId = studentEducationStage.getCourse().getId();
+    @RequestMapping(value = "/update")
+    public String updateStudentEducationStage(@RequestParam(name = "studentEducationStageId") Long id,
+                                              @RequestParam (name = "studentEducationStageName") String studentEducationStageName,
+                                              @RequestParam (name = "studentEducationStageLevel", required = false) Integer studentEducationStageLevel,
+                                              Model model) {
+        StudentEducationStage studentEducationStage = new StudentEducationStage();
+        studentEducationStage.setId(id);
+        studentEducationStage.setEducationStageLevel(studentEducationStageLevel);
+        studentEducationStage.setEducationStageName(studentEducationStageName);
+    //    Long courseId = studentEducationStage.getCourse().getId();
         studentEducationStageService.update(studentEducationStage);
-        return "redirect:/studenteducationstage/"+courseId;
+        return "redirect:/courses";
     }
 }

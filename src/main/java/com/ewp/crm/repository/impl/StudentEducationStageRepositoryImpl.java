@@ -21,7 +21,7 @@ import java.util.Set;
 * 2. При добалении/удалении уровня обучения - уровни других обучений (studentEducationStageLevel) редактируются
 *   (увеличиваются или уменьшаются) исключая задвоение или пропуски.
 * 3. Усли уровень обучения null или больше максимального +1, то studentEducationStageLevel устанавливается, как
-*   максимальный уровень дли конкретного курса +1.
+*   максимальный уровень для конкретного курса +1.
 * */
 @Repository
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -70,9 +70,12 @@ public class StudentEducationStageRepositoryImpl implements StudentEducationStag
                         } else {
                             studentEducationStage.setEducationStageLevel(maxLevel+1);
                         }
+                        if(studentEducationStage.getCourse()==null) {
+                            studentEducationStage.setCourse(course);
+                        }
                         studentEducationStageSet.add(studentEducationStage);
                         course.setStudentEducationStage(studentEducationStageSet);
-     //                   entityManager.merge(course);
+     //                  entityManager.merge(course);
                         entityManager.merge(studentEducationStage);
                 } else
                     //Если уровень studentEducationStage не задан
@@ -91,9 +94,10 @@ public class StudentEducationStageRepositoryImpl implements StudentEducationStag
                         Integer studentEducationStageLevel = maxLevel(course)+1;
                         studentEducationStageSet = course.getStudentEducationStage();
                         studentEducationStage.setEducationStageLevel(studentEducationStageLevel);
+                        studentEducationStage.setCourse(course);
                         studentEducationStageSet.add(studentEducationStage);
                         course.setStudentEducationStage(studentEducationStageSet);
-     //                   entityManager.merge(course);
+         //               entityManager.merge(course);
                         entityManager.merge(studentEducationStage);
                     }
         }
