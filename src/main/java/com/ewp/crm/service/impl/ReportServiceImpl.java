@@ -1081,7 +1081,7 @@ public class ReportServiceImpl implements ReportService {
             List<Comment> clientComments = client.getComments();
             StringBuilder clientComment = new StringBuilder();
             for (Comment comment : clientComments) {
-                clientComment.append(comment.getUser().getId());
+                clientComment.append(comment.getUser().getFullName());
                 clientComment.append(",");
                 clientComment.append(comment.getDateFormat());
                 clientComment.append(",");
