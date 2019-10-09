@@ -1063,8 +1063,6 @@ public class ReportServiceImpl implements ReportService {
             List<ClientHistory> clientHistories = client.getHistory();
             StringBuilder clientHistory = new StringBuilder();
             for (ClientHistory ch : clientHistories) {
-                clientHistory.append(ch.getId());
-                clientHistory.append(",");
                 clientHistory.append(ch.getTitle());
                 clientHistory.append(",");
                 clientHistory.append(ch.getLink());
@@ -1083,8 +1081,6 @@ public class ReportServiceImpl implements ReportService {
             List<Comment> clientComments = client.getComments();
             StringBuilder clientComment = new StringBuilder();
             for (Comment comment : clientComments) {
-                clientComment.append(comment.getId());
-                clientComment.append(",");
                 clientComment.append(comment.getUser().getId());
                 clientComment.append(",");
                 clientComment.append(comment.getDateFormat());
