@@ -1,6 +1,7 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.Comment;
 import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.models.dto.ReportDto;
 import com.ewp.crm.repository.interfaces.ClientRepository;
@@ -19,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1057,6 +1059,40 @@ public class ReportServiceImpl implements ReportService {
             row.createCell(colNum++).setCellValue("Да");
 
             row.createCell(colNum++).setCellValue(client.getStatus().getName());
+
+            List<ClientHistory> clientHistories = client.getHistory();
+            StringBuilder clientHistory = new StringBuilder();
+            for (ClientHistory ch : clientHistories) {
+                clientHistory.append(ch.getId());
+                clientHistory.append(",");
+                clientHistory.append(ch.getTitle());
+                clientHistory.append(",");
+                clientHistory.append(ch.getLink());
+                clientHistory.append(",");
+                clientHistory.append(ch.getRecordLink());
+                clientHistory.append(",");
+                clientHistory.append(ch.getDate());
+                clientHistory.append(",");
+                clientHistory.append(ch.getType());
+                clientHistory.append(",");
+                clientHistory.append(ch.getMessage());
+                clientHistory.append(",");
+            }
+            row.createCell(colNum++).setCellValue(clientHistory.toString());
+
+            List<Comment> clientComments = client.getComments();
+            StringBuilder clientComment = new StringBuilder();
+            for (Comment comment : clientComments) {
+                clientComment.append(comment.getId());
+                clientComment.append(",");
+                clientComment.append(comment.getUser().getId());
+                clientComment.append(",");
+                clientComment.append(comment.getDateFormat());
+                clientComment.append(",");
+                clientComment.append(comment.getContent());
+                clientComment.append(",");
+            }
+            row.createCell(colNum++).setCellValue(clientComment.toString());
         }
 
         try {
