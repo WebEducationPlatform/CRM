@@ -836,7 +836,7 @@ public class ReportServiceImpl implements ReportService {
         return file;
     }
 
-    public String fillExcelOrCsvFileForBitrix24_PAST(String formatFile, List<Long> statusIds) {
+    public String fillExcelOrCsvFileForBitrix24withAllClients(String formatFile) {
         FileOutputStream fileOut = null;
         File file = null;
         if (formatFile.equals("xlsx")) {
@@ -1073,7 +1073,7 @@ public class ReportServiceImpl implements ReportService {
                 clientHistory.append(",");
                 clientHistory.append(ch.getType());
                 clientHistory.append(",");
-                clientHistory.append(ch.getMessage());
+                clientHistory.append((ch.getMessage() != null ? ch.getMessage().getContent() : "null"));
                 clientHistory.append(",");
             }
             row.createCell(colNum++).setCellValue(clientHistory.toString());
