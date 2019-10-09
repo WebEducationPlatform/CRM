@@ -1127,3 +1127,8 @@ textarea[class*="feedback-video-url"] {
 	transform: translate(-50%, -50%);
 	font-size: 110pt;
 }
+
+.static-heigth {
+	max-height:320px;
+	overflow-y:auto
+}
