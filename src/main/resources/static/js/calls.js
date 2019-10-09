@@ -183,3 +183,9 @@ function filterForCalls() {
     loadHistory();
 }
 
+function setPhoneInPathAndCall(phoneNumber){
+    $('#number-to-call').val(phoneNumber);
+    commonWebCall(phoneNumber);
+
+}
+
