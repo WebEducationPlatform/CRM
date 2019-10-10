@@ -213,7 +213,7 @@
 
                         <!--Кнопка перехода к странице управления наборами-->
                         <td>
-                            <a class="btn btn-info btn-lg" type="button" th:href="@{/courses/set(id=${course.id})}" >Наборы</a>
+                            <a th:href="@{/courses/set(id=${course.key.id})}" th:text="'Наборы '+${course.key.name}"></a>
                         </td>
                     </tr>
                     </tbody>

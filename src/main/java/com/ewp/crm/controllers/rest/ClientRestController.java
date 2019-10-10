@@ -683,6 +683,32 @@ public class ClientRestController {
         Course course = courseService.getCourse(courseId);
         course.setClient(clientService.get(id));
         courseService.update(course);
+        //Запись студента на минимальный уровень обучения
+        Client client = clientService.get(id);
+        Student student = client.getStudent();
+        if(student!=null) {
+            StudentEducationStage studentEducationStage = student.getStudentEducationStage();
+            Set<StudentEducationStage> studentEducationStageSet = course.getStudentEducationStage();
+            if(studentEducationStage==null && studentEducationStageSet!=null) {
+                StudentEducationStage studentEducationStageTmp = null;
+                Integer minLevel = 0;
+                int i = 0;
+                for(StudentEducationStage set : studentEducationStageSet) {
+                    if(i==0) {
+                        minLevel = set.getEducationStageLevel();
+                        studentEducationStageTmp = set;
+                        i++;
+                    } else if(minLevel>set.getEducationStageLevel()) {
+                        minLevel = set.getEducationStageLevel();
+                        studentEducationStageTmp = set;
+                        i++;
+                    } else {
+                        i++;
+                    }
+                }
+                studentService.updateStudentEducationStage(studentEducationStageTmp, student);
+            }
+        }
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -701,4 +727,6 @@ public class ClientRestController {
         List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
         return ResponseEntity.ok(ClientDtoForCourseSetTable.getListDtoClients(clients));
     }
+
+
 }

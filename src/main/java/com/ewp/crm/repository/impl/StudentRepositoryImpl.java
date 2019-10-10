@@ -3,6 +3,7 @@ package com.ewp.crm.repository.impl;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
+import com.ewp.crm.models.StudentEducationStage;
 import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.all_students_page.ClientDtoForAllStudentsPage;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -178,6 +180,14 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void updateStudentEducationStage(StudentEducationStage studentEducationStage, Student student) {
+        Student studentTmp = entityManager.find(Student.class, student.getId());
+        studentTmp.setStudentEducationStage(studentEducationStage);
+        entityManager.merge(studentTmp);
     }
 
     /**
