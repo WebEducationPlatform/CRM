@@ -1057,36 +1057,35 @@ public class ReportServiceImpl implements ReportService {
             row.createCell(colNum++).setCellValue("Клиент");
             row.createCell(colNum++).setCellValue("Да");
             row.createCell(colNum++).setCellValue("Да");
-
             row.createCell(colNum++).setCellValue(client.getStatus().getName());
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
             List<ClientHistory> clientHistories = client.getHistory();
             StringBuilder clientHistory = new StringBuilder();
             for (ClientHistory ch : clientHistories) {
+                clientHistory.append(ch.getDate().format(formatter));
+                clientHistory.append(" ");
                 clientHistory.append(ch.getTitle());
-                clientHistory.append(",");
-                clientHistory.append(ch.getLink());
-                clientHistory.append(",");
-                clientHistory.append(ch.getRecordLink());
-                clientHistory.append(",");
-                clientHistory.append(ch.getDate());
-                clientHistory.append(",");
-                clientHistory.append(ch.getType());
-                clientHistory.append(",");
-                clientHistory.append((ch.getMessage() != null ? ch.getMessage().getContent() : "null"));
-                clientHistory.append(",");
+
+                if (ch.getMessage() != null && !ch.getMessage().getContent().isEmpty()) {
+                    clientHistory.append(":");
+                    clientHistory.append(ch.getMessage().getContent());
+                } else {
+                    clientHistory.append(";\n");
+                }
             }
             row.createCell(colNum++).setCellValue(clientHistory.toString());
 
             List<Comment> clientComments = client.getComments();
             StringBuilder clientComment = new StringBuilder();
             for (Comment comment : clientComments) {
+                clientComment.append(comment.getDateFormat().format(formatter));
+                clientComment.append(" ");
                 clientComment.append(comment.getUser().getFullName());
-                clientComment.append(",");
-                clientComment.append(comment.getDateFormat());
-                clientComment.append(",");
+                clientComment.append(" ");
                 clientComment.append(comment.getContent());
-                clientComment.append(",");
+                clientComment.append(";\n");
             }
             row.createCell(colNum++).setCellValue(clientComment.toString());
         }
