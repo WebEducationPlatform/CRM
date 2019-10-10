@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
+    <script type="text/javascript" th:src="@{/js/boards.js}"></script>
 </head>
 <body>
 <div style="margin: 8%">
@@ -58,6 +59,23 @@
                     </div>
                 </div>
             </form>
+        </div>
+        <div class="col-md-4 "  align="center">
+            <H3>Пользователи:</H3>
+            <div class="static-heigth">
+                <table class=" table table-condensed ">
+
+                    <tr th:each="user:${allUsers}">
+                        <td th:text="${user.fullName} + ' (' + ${user.phoneNumber}+')'"></td>
+                        <td>
+                            <button class="btn btn-default btn btn-light btn-xs callback-call"
+                                    th:onclick="'setPhoneInPathAndCall('+${user.phoneNumber}+')'"><span
+                                    class="glyphicon glyphicon glyphicon-earphone"></span></button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
         </div>
     </div>
     <div class="container" style="width: 50%">

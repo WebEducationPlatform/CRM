@@ -12,6 +12,9 @@
     <div id="user-info-container" class="container-fluid">
         <div class="row-fluid">
             <div class="col-md-3" id="column1">
+                <div  th:if="${GoogleAuthorizationUrl}">
+                <a th:href="@{${GoogleAuthorizationUrl}}">Регистрация <i class="fa fa-google fa-2x"> </i> аккаунта</a>
+            </div>
                 <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
                         <button type="submit" class="btn btn-primary" id="saveChanges" onclick="registerUser()">
@@ -19,6 +22,7 @@
                         </button>
                         <a href="#" onclick="history.back();" class="btn btn-primary" id="backToMain">Назад</a>
                     </div>
+
                     <p><span id="message"></span></p>
                     <div class="form-group">
                         <label for="add-user-first-name">Имя</label>

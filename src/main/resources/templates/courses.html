@@ -211,6 +211,10 @@
                             </div>
                         </td>
 
+                        <!--Кнопка перехода к странице управления наборами-->
+                        <td>
+                            <a class="btn btn-info btn-lg" type="button" th:href="@{/courses/set(id=${course.id})}" >Наборы</a>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -223,5 +227,7 @@
 </div>
 </div>
 
+
+<script type="text/javascript" th:src="@{/js/boards.js}"></script>
 </body>
 </html>

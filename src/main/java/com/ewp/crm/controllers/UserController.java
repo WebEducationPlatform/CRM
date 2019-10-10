@@ -2,6 +2,8 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.GoogleUserDTO;
+import com.ewp.crm.service.google.GoogleOAuthService;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.TelegramService;
@@ -20,6 +22,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 @Controller
 @PropertySource("file:./slackbot.properties")
 public class UserController {
@@ -31,18 +37,20 @@ public class UserController {
 	private final ImageConfig imageConfig;
 	private final NotificationService notificationService;
 	private final TelegramService telegramService;
+	private GoogleOAuthService googleOAuthService;
 
 	@Autowired
 	public UserController(UserService userService,
 						  RoleService roleService,
 						  ImageConfig imageConfig,
 						  NotificationService notificationService,
-						  TelegramService telegramService) {
+						  TelegramService telegramService, GoogleOAuthService googleOAuthService) {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
 		this.notificationService = notificationService;
 		this.telegramService = telegramService;
+		this.googleOAuthService = googleOAuthService;
 	}
 
 	@Value("${slackbot.domain}")
@@ -79,6 +87,7 @@ public class UserController {
 	public ModelAndView registerUser() {
 		ModelAndView modelAndView = new ModelAndView("user-registration");
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
+		modelAndView.addObject("GoogleAuthorizationUrl",googleOAuthService.oAuth20Service(true).getAuthorizationUrl());
 		return modelAndView;
 	}
 
@@ -107,6 +116,21 @@ public class UserController {
 		ModelAndView modelAndView = new ModelAndView("user-autoanswer");
 		modelAndView.addObject("userCustomize",userFromSession);
 		return modelAndView;
+	}
+
+	//  Register google account wia  OAuth2
+	@GetMapping(value = {"/googleoauth2/register"})
+	public String ouath2RegisterUser(
+			@RequestParam(required = false) String code,
+			Map<String, Object> model) throws InterruptedException, ExecutionException, IOException {
+
+		User user = googleOAuthService.getGoogleUserDTO(code);
+		if (user != null) {
+			return "redirect:/1";
+		} else {
+			return "redirect:/login";
+		}
+
 	}
 
 }

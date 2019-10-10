@@ -564,6 +564,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			// Если почты не равны взводим флаг что нужн доп апдейт клиента
 			if (!emails.get(i).equals(emailsFromDb.get(i))) {
 				emailsFromDb.clear();
+				clientFromDB.setClientEmails(emails);
 				needUpdateClient = true;
 				break;
 			}
@@ -576,6 +577,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				// Если почты не равны взводим флаг что нужн доп апдейт клиента
 				if (!phones.get(i).equals(phonesFromDb.get(i))) {
 					phonesFromDb.clear();
+					clientFromDB.setClientPhones(phones);
 					needUpdateClient = true;
 					break;
 				}
@@ -753,6 +755,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	@Override
 	public void transferClientsBetweenOwners(User sender, User receiver) {
 		clientRepository.transferClientsBetweenOwners(sender, receiver);
+		logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+	}
+
+	@Override
+	public void transferContractSettingsBetweenUsers(User sender, User receiver) {
+		clientRepository.transferContractSettingsBetweenUsers(sender, receiver);
+		logger.info("Contract Settings has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+	}
+
+	@Override
+	public void transferClientsBetweenMentors(User sender, User receiver) {
+		clientRepository.transferClientsBetweenMentors(sender, receiver);
 		logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
 	}
 

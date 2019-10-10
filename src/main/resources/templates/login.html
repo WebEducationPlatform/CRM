@@ -23,12 +23,19 @@
                 <input type="checkbox" name="remember-me-param" /> Remember me
             </label>
         </div>
-        <br/>
+
+
         <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" value="Login"/>
         <a href="/user/register" class="btn btn-lg btn-primary btn-block" id="registerUser">Registration</a>
+        <br/>
+        <div class="col">
+            <b>Войти через:</b><br/>
+
+            <div  th:if="${GoogleAuthorizationUrl}">
+                <a th:href="@{${GoogleAuthorizationUrl}}"><i class="fa fa-google fa-2x"></i></a>
+            </div>
+        </div>
     </form>
-
-
-</div>
+    </div>
 </body>
 </html>

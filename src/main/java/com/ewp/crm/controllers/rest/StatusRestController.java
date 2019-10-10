@@ -79,11 +79,19 @@ public class StatusRestController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR')")
     public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
+        System.out.println("WHAT?");
         return statusService.get(id).map(s -> ResponseEntity.ok(clientService.getAllClientsByStatus(s))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    @GetMapping(value = "/getstatusesforboard/{boardId}")
+    public List<StatusDtoForBoard> getStatusesforBoard(@AuthenticationPrincipal User userFromSession, @PathVariable("boardId") Long boardId) {
+        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
+        return statuses;
     }
 
     @GetMapping(value = "/all/invisible")
-    public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession) {
+    public ResponseEntity<List<StatusDtoForBoard>> getAllInvisibleStatuses(@AuthenticationPrincipal User userFromSession,
+                                                                           @RequestParam("boardId") Long boardId) {
         List<Role> sessionRoles = userFromSession.getRole();
         Role role = roleService.getRoleByName(ROLE_NAME_USER);
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
@@ -98,7 +106,7 @@ public class StatusRestController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role, boardId);
         return ResponseEntity.ok(statuses.stream().filter(StatusDtoForBoard::getInvisible).collect(Collectors.toList()));
     }
 
@@ -111,9 +119,11 @@ public class StatusRestController {
     @PostMapping(value = "/add")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName,
+                                       @RequestParam(name = "boardId") Long boardId,
                                        @AuthenticationPrincipal User currentAdmin) {
 
-        final Status status = new Status(statusName);
+        // TODO Здесь доставать id доски и конструировать статус от него тоже
+        final Status status = new Status(statusName, boardId);
         statusService.add(status, currentAdmin.getRole());
         Optional<Status> statusOptional = statusService.get(statusName);
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);

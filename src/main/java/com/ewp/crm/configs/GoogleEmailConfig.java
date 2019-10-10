@@ -156,7 +156,7 @@ public class GoogleEmailConfig {
                                 Optional<Status> mailingPostpay = statusService.get("Постоплата рассылки");
 
                                 if (!mailingPostpay.isPresent()) {
-                                    mailingPostpay = Optional.of(new Status("Постоплата рассылки"));
+                                    mailingPostpay = Optional.of(new Status("Постоплата рассылки", 1L));
                                     statusService.add(mailingPostpay.get());
                                 }
 
@@ -169,7 +169,7 @@ public class GoogleEmailConfig {
                             if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
                                 Optional<Status> jsPostPayStatus = statusService.get("Постоплата JS");
                                 if (!jsPostPayStatus.isPresent()) {
-                                    statusService.add(new Status("Постоплата JS"));
+                                    statusService.add(new Status("Постоплата JS", 1L));
                                 }
                                 statusService.get("Постоплата JS").ifPresent(client::setStatus);
                                 sendAutoAnswer = false;

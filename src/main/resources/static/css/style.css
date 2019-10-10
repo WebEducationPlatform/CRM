@@ -203,6 +203,10 @@ ul.nav a:hover {
 	display: none;
 }
 
+#new-board-form {
+	display: none;
+}
+
 .column-header {
 	max-width: 240px;
 	border-bottom: 5px solid #ff00001a;
@@ -211,6 +215,13 @@ ul.nav a:hover {
 }
 
 .create-new-status-column {
+	width: 15%;
+	float: left;
+	padding-bottom: 100px;
+	margin-top: 3%;
+}
+
+.create-new-board-column {
 	width: 15%;
 	float: left;
 	padding-bottom: 100px;
@@ -399,7 +410,22 @@ ul.nav a:hover {
 	opacity: 1;
 }
 
+#create-new-board-btn:hover{
+	opacity: 1;
+}
+
 #create-new-status-btn{
+	margin-left: 11px;
+	margin-top:8px;
+	width: 180px;
+	padding-bottom: 6px;
+	padding-top:6px;
+	border: 0;
+	opacity:0.7;
+	text-align: left;
+}
+
+#create-new-board-btn{
 	margin-left: 11px;
 	margin-top:8px;
 	width: 180px;
@@ -425,12 +451,23 @@ ul.nav a:hover {
 	padding-bottom: 5px;
 }
 
+#new-board-form {
+	background-color: #f8f8f8;
+	width: 215px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
 #new-status-name {
 	width: 195px;
 	margin-left: 10px;
 }
 
 #new-status-formgr {
+	margin-bottom: 1px;
+}
+
+#new-board-formgr {
 	margin-bottom: 1px;
 }
 
@@ -448,7 +485,21 @@ ul.nav a:hover {
 	opacity: 1;
 }
 
+#create-new-board-btn:hover{
+	opacity: 1;
+}
+
 #create-new-status-btn{
+	margin-left: 12px;
+	margin-top:12px;
+	width: 180px;
+	padding-bottom: 6px;
+	padding-top:6px;
+	border: 0;
+	opacity:0.7;
+}
+
+#create-new-board-btn{
 	margin-left: 12px;
 	margin-top:12px;
 	width: 180px;
@@ -1075,4 +1126,9 @@ textarea[class*="feedback-video-url"] {
 	top: 30%;
 	transform: translate(-50%, -50%);
 	font-size: 110pt;
+}
+
+.static-heigth {
+	max-height:320px;
+	overflow-y:auto
 }

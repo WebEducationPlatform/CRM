@@ -260,14 +260,6 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "slack_invite_link_id")
     private SlackInviteLink slackInviteLink;
 
-    public User getOwnerMentor() {
-        return ownerMentor;
-    }
-
-    public void setOwnerMentor(User ownerMentor) {
-        this.ownerMentor = ownerMentor;
-    }
-
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
@@ -651,6 +643,10 @@ public class Client implements Serializable, Diffable<Client> {
         this.courses = courses;
     }
 
+    public void setCourse(Course course) {
+        courses.add(course);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -713,6 +709,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void addCallRecord(CallRecord callRecord) {
         this.callRecords.add(callRecord);
+    }
+
+    public User getOwnerMentor() {
+        return ownerMentor;
+    }
+
+    public void setOwnerMentor(User ownerMentor) {
+        this.ownerMentor = ownerMentor;
     }
 
     @Override

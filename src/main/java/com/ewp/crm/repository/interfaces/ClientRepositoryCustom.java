@@ -86,4 +86,8 @@ public interface ClientRepositoryCustom {
 	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order);
 
 	void transferClientsBetweenOwners(User sender, User receiver);
+
+	void transferContractSettingsBetweenUsers(User sender, User receiver);
+
+	void transferClientsBetweenMentors(User sender, User receiver);
 }
