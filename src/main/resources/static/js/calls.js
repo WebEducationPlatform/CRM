@@ -1,3 +1,4 @@
+var listUsersForCall;
 let fileterBtn = $('#filtration-calls');
 
 $(document).ready(function () {
@@ -188,4 +189,49 @@ function setPhoneInPathAndCall(phoneNumber){
     commonWebCall(phoneNumber);
 
 }
+
+//Получаем список всех верифицированных пользователей
+function getVerifiedUsers() {
+    let url = "/rest/users";
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: false,
+        success: function (response) {
+            listUsersForCall = response;
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+    $(document).ready(function () {
+        getVerifiedUsers();
+        $('#filterForListUsers').keyup(function(event){
+            let serchStr = this.value.toLowerCase();
+            if (event.keyCode == 27){
+
+                $("#listUserForCall tr").each(function(){
+                    $(this).show();
+                });
+                $('#filterForListUsers').val('');
+            }
+            if (serchStr!=="") {
+                for (var i = 0; i < listUsersForCall.length; i++) {
+                    if(listUsersForCall[i].firstName.toLowerCase().includes(serchStr) | listUsersForCall[i].lastName.toLowerCase().includes(serchStr) ) {
+                        $('#listUserItem-' + listUsersForCall[i].id).show();
+                    }else{
+                        $('#listUserItem-' + listUsersForCall[i].id).hide();
+                    }
+                }
+            } else {
+                $("#listUserForCall tr").each(function(){
+                    $(this).show();
+                });
+            }
+        });
+    });
+
+
 
