@@ -87,30 +87,7 @@
                         </ul>
                     </li>
                     <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
-
-                    <li class="nav-item dropdown">
-                        <a sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"  class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuImport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Экспорт
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <li><a class="dropdown-item" href="#" onclick="exportForBitrix24('csv')">Список клиентов (*.csv)</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="exportForBitrix24('xlsx')">Список клиентов (*.xlsx)</a></li>
-                            <script>
-                                function exportForBitrix24(formatFile) {
-                                    $.ajax({
-                                        async: false,
-                                        url: '/rest/client/export_in_excel_or_csv',
-                                        method: 'GET',
-                                        data: {formatFile: formatFile},
-                                        success: function (strDir) {
-                                            window.location.replace("/rest/client/getClientsData");
-                                        }
-                                    });
-                                }
-                            </script>
-                        </ul>
-                    </li>
+                    <li><a href="/export" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Экспорт</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
@@ -118,8 +95,6 @@
                                    placeholder="Search"/>
                         </div>
                     </li>
-
-
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right"  style="right: 0%; position: fixed;">

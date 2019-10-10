@@ -6,6 +6,7 @@ import com.ewp.crm.models.dto.ClientCardDtoBuilder;
 import com.ewp.crm.models.dto.ClientDtoForCourseSetTable;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
@@ -670,11 +668,6 @@ public class ClientRestController {
         return clients;
     }
 
-    @GetMapping("/export_in_excel_or_csv")
-    public void createFileForBitrix24(@RequestParam("formatFile") String formatFile) {
-        fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile);
-    }
-
     //Запись клиента на Направление
     @PostMapping(value = "/course/add/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
@@ -700,5 +693,13 @@ public class ClientRestController {
     public ResponseEntity<List<ClientDtoForCourseSetTable>> getAllWithConditionsForCourseSet(@RequestBody FilteringCondition filteringCondition) {
         List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
         return ResponseEntity.ok(ClientDtoForCourseSetTable.getListDtoClients(clients));
+    }
+
+    @PostMapping("/export/{formatFile}")
+    public ResponseEntity createFileForBitrix24(@PathVariable String formatFile,
+                                                @RequestBody String statuses) throws IOException {
+        Long[] statusIds = new ObjectMapper().readValue(statuses, Long[].class);
+        fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile, statusIds);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
