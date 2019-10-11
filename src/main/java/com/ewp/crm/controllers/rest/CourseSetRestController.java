@@ -49,17 +49,17 @@ public class CourseSetRestController {
         Long[] clientIds = new ObjectMapper().readValue(clientsId, Long[].class);
         CourseSet courseSet = courseSetService.get(courseSetId);
         Course course = courseSet.getCourse();
-        Set<Client> clientsFromDB = course.getClients();
+        Set<Student> clientsFromDB = course.getStudent();
         //Получаем список студентов, а клиентов добавляем в список из БД
-        Client client = null;
+        Student student = null;
         List<Student> students = new ArrayList<>();
         for (Long id : clientIds) {
-            client = clientService.getClientByID(id).get();
-            clientsFromDB.add(client);
-            students.add(client.getStudent());
+            student = clientService.getClientByID(id).get().getStudent();
+            clientsFromDB.add(student);
+            students.add(student);
         }
 
-        course.setClients(clientsFromDB); //Изменяем список клиентов на Направлении
+        course.setStudent(clientsFromDB); //Изменяем список клиентов на Направлении
 
         /*Т.к. связь Направление-Студенты один-ко-многим, то сначала нужно удалить из таблицы course_set_students
         запись для каждого студента, если она существует*/

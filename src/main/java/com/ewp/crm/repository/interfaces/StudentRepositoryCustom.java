@@ -1,5 +1,6 @@
 package com.ewp.crm.repository.interfaces;
 
+import com.ewp.crm.models.Course;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentEducationStage;
@@ -23,4 +24,6 @@ public interface StudentRepositoryCustom {
     List<StudentDto> getStudentDtoForAllStudentsPage();
 
     void updateStudentEducationStage(StudentEducationStage studentEducationStage, Student student);
+
+    void updateCourse(Course course, Student student);
 }

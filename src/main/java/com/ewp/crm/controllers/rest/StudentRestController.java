@@ -293,6 +293,18 @@ public class StudentRestController {
         return null;
     }
 
+    //Запись студента на направление (курс) c минимальным уровнем обучения для курса
+    @PostMapping(value = "/course/add/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity clientAddCourse(@PathVariable Long id,
+                                          @RequestParam Long courseId) {
+        Course course = courseService.getCourse(courseId);
+        Client client = clientService.get(id);
+        Student student = client.getStudent();
+        studentService.updateCourse(course, student);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     //Получение уровня обучения
     @GetMapping(value = "/studentEducationStage/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
@@ -305,26 +317,34 @@ public class StudentRestController {
         return (ResponseEntity<StudentEducationStage>) ResponseEntity.notFound();
     }
 
-    //Обновление уровня обучения
-    @GetMapping(value = "/studentEducationStage/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    //Получение направления (курса) для студента
+    @GetMapping(value = "/courses/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity<Course> studentGetCourse(@PathVariable Long clientId) {
+        Student student = clientService.getClientByID(clientId).get().getStudent();
+        Course course = student.getCourse();
+        if (course!=null) {
+            return ResponseEntity.ok(course);
+        }
+        return null;
+    }
+
+    //Обновление уровня обучения, метод вернет badRequest если студент уже назначен на курс и передан уровень обучения иного курса
+    @PostMapping(value = "/studentEducationStage/update", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
     public ResponseEntity<StudentEducationStage> updateStudentEducationStage(@RequestParam (value = "clientId") Long clientId,
                                                                   @RequestParam (name = "studentEducationStageId") Long studentEducationStageId) {
         Client client = clientService.getClientByID(clientId).get();
         Student student = client.getStudent();
-        List<Course> courseListForCheck = client.getCourses();
+        Course studentCourse = student.getCourse();
         StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(studentEducationStageId);
-        Course course = studentEducationStage.getCourse();
-
-        if(courseListForCheck!=null && courseListForCheck.contains(course)) {
+        if(studentEducationStage==null) {
+            return (ResponseEntity<StudentEducationStage>) ResponseEntity.notFound();
+        }
+        if(studentCourse==null || (studentCourse!=null && studentCourse.equals(studentEducationStage.getCourse()))) {
             studentService.updateStudentEducationStage(studentEducationStage, student);
             return ResponseEntity.ok(studentEducationStage);
-        } else {
-            course.setClient(client);
-            courseService.update(course);
-            studentService.updateStudentEducationStage(studentEducationStage, student);
         }
-
         return (ResponseEntity<StudentEducationStage>) ResponseEntity.badRequest();
     }
 }

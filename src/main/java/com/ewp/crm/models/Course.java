@@ -26,6 +26,11 @@ public class Course {
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
     private Set<Client> clients = new HashSet<>();
 
+//Для создания однонаправленной связи удалить @OneToMany(mappedBy = "course") геттры и сеттеры
+    @OneToMany(mappedBy = "course")
+    @JsonIgnore
+    private Set<Student> student;
+
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "courses_mentors",
@@ -50,21 +55,21 @@ public class Course {
         this.name = name;
     }
 
-    public Course(String name, Set<Client> clients) {
+    public Course(String name, Set<Student> student) {
         this.name = name;
-        this.clients = clients;
+        this.student = student;
     }
 
-    public Course(String name, Set<Client> clients, List<Mentor> mentors) {
+    public Course(String name, Set<Student> student, List<Mentor> mentors) {
         this.name = name;
-        this.clients = clients;
+        this.student = student;
         this.mentors = mentors;
     }
 
-    public Course(String name, Set<Client> clients, List<Mentor> mentors,
+    public Course(String name, Set<Student> student, List<Mentor> mentors,
                   Set<StudentEducationStage> studentEducationStage) {
         this.name = name;
-        this.clients = clients;
+        this.student = student;
         this.mentors = mentors;
         this.studentEducationStage = studentEducationStage;
     }
@@ -82,16 +87,16 @@ public class Course {
         this.name = name;
     }
 
-    public Set<Client> getClients() {
-        return clients;
+    public Set<Student> getStudent() {
+        return student;
     }
 
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
+    public void setStudent(Set<Student> student) {
+        this.student = student;
     }
 
-    public void setClient(Client client) {
-        clients.add(client);
+    public void addStudent(Student newStudent) {
+        student.add(newStudent);
     }
 
     public List<Mentor> getMentors() {

@@ -283,8 +283,8 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "minutes_to_first_call_with_hr")
     private Integer minutesToFirstCallWithHr;
 
-    @ManyToMany(mappedBy = "clients")
-    private List<Course> courses = new ArrayList<>();
+//    @ManyToMany(mappedBy = "clients")
+//    private List<Course> courses = new ArrayList<>();
 
     public Client() {}
 
@@ -635,17 +635,17 @@ public class Client implements Serializable, Diffable<Client> {
         this.otherInformationLinkData = otherInformationLinkData;
     }
 
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
-    }
-
-    public void setCourse(Course course) {
-        courses.add(course);
-    }
+//    public List<Course> getCourses() {
+//        return courses;
+//    }
+//
+//    public void setCourses(List<Course> courses) {
+//        this.courses = courses;
+//    }
+//
+//    public void setCourse(Course course) {
+//        courses.add(course);
+//    }
 
     @Override
     public boolean equals(Object o) {

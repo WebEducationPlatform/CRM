@@ -267,10 +267,16 @@ $(function () {
                 var status = clientCard.statuses;
                 var client = clientCard.client;
 
-                //Вывод списка Направлений и изменение Направления у Клиента
+                //Вывод списка Направлений (курсов) и изменение Направления у Клиента
                 $('#client-course-list').empty();
                 getClientCourses(clientId);
                 courseList(clientId);
+
+                //Вывод списка уровней обучения и изменения уровней у студента
+                $('#student-education-stage-list').empty();
+                getStudentEducationStages(clientId);
+                educationStageList(clientId);
+
                 //Вывод списка Наборов  и изменение Набора у Студента
                 $('#client-courseSet-list').empty();
                 getStudentCourseSet(clientId);
@@ -803,12 +809,15 @@ function changeCourse(clientId, courseId) {
     $.ajax({
         async: false,
         type: 'POST',
-        url: '/rest/client/course/add/' + clientId,
+        url: '/rest/student/course/add/' + clientId,
         data:  {'courseId': courseId},
         success: function () {
+            getClientCourses(clientId);
+            getStudentEducationStages(clientId);
+            educationStageList(clientId);
             //При успешном присвоении
             //Изменяем текст на кнопке выбора направлений
-            $('#client-set-course-button').text(courseArr[courseId]);
+            //$('#client-set-course-button').text(courseArr[courseId]);
         },
         error: function (error) {
             console.log(error);
@@ -820,13 +829,79 @@ function getClientCourses(clientId) {
     $.ajax({
         async: false,
         type: 'GET',
-        url: '/rest/client/courses/get/' + clientId,
+        url: '/rest/student/courses/get/' + clientId,
         success: function (courses) {
             //Изменяем текст на кнопке выбора набора
-            if(courses.length!=0){
-                $('#client-set-course-button').text(courses[0].name);
+            if(courses!=0){
+                $('#client-set-course-button').text(courses.name);
             } else {
                 $('#client-set-course-button').text('Направление');
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//Вывод списка уровней обучения
+var stageArr = [];
+function educationStageList(clientId) {
+    let stages;
+    //Запрашиваем список уровней обучения
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/student_education_stage/get/' + clientId,
+        success: function (stages) {
+            $('#student-education-stage-list').empty();
+            //Выводим каждый в выпадающем меню
+            $.each(stages, function (i, s) {
+                stageArr[i+1] = s.educationStageName;
+                $('#student-education-stage-list').append(
+                    //При выборе из списка вызываем функцию присвоения Направления клиенту
+                    '<li><a id="studentEducationStageId' + s.id + '" onclick="changeStudentEducationStage(' + clientId + ', ' + s.id + ')" href="#">' + "#"+s.educationStageLevel+" - "+ s.educationStageName + '</a></li>'
+                );
+            });
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//функция присвоения уровня обучения студенту
+function changeStudentEducationStage(clientId, studentEducationStageId) {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/student/studentEducationStage/update',
+        data:  {'clientId': clientId,
+                'studentEducationStageId': studentEducationStageId},
+        success: function () {
+            getStudentEducationStages(clientId);
+            //При успешном присвоении
+            //Изменяем текст на кнопке выбора направлений
+            //$('#client-set-course-button').text(courseArr[courseId]);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+//Получение уровня обучения для студента
+function getStudentEducationStages(clientId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/student/studentEducationStage/get/' + clientId,
+        success: function (stages) {
+            //Изменяем текст на кнопке выбора уровня обучения
+            if(stages!=0){
+                $('#student-education-stage-button').text('#'+stages.educationStageLevel+' - '+ stages.educationStageName);
+            } else {
+                $('#student-education-stage-button').text('Направление');
             }
         },
         error: function (error) {

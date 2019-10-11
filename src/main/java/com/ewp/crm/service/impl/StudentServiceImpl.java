@@ -1,10 +1,7 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.Client;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.StudentEducationStage;
-import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.models.dto.all_students_page.StudentDto;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
@@ -118,5 +115,9 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
         studentRepository.updateStudentEducationStage(studentEducationStage, student);
     }
 
+    @Override
+    public void updateCourse(Course course, Student student) {
+        studentRepository.updateCourse(course, student);
+    }
 
 }
