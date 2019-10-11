@@ -219,7 +219,9 @@ function getVerifiedUsers() {
             }
             if (serchStr!=="") {
                 for (var i = 0; i < listUsersForCall.length; i++) {
-                    if(listUsersForCall[i].firstName.toLowerCase().includes(serchStr) | listUsersForCall[i].lastName.toLowerCase().includes(serchStr) ) {
+                    let currstr = listUsersForCall[i].firstName.toLowerCase() + ' ' + listUsersForCall[i].lastName.toLowerCase();
+                    if(listUsersForCall[i].firstName.toLowerCase().includes(serchStr)
+                        | listUsersForCall[i].lastName.toLowerCase().includes(serchStr) | currstr.includes(serchStr)) {
                         $('#listUserItem-' + listUsersForCall[i].id).show();
                     }else{
                         $('#listUserItem-' + listUsersForCall[i].id).hide();
