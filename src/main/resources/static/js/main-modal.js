@@ -901,7 +901,7 @@ function getStudentEducationStages(clientId) {
             if(stages!=0){
                 $('#student-education-stage-button').text('#'+stages.educationStageLevel+' - '+ stages.educationStageName);
             } else {
-                $('#student-education-stage-button').text('Направление');
+                $('#student-education-stage-button').text('Уровень обучения');
             }
         },
         error: function (error) {

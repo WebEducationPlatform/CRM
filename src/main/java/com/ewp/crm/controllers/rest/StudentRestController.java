@@ -314,7 +314,7 @@ public class StudentRestController {
         if(studentEducationStage!=null) {
             return ResponseEntity.ok(studentEducationStage);
         }
-        return (ResponseEntity<StudentEducationStage>) ResponseEntity.notFound();
+        return null;
     }
 
     //Получение направления (курса) для студента

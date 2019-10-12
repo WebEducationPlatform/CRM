@@ -184,6 +184,11 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateStudentEducationStage(StudentEducationStage studentEducationStage, Student student) {
         Student studentTmp = entityManager.find(Student.class, student.getId());
+        if(studentEducationStage==null) {
+            studentTmp.setStudentEducationStage(studentEducationStage);
+            entityManager.merge(studentTmp);
+            return;
+        }
         Course course = studentEducationStage.getCourse();
         studentTmp.setCourse(course);
         studentTmp.setStudentEducationStage(studentEducationStage);
