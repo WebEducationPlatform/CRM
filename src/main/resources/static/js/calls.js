@@ -233,7 +233,60 @@ function getVerifiedUsers() {
                 });
             }
         });
+
+
     });
 
+$(document).ready(function () {
+    let input = $('#number-to-call');
+    input.focus();
+    input.val("7 ");
+    setCursorPosition(2, input);
+    $('#number-to-call').on('input', function () {
+        var matrix = $(this).attr("placeholder"),// .defaultValue
+            i = 0,
+            def = matrix.replace(/\D/g, ""),
+            val = $(this).val().replace(/\D/g, "");
+        def.length >= val.length && (val = def);
+        matrix = matrix.replace(/[X\d]/g, function (a) {
+            return val.charAt(i++) || "X"
+        });
+        $(this).val(matrix);
+        i = matrix.lastIndexOf(val.substr(-1));
+        i < matrix.length && matrix != $(this).attr("placeholder") ? i++ : i = matrix.indexOf("X");
+        setCursorPosition(i, $(this));
+        let getPhone = $(this).val().replace(/\s|X/g, '');
+        if (getPhone.length > 4) {
+            let urlToGetClientsWithoutPagination = "../rest/client/filtrationWithoutPagination";
+            data = {};
+            data['phoneNumber'] = getPhone;
 
 
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json",
+                dataType: 'json',
+                url: urlToGetClientsWithoutPagination,
+                data: JSON.stringify(data),
+                success: function (res) {
+                    alert(res);
+                }
+            });
+        }
+
+    });
+});
+
+
+function setCursorPosition(pos, e) {
+    e.focus();
+    if (e.get(0).setSelectionRange){
+        e.get(0).setSelectionRange(pos, pos)
+    } else if (e.get(0).createTextRange) {
+        var range = e.get(0).createTextRange();
+        range.collapse(true);
+        range.moveEnd("character", pos);
+        range.moveStart("character", pos);
+        range.select()
+    }
+}
