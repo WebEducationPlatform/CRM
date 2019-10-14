@@ -1,6 +1,7 @@
 package com.ewp.crm.security.jwt;
 
 import com.ewp.crm.models.Role;
+import com.ewp.crm.security.service.AuthenticationService;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +31,10 @@ public class JwtTokenProvider {
     @Value("${jwt.token.expired}")
     private Long validityInMilliSeconds;
 
-    private UserDetailsService userDetailsService;
+    private AuthenticationService userDetailsService;
 
     @Autowired
-    public JwtTokenProvider(UserDetailsService userDetailsService) {
+    public JwtTokenProvider(AuthenticationService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -55,11 +56,11 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliSeconds);
 
-        return Jwts.builder()//
-                .setClaims(claims)//
-                .setIssuedAt(now)//
-                .setExpiration(validity)//
-                .signWith(SignatureAlgorithm.HS256, secret)//
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
 
@@ -75,7 +76,7 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         }
         return null;
     }
