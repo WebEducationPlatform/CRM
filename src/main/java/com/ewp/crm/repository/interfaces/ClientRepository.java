@@ -77,4 +77,7 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	@Query("SELECT c.id FROM Client c WHERE c.name = ?1 AND c.lastName = ?2")
 	Long getClientByFirstAndLastName(String firstName, String lastName);
 
+	@Query("SELECT c FROM Client c INNER JOIN c.clientPhones cp WHERE cp LIKE CONCAT( :phoneNumberPath,'%')")
+	List<Client> getClientsByPhoneNumberPath(@Param("phoneNumberPath") String phoneNumberPath);
+
 }

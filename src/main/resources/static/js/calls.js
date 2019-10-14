@@ -185,6 +185,7 @@ function filterForCalls() {
 }
 
 function setPhoneInPathAndCall(phoneNumber){
+    $('#listClientsFromSearch').hide();
     $('#number-to-call').val(phoneNumber);
     commonWebCall(phoneNumber);
 
@@ -256,22 +257,24 @@ $(document).ready(function () {
         i < matrix.length && matrix != $(this).attr("placeholder") ? i++ : i = matrix.indexOf("X");
         setCursorPosition(i, $(this));
         let getPhone = $(this).val().replace(/\s|X/g, '');
-        if (getPhone.length > 4) {
-            let urlToGetClientsWithoutPagination = "../rest/client/filtrationWithoutPagination";
-            data = {};
-            data['phoneNumber'] = getPhone;
-
-
+        if (getPhone.length > 3) {
+            let url = "/user/rest/call/clients/findbyphonepath/"+getPhone;
             $.ajax({
-                type: 'POST',
+                type: 'GET',
                 contentType: "application/json",
-                dataType: 'json',
-                url: urlToGetClientsWithoutPagination,
-                data: JSON.stringify(data),
+                url: url,
                 success: function (res) {
-                    alert(res);
+                    pullAllClientsTable(res);
+                    $('#listClientsFromSearch').show();
+                },
+                error: function (error) {
+                    console.log(error);
+                    $('#listClientsFromSearch').hide();
                 }
             });
+        } else {
+            $('#listClientsFromSearch').hide();
+            $('#listClientsFromSearch>.card-body').empty();
         }
 
     });
@@ -289,4 +292,17 @@ function setCursorPosition(pos, e) {
         range.moveStart("character", pos);
         range.select()
     }
+}
+
+function pullAllClientsTable(data){
+    let resultStr = '';
+    for (var i = 0; i < data.length; i++) {
+        resultStr += data[i].id + ' - ' +  data[i].name + ' ' + data[i].lastName + ' (' + data[i].phoneNumber + ') ';
+
+        resultStr += '<button class="btn btn-default btn btn-light btn-xs callback-call"' +
+            '        onclick="setPhoneInPathAndCall(' + data[i].phoneNumber + ')"><span' +
+            '    class="glyphicon glyphicon glyphicon-earphone"></span></button> </br>';
+    }
+    $('#listClientsFromSearch>.card-body').empty();
+    $('#listClientsFromSearch>.card-body').append(resultStr);
 }
