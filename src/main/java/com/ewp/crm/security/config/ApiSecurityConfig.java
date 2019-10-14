@@ -2,7 +2,6 @@ package com.ewp.crm.security.config;
 
 import com.ewp.crm.security.jwt.JwtTokenFilter;
 import com.ewp.crm.security.jwt.JwtTokenProvider;
-import com.ewp.crm.security.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
