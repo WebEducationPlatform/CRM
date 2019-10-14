@@ -15,15 +15,37 @@
 <div style="margin: 8%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div class="container">
-        <div class="col-md-4"></div>
+        <div class="col-md-4">
+
+            <!--<table class=" table table-condensed mt-5" id="listClientsFromSearch" style="display: none">-->
+
+                <!--<tr th:each="user:${allUsers}"-->
+                    <!--th:id="'listUserItem-' + ${user.id}">-->
+                    <!--<td th:text="${user.fullName} + ' (' + ${user.phoneNumber}+')'"></td>-->
+                    <!--<td>-->
+                        <!--<button class="btn btn-default btn btn-light btn-xs callback-call"-->
+                                <!--th:onclick="'setPhoneInPathAndCall('+${user.phoneNumber}+')'"><span-->
+                                <!--class="glyphicon glyphicon glyphicon-earphone"></span></button>-->
+                    <!--</td>-->
+                <!--</tr>-->
+            <!--</table>-->
+        </div>
         <div class="col-md-4">
             <form id="separate-call" data-toggle="validator" role="form" onsubmit="return false;">
-                <div class="form-group">
+                <div class="form-group dropdown">
                     <label for="number-to-call">Введите номер телефона:</label>
                     <input class="form-control" id="number-to-call" placeholder="7 XXX XXX XXXX"
                            type="tel" data-error='Неверный формат номера' required="required"
-                           pattern="[0-9]*$" minlength="11"/>
+                           pattern="7\s?\d{3}\s?\d{3}\s?\d{2}\s?\d{2}" />
                     <div class="help-block with-errors"></div>
+                    <div class="dropdown-menu"  id="listClientsFromSearch" style="display: none">
+                        <div class="card-header">
+                            <b>Найдены клиенты:</b>
+                        </div>
+                        <div class="card-body">
+                         list
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group" style="text-align: center; display: block">
                     <button id="call-to-client-submit" type="submit" class="btn btn-default btn-lg call-to-client" onclick="makeCall()">

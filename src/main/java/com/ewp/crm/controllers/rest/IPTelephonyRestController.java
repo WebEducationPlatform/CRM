@@ -10,6 +10,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -279,5 +280,15 @@ public class IPTelephonyRestController {
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());
+	}
+
+	@GetMapping(value = "/clients/findbyphonepath/{phoneNumber}",  produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+	public ResponseEntity getClientsByPhone(@PathVariable String phoneNumber) {
+		List<Client> listClients =  clientService.getClientsByPhoneNumberPath(phoneNumber);
+		if (!listClients.isEmpty()) {
+			return ResponseEntity.ok(listClients);
+		}
+		return ResponseEntity.notFound().build();
 	}
 }

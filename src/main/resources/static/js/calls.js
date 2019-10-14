@@ -185,6 +185,7 @@ function filterForCalls() {
 }
 
 function setPhoneInPathAndCall(phoneNumber){
+    $('#listClientsFromSearch').hide();
     $('#number-to-call').val(phoneNumber);
     commonWebCall(phoneNumber);
 
@@ -233,7 +234,75 @@ function getVerifiedUsers() {
                 });
             }
         });
+
+
     });
 
+$(document).ready(function () {
+    let input = $('#number-to-call');
+    input.focus();
+    input.val("7 ");
+    setCursorPosition(2, input);
+    $('#number-to-call').on('input', function () {
+        var matrix = $(this).attr("placeholder"),// .defaultValue
+            i = 0,
+            def = matrix.replace(/\D/g, ""),
+            val = $(this).val().replace(/\D/g, "");
+        def.length >= val.length && (val = def);
+        matrix = matrix.replace(/[X\d]/g, function (a) {
+            return val.charAt(i++) || "X"
+        });
+        $(this).val(matrix);
+        i = matrix.lastIndexOf(val.substr(-1));
+        i < matrix.length && matrix != $(this).attr("placeholder") ? i++ : i = matrix.indexOf("X");
+        setCursorPosition(i, $(this));
+        let getPhone = $(this).val().replace(/\s|X/g, '');
+        if (getPhone.length > 3) {
+            let url = "/user/rest/call/clients/findbyphonepath/"+getPhone;
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json",
+                url: url,
+                success: function (res) {
+                    pullAllClientsTable(res);
+                    $('#listClientsFromSearch').show();
+                },
+                error: function (error) {
+                    console.log(error);
+                    $('#listClientsFromSearch').hide();
+                }
+            });
+        } else {
+            $('#listClientsFromSearch').hide();
+            $('#listClientsFromSearch>.card-body').empty();
+        }
+
+    });
+});
 
 
+function setCursorPosition(pos, e) {
+    e.focus();
+    if (e.get(0).setSelectionRange){
+        e.get(0).setSelectionRange(pos, pos)
+    } else if (e.get(0).createTextRange) {
+        var range = e.get(0).createTextRange();
+        range.collapse(true);
+        range.moveEnd("character", pos);
+        range.moveStart("character", pos);
+        range.select()
+    }
+}
+
+function pullAllClientsTable(data){
+    let resultStr = '';
+    for (var i = 0; i < data.length; i++) {
+        resultStr += data[i].id + ' - ' +  data[i].name + ' ' + data[i].lastName + ' (' + data[i].phoneNumber + ') ';
+
+        resultStr += '<button class="btn btn-default btn btn-light btn-xs callback-call"' +
+            '        onclick="setPhoneInPathAndCall(' + data[i].phoneNumber + ')"><span' +
+            '    class="glyphicon glyphicon glyphicon-earphone"></span></button> </br>';
+    }
+    $('#listClientsFromSearch>.card-body').empty();
+    $('#listClientsFromSearch>.card-body').append(resultStr);
+}
