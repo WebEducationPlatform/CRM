@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,14 +22,12 @@ public class AuthApiController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthApiController(UserService userService, JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+    public AuthApiController(UserService userService, JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationManager = authenticationManager;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -41,10 +38,6 @@ public class AuthApiController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, authReqDto.getPassword()));
             User user = userService.getUserByEmail(email).get();
-
-            if (user == null) {
-                throw new UsernameNotFoundException("User with username: " + email + " not found");
-            }
 
             String token = jwtTokenProvider.createToken(email, user.getRole());
             Map<Object, Object> response = new HashMap<>();
