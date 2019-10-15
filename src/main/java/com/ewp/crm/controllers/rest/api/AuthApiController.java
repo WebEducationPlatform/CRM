@@ -1,5 +1,9 @@
 package com.ewp.crm.controllers.rest.api;
 
+/**
+ * Подробное описание см. в классе ApiSecurityConfig
+ */
+
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.AuthenticationRequestDto;
 import com.ewp.crm.security.jwt.JwtTokenProvider;
