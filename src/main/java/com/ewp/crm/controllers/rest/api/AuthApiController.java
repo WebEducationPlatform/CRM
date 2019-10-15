@@ -1,7 +1,7 @@
 package com.ewp.crm.controllers.rest.api;
 
 /**
- * Подробное описание см. в классе ApiSecurityConfig
+ * Подробное описание доступа к api см. в классе ApiSecurityConfig
  */
 
 import com.ewp.crm.models.User;
