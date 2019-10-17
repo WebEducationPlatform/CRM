@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>Задачи</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div style="margin: 2%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+    <div class="container-fluid">
+        <div><h1>Задачи</h1></div>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-primary" onclick="newTasksCreate()" >Новая задача</button>
+            </div>
+        </div>
+        <table class="table table-hover table-fixed" id="user-tasks-table" width="0%">
+            <thead id="thead-table-user-tasks">
+            <tr class="head-table">
+                <th width="5%">#</th>
+                <th width="30%">Задача</th>
+                <th width="8%">Дата</th>
+                <th width="8%">Срок до</th>
+                <th >Автор</th>
+                <th >Исполнитель</th>
+                <th >Клиент</th>
+            </tr>
+            </thead>
+
+            <tbody id="table-body">
+            <tr id="newUserTask" style="display: none">
+                <td> <button class="btn btn-primary" onclick="newTasksCreate()" >Сохранить</button> </td>
+                <td><input class="form-control" type="text" name="task"/></td>
+                <td><input class="form-control" type="date" name="date"/></td>
+                <td><input class="form-control" type="date" name="expiry_date"/></td>
+                <td><input class="form-control" type="text" disabled name="author" th:value="${currentUserName}"/></td>
+                <td><input class="form-control" type="text" name="executor"/></td>
+                <td><input class="form-control" type="text" name="client"/></td>
+            </tr>
+            <tr  style="cursor: pointer; " th:each="task : ${tasklist}">
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.id}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.task}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.date}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.expiry_date}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.author}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.executor}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.client}"></td>
+            </tr>
+            <tr  style="cursor: pointer; ">
+                <td > 1</td>
+                <td > sdf sd fdssd fgsdf gsdfgsdf gsd</td>
+                <td >10.10.2019</td>
+                <td >11.10.2019</td>
+                <td >asd asadfasd</td>
+                <td > asdf as asd fasd</td>
+                <td>asd asdfsfds ssssssssf </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/tasks.js}"></script>
+</body>
+</html>
