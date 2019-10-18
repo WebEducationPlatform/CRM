@@ -19,4 +19,9 @@ public class UserTaskServiceImpl implements UserTaskService {
     public List<UserTask> getAll() {
         return userTaskRepository.findAll();
     }
+
+    @Override
+    public  UserTask add (UserTask userTask){
+        return userTaskRepository.saveAndFlush(userTask);
+    }
 }

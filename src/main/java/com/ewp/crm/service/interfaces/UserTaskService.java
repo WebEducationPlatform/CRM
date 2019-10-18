@@ -7,4 +7,6 @@ package com.ewp.crm.service.interfaces;
 
 public interface UserTaskService {
     List<UserTask> getAll();
+
+    UserTask add(UserTask userTask);
 }

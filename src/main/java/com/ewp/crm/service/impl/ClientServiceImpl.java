@@ -826,5 +826,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	public List<Client> getClientsByPhoneNumberPath(String phoneNumberPath){
 		return clientRepository.getClientsByPhoneNumberPath(phoneNumberPath);
 	}
+
+	@Override
+	public List<Client> findAllByNameOrLastNameIgnoreCase(String name) {
+		return clientRepository.findAllByNameOrLastNameIgnoreCase(name);
+	}
 }
 

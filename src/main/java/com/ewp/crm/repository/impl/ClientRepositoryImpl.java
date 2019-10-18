@@ -646,5 +646,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .setParameter("receiver", receiver)
                 .executeUpdate();
     }
+
+
 }
 

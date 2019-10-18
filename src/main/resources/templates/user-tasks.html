@@ -34,13 +34,19 @@
 
             <tbody id="table-body">
             <tr id="newUserTask" style="display: none">
-                <td> <button class="btn btn-primary" onclick="newTasksCreate()" >Сохранить</button> </td>
+                <td> <button class="btn btn-primary" onclick="saveNewTasks()" >Сохранить</button> </td>
                 <td><input class="form-control" type="text" name="task"/></td>
                 <td><input class="form-control" type="date" name="date"/></td>
                 <td><input class="form-control" type="date" name="expiry_date"/></td>
-                <td><input class="form-control" type="text" disabled name="author" th:value="${currentUserName}"/></td>
-                <td><input class="form-control" type="text" name="executor"/></td>
-                <td><input class="form-control" type="text" name="client"/></td>
+                <td><input class="form-control" type="text" disabled name="author" th:value="${currentUserName}"/>
+                    <input  type="hidden"  name="author_id" th:value="${currentUserId}"/></td>
+                <td><select class="form-control" id="executor_id" name="executor_id" size="1">
+                        <option></option>
+                        <option th:each="user : ${users}" th:value="${user.id}"
+                                th:text="${user.fullName}"></option>
+                    </select>
+                <td><input class="form-control" type="text" name="client" placeholder="Начните вводить .."/>
+                    <input  type="hidden"  name="client_id" value="-1"/></td>
             </tr>
             <tr  style="cursor: pointer; " th:each="task : ${tasklist}">
                 <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.id}"></td>

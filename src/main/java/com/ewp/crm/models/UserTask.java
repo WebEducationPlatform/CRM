@@ -36,8 +36,9 @@ public class UserTask {
     public UserTask() {
     }
 
-    public UserTask(String task, LocalDate expiry_date, User author, User executor, Client client) {
+    public UserTask(String task, LocalDate date,  LocalDate expiry_date, User author, User executor, Client client) {
         this.task = task;
+        this.date = date;
         this.expiry_date = expiry_date;
         this.author = author;
         this.executor = executor;

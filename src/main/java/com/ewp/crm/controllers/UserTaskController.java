@@ -30,6 +30,7 @@ public class UserTaskController {
         ModelAndView modelAndView = new ModelAndView("user-tasks");
         modelAndView.addObject("tasklist", userTaskService.getAll());
         modelAndView.addObject("currentUserName", currentUser.getFullName());
+        modelAndView.addObject("currentUserId", currentUser.getId());
         modelAndView.addObject("users", userService.getAll());
         return modelAndView;
     }

@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.dto.ClientCardDtoBuilder;
+import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.models.dto.ClientDtoForCourseSetTable;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
@@ -667,6 +668,14 @@ public class ClientRestController {
             String[] splitedNames = fullName.split(" ");
             clients.add(clientService.findByNameAndLastNameIgnoreCase(splitedNames[0], splitedNames[1]));
         });
+        return clients;
+    }
+
+    @GetMapping("/name")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public List<Client> getClientsByFullName(@RequestParam("name") String name) {
+        List<Client> clients = new ArrayList<>();
+            clients = clientService.findAllByNameOrLastNameIgnoreCase(name);
         return clients;
     }
 

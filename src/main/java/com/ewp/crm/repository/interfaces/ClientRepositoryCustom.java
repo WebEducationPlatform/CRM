@@ -90,4 +90,6 @@ public interface ClientRepositoryCustom {
 	void transferContractSettingsBetweenUsers(User sender, User receiver);
 
 	void transferClientsBetweenMentors(User sender, User receiver);
+
+	List<Client> findAllByNameOrLastNameIgnoreCase(Status name);
 }

@@ -115,4 +115,6 @@ public interface ClientService extends CommonService<Client> {
 	List<String> getClientsCities();
 
     List<Client> getClientsByPhoneNumberPath(String phoneNumberPath);
+
+	List<Client> findAllByNameOrLastNameIgnoreCase(String name);
 }
