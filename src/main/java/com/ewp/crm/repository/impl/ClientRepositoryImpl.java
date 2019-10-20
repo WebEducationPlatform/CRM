@@ -647,6 +647,12 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .executeUpdate();
     }
 
+    @Override
+    public List<Client> findAllByNameOrLastNameIgnoreCase(String name) {
+//        String query = "SELECT c FROM Client c WHERE c.name LIKE CONCAT ('%',:name,'%') OR c.lastName LIKE CONCAT ('%',:name,'%')";
+        String query = "SELECT c FROM Client c WHERE LOWER(CONCAT(c.name, ' ', c.lastName))  LIKE :name OR  LOWER(CONCAT(c.lastName, ' ', c.name))  LIKE :name";
 
+        return (List<Client>) entityManager.createQuery(query).setParameter("name", "%" + name.toLowerCase() + "%").getResultList();
+    }
 }
 

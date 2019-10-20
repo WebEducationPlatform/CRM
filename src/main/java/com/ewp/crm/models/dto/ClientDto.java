@@ -1,5 +1,7 @@
 package com.ewp.crm.models.dto;
 
+import com.ewp.crm.models.Client;
+
 public class ClientDto {
 
     private long id;
@@ -71,5 +73,16 @@ public class ClientDto {
         String getLast_name();
 
         String getClient_email();
+    }
+
+    public static ClientDto getClientDto(Client client){
+
+        ClientDto clientDto = new ClientDto();
+        clientDto.id = client.getId();
+        clientDto.name =  client.getName();
+        clientDto.lastName =  client.getLastName();
+        clientDto.phoneNumber =  client.getPhoneNumber().isPresent() ? client.getPhoneNumber().get(): "";
+        clientDto.email =  client.getEmail().isPresent() ? client.getEmail().get() : "";
+        return clientDto;
     }
 }

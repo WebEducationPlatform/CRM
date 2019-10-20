@@ -37,6 +37,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rest/client")
@@ -673,10 +674,10 @@ public class ClientRestController {
 
     @GetMapping("/name")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
-    public List<Client> getClientsByFullName(@RequestParam("name") String name) {
+    public List<ClientDto> getClientsByFullName(@RequestParam("name") String name) {
         List<Client> clients = new ArrayList<>();
             clients = clientService.findAllByNameOrLastNameIgnoreCase(name);
-        return clients;
+        return clients.stream().map(ClientDto::getClientDto).collect(Collectors.toList());
     }
 
     @GetMapping("/export_in_excel_or_csv")

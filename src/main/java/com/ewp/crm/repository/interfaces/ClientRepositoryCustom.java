@@ -91,5 +91,5 @@ public interface ClientRepositoryCustom {
 
 	void transferClientsBetweenMentors(User sender, User receiver);
 
-	List<Client> findAllByNameOrLastNameIgnoreCase(Status name);
+	List<Client> findAllByNameOrLastNameIgnoreCase(String name);
 }

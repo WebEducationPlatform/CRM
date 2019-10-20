@@ -26,6 +26,10 @@ public class UserTask {
     private User author;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn (name = "manager_user_id", nullable = false)
+    private User manager;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn (name = "executor_user_id", nullable = false)
     private User executor;
 
@@ -36,11 +40,12 @@ public class UserTask {
     public UserTask() {
     }
 
-    public UserTask(String task, LocalDate date,  LocalDate expiry_date, User author, User executor, Client client) {
+    public UserTask(String task, LocalDate date,  LocalDate expiry_date, User author,  User manager, User executor, Client client) {
         this.task = task;
         this.date = date;
         this.expiry_date = expiry_date;
         this.author = author;
+        this.manager = manager;
         this.executor = executor;
         this.client = client;
     }
@@ -91,5 +96,21 @@ public class UserTask {
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public User getManager() {
+        return manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
     }
 }

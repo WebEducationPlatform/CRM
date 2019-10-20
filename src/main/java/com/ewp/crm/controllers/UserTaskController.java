@@ -4,6 +4,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.UserTaskService;
+import com.google.common.collect.Lists;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,7 @@ public class UserTaskController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ModelAndView allTasksPage(@AuthenticationPrincipal User currentUser) {
         ModelAndView modelAndView = new ModelAndView("user-tasks");
-        modelAndView.addObject("tasklist", userTaskService.getAll());
+        modelAndView.addObject("tasklist", Lists.reverse(userTaskService.getAll()));
         modelAndView.addObject("currentUserName", currentUser.getFullName());
         modelAndView.addObject("currentUserId", currentUser.getId());
         modelAndView.addObject("users", userService.getAll());

@@ -16,55 +16,69 @@
         <div><h1>Задачи</h1></div>
         <div class="row">
             <div class="col-md-3">
-                <button class="btn btn-primary" onclick="newTasksCreate()" >Новая задача</button>
+                <button class="btn btn-primary" onclick="newTasksCreate()">Новая задача</button>
             </div>
         </div>
         <table class="table table-hover table-fixed" id="user-tasks-table" width="0%">
             <thead id="thead-table-user-tasks">
             <tr class="head-table">
-                <th width="5%">#</th>
-                <th width="30%">Задача</th>
+                <th width="6%">#</th>
+                <th width="22%">Задача</th>
                 <th width="8%">Дата</th>
                 <th width="8%">Срок до</th>
-                <th >Автор</th>
-                <th >Исполнитель</th>
-                <th >Клиент</th>
+                <th>Автор</th>
+                <th>Контролирующий</th>
+                <th>Исполнитель</th>
+                <th>Клиент</th>
             </tr>
             </thead>
 
             <tbody id="table-body">
             <tr id="newUserTask" style="display: none">
-                <td> <button class="btn btn-primary" onclick="saveNewTasks()" >Сохранить</button> </td>
+                <td>
+                    <button class="btn btn-primary" onclick="saveNewTasks()">Сохранить</button>
+                </td>
                 <td><input class="form-control" type="text" name="task"/></td>
                 <td><input class="form-control" type="date" name="date"/></td>
                 <td><input class="form-control" type="date" name="expiry_date"/></td>
                 <td><input class="form-control" type="text" disabled name="author" th:value="${currentUserName}"/>
-                    <input  type="hidden"  name="author_id" th:value="${currentUserId}"/></td>
+                    <input type="hidden" name="author_id" th:value="${currentUserId}"/></td>
+                <td><select class="form-control" id="manager_id" name="manager_id" size="1">
+                    <option></option>
+                    <option th:each="user : ${users}" th:value="${user.id}"
+                            th:text="${user.fullName}"></option>
+                </select>
+                </td>
                 <td><select class="form-control" id="executor_id" name="executor_id" size="1">
-                        <option></option>
-                        <option th:each="user : ${users}" th:value="${user.id}"
-                                th:text="${user.fullName}"></option>
-                    </select>
-                <td><input class="form-control" type="text" name="client" placeholder="Начните вводить .."/>
-                    <input  type="hidden"  name="client_id" value="-1"/></td>
+                    <option></option>
+                    <option th:each="user : ${users}" th:value="${user.id}"
+                            th:text="${user.fullName}"></option>
+                </select>
+                </td>
+                <td>
+                    <input class="form-control" type="text" name="client" placeholder="Начните вводить имя .."/>
+                    <input type="hidden" name="client_id" value="-1"/>
+                    <div class="card static-heigth" id="listClientsFromSearch"
+                         style="display: none;position: absolute; background-color: white; z-index: 1000">
+                        <div class="card-header">
+                            <b>Найдены клиенты:</b>
+                        </div>
+                        <div class="card-body">
+                            list
+                        </div>
+                    </div>
+                </td>
             </tr>
-            <tr  style="cursor: pointer; " th:each="task : ${tasklist}">
+            <tr style="cursor: pointer; " th:each="task : ${tasklist}">
                 <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.id}"></td>
                 <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.task}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.date}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.expiry_date}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.author}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.executor}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'"  th:text="${task.client}"></td>
-            </tr>
-            <tr  style="cursor: pointer; ">
-                <td > 1</td>
-                <td > sdf sd fdssd fgsdf gsdfgsdf gsd</td>
-                <td >10.10.2019</td>
-                <td >11.10.2019</td>
-                <td >asd asadfasd</td>
-                <td > asdf as asd fasd</td>
-                <td>asd asdfsfds ssssssssf </td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.date}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.expiry_date}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.author.fullCombinedName}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.manager.fullCombinedName}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.executor.fullCombinedName}"></td>
+                <td th:onclick="'taskModal('+ ${task.id} +')'"
+                    th:text="${task.client.name} + ' ' + ${task.client.lastName}"></td>
             </tr>
 
             </tbody>

@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.UserTask;
 import com.ewp.crm.models.dto.UserTaskDto;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -34,8 +35,13 @@ public class UserTaskRestController {
     @RequestMapping(value = "/rest/usertask", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<UserTask> saveNewUserTask(@RequestBody UserTaskDto userTaskDto){
-        return  new ResponseEntity<>(UserTaskDto.getUserTask(userTaskDto,userService.get(userTaskDto.getAuthor_id()),
-            userService.get(userTaskDto.getExecutor_id()),clientService.get(userTaskDto.getClient_id())), HttpStatus.OK);
+        User author = userService.get(userTaskDto.getAuthor_id());
+        User manager = userService.get(userTaskDto.getManager_id());
+         User executor = userService.get(userTaskDto.getExecutor_id());
+         UserTask userTask = new UserTask(userTaskDto.getTask(),userTaskDto.getDate(),userTaskDto.getExpiry_date(),
+                 author,manager,executor,clientService.get(userTaskDto.getClient_id()));
+         userTaskService.add(userTask);
+        return  new ResponseEntity<>(userTask, HttpStatus.OK);
 
     }
 }

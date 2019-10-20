@@ -23,6 +23,7 @@ function saveNewTasks() {
     data.date = $('input[name=date]').val();
     data.expiry_date = $('input[name=expiry_date]').val();
     data.author_id = $('input[name=author_id]').val();
+    data.manager_id = $('select[name=manager_id]').val();
     data.executor_id = $('select[name=executor_id]').val();
     data.client_id = $('input[name=client_id]').val();
     let newTask = JSON.stringify(data);
@@ -33,6 +34,9 @@ function saveNewTasks() {
         type: 'PUT',
         dataType: 'JSON',
         success: function (returnObj) {
+
+            $('#newUserTask').hide();
+            location.reload();
         },
         error: function (error) {
             console.log(error);
@@ -44,14 +48,14 @@ $(document).ready(function () {
     $('input[name=client]').on('input', function () {
         let input = $('input[name=client]');
 
-        if (input.val().length > 4) {
-            let url = "/rest/client/names?full_name=" + $('input[name=client]').val();
+        if (input.val().length > 2) {
+            let url = "/rest/client/name?name=" + $('input[name=client]').val();
             $.ajax({
                 type: 'GET',
                 contentType: "application/json",
                 url: url,
                 success: function (res) {
-                    // pullAllClientsTable(res);
+                    pullAllClientsTable(res);
                     $('#listClientsFromSearch').show();
                 },
                 error: function (error) {
@@ -66,5 +70,30 @@ $(document).ready(function () {
     });
 });
 
+
+function pullAllClientsTable(data) {
+    let resultStr = '<ul class="list-group list-group-flush">';
+    for (var i = 0; i < data.length; i++) {
+        resultStr += ' <a href="#" class="list-group-item " onclick="setClientOnTask(' + data[i].id + ',\'' + data[i].name + ' ' + data[i].lastName + '\')" >';
+        resultStr += data[i].name + ' ' + data[i].lastName;
+        resultStr += '</br>(' + data[i].phoneNumber + ')</a> ';
+    }
+    resultStr += '</ul>';
+    $('#listClientsFromSearch>.card-body').empty();
+    $('#listClientsFromSearch>.card-body').append(resultStr);
+}
+
+function setClientOnTask(id, fname) {
+    $('input[name=client]').val(fname);
+    $('input[name=client_id]').val(id);
+    $('#listClientsFromSearch').hide();
+}
+
+$(document).keydown(function(e) {
+    if( e.keyCode === 27 ) {
+        $('#newUserTask').hide();
+        return false;
+    }
+});
 
 
