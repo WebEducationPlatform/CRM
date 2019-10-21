@@ -1,3 +1,5 @@
+var tmpElements ;
+
 $(document).ready(function () {
 
     $('input[type=date][name=date]').val(new Date());
@@ -42,6 +44,23 @@ function saveNewTasks() {
             console.log(error);
         }
     });
+}
+
+function editTaskClick(elem,id){
+    let el = jQuery(elem);
+    $('#newUserTask').hide();
+    if (tmpElements != null){
+        $('#currentEditElement').html(tmpElements);
+        $('#currentEditElement').attr('id', '');
+        tmpElements = null;
+    }
+    tmpElements = el.html();
+    el.attr('id','currentEditElement');
+    $('input[name=task_id]').val(id);
+    el.html($('#newUserTask').html());
+
+    //$('#newUserTask').show();
+
 }
 
 $(document).ready(function () {
@@ -91,9 +110,20 @@ function setClientOnTask(id, fname) {
 
 $(document).keydown(function(e) {
     if( e.keyCode === 27 ) {
+
         $('#newUserTask').hide();
+        if (tmpElements != null){
+            $('#currentEditElement').html(tmpElements);
+            $('#currentEditElement').attr('id', '');
+            tmpElements = null;
+            $('input[name=task_id]').val('');
+
+        }
+
         return false;
     }
 });
+
+
 
 

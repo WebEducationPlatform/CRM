@@ -37,6 +37,7 @@
             <tr id="newUserTask" style="display: none">
                 <td>
                     <button class="btn btn-primary" onclick="saveNewTasks()">Сохранить</button>
+                    <input type="hidden" name="task_id"/>
                 </td>
                 <td><input class="form-control" type="text" name="task"/></td>
                 <td><input class="form-control" type="date" name="date"/></td>
@@ -69,16 +70,15 @@
                     </div>
                 </td>
             </tr>
-            <tr style="cursor: pointer; " th:each="task : ${tasklist}">
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.id}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.task}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.date}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.expiry_date}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.author.fullCombinedName}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.manager.fullCombinedName}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'" th:text="${task.executor.fullCombinedName}"></td>
-                <td th:onclick="'taskModal('+ ${task.id} +')'"
-                    th:text="${task.client.name} + ' ' + ${task.client.lastName}"></td>
+            <tr style="cursor: pointer; " th:each="task : ${tasklist}"  th:onclick="'editTaskClick(this,'+ ${task.id} +')'">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.task}"></td>
+                <td th:text="${task.date}"></td>
+                <td th:text="${task.expiry_date}"></td>
+                <td th:text="${task.author.fullCombinedName}"></td>
+                <td th:text="${task.manager.fullCombinedName}"></td>
+                <td th:text="${task.executor.fullCombinedName}"></td>
+                <td th:text="${task.client.name} + ' ' + ${task.client.lastName}"></td>
             </tr>
 
             </tbody>
