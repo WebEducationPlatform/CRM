@@ -5,26 +5,37 @@ import com.ewp.crm.models.UserTask;
 import java.time.LocalDate;
 
 public class UserTaskDto {
+    private Long id;
     private String task;
     private LocalDate date;
     private LocalDate expiry_date;
-    private Long author_id;
-    private Long manager_id;
-    private Long executor_id;
-    private Long client_id;
-
+    private Long authorId;
+    private Long managerId;
+    private Long executorId;
+    private Long clientId;
+    private String authorFullName;
+    private String managerFullName;
+    private String executorFullName;
+    private String clientFullName;
 
     public UserTaskDto() {
     }
 
-    public UserTaskDto(String task, LocalDate date, LocalDate expiry_date, Long author_id,Long manager_id, Long executor_id, Long client_id) {
+    public UserTaskDto(Long id, String task, LocalDate date, LocalDate expiry_date, Long author_id, Long manager_id,
+                       Long executor_id, Long client_id, String authorFullName, String managerFullName,
+                       String executorFullName, String clientFullName) {
+        this.id = id;
         this.task = task;
         this.date = date;
         this.expiry_date = expiry_date;
-        this.author_id = author_id;
-        this.manager_id = manager_id;
-        this.executor_id = executor_id;
-        this.client_id = client_id;
+        this.authorId = author_id;
+        this.managerId = manager_id;
+        this.executorId = executor_id;
+        this.clientId = client_id;
+        this.authorFullName = authorFullName;
+        this.managerFullName = managerFullName;
+        this.executorFullName = executorFullName;
+        this.clientFullName = clientFullName;
     }
 
     public String getTask() {
@@ -33,8 +44,10 @@ public class UserTaskDto {
 
 
     public static UserTaskDto getUserTaskDto(UserTask userTask) {
-        return new UserTaskDto(userTask.getTask(), userTask.getDate(), userTask.getExpiry_date(),
-                userTask.getAuthor().getId(),userTask.getManager().getId(), userTask.getExecutor().getId(), userTask.getClient().getId());
+        return new UserTaskDto(userTask.getId(), userTask.getTask(), userTask.getDate(), userTask.getExpiry_date(),
+                userTask.getAuthor().getId(),userTask.getManager().getId(), userTask.getExecutor().getId(), userTask.getClient().getId(),
+                userTask.getAuthor().getFullName(), userTask.getManager().getFullName(), userTask.getExecutor().getFullName() ,
+                userTask.getClient().getName() + " " + userTask.getClient().getLastName());
     }
 
     public void setTask(String task) {
@@ -57,35 +70,67 @@ public class UserTaskDto {
         this.expiry_date = expiry_date;
     }
 
-    public Long getAuthor_id() {
-        return author_id;
+    public Long getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor_id(Long author_id) {
-        this.author_id = author_id;
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
     }
 
-    public Long getManager_id() {
-        return manager_id;
+    public Long getManagerId() {
+        return managerId;
     }
 
-    public void setManager_id(Long manager_id) {
-        this.manager_id = manager_id;
+    public void setManagerId(Long managerId) {
+        this.managerId = managerId;
     }
 
-    public Long getExecutor_id() {
-        return executor_id;
+    public Long getExecutorId() {
+        return executorId;
     }
 
-    public void setExecutor_id(Long executor_id) {
-        this.executor_id = executor_id;
+    public void setExecutorId(Long executorId) {
+        this.executorId = executorId;
     }
 
-    public Long getClient_id() {
-        return client_id;
+    public Long getClientId() {
+        return clientId;
     }
 
-    public void setClient_id(Long client_id) {
-        this.client_id = client_id;
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getAuthorFullName() {
+        return authorFullName;
+    }
+
+    public void setAuthorFullName(String authorFullName) {
+        this.authorFullName = authorFullName;
+    }
+
+    public String getManagerFullName() {
+        return managerFullName;
+    }
+
+    public void setManagerFullName(String managerFullName) {
+        this.managerFullName = managerFullName;
+    }
+
+    public String getExecutorFullName() {
+        return executorFullName;
+    }
+
+    public void setExecutorFullName(String executorFullName) {
+        this.executorFullName = executorFullName;
+    }
+
+    public String getClientFullName() {
+        return clientFullName;
+    }
+
+    public void setClientFullName(String clientFullName) {
+        this.clientFullName = clientFullName;
     }
 }

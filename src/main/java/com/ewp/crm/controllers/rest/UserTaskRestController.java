@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Api(value = "userTask rest controller")
@@ -34,14 +31,23 @@ public class UserTaskRestController {
 
     @RequestMapping(value = "/rest/usertask", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
-    public ResponseEntity<UserTask> saveNewUserTask(@RequestBody UserTaskDto userTaskDto){
-        User author = userService.get(userTaskDto.getAuthor_id());
-        User manager = userService.get(userTaskDto.getManager_id());
-         User executor = userService.get(userTaskDto.getExecutor_id());
-         UserTask userTask = new UserTask(userTaskDto.getTask(),userTaskDto.getDate(),userTaskDto.getExpiry_date(),
-                 author,manager,executor,clientService.get(userTaskDto.getClient_id()));
-         userTaskService.add(userTask);
-        return  new ResponseEntity<>(userTask, HttpStatus.OK);
+    public ResponseEntity<UserTask> saveNewUserTask(@RequestBody UserTaskDto userTaskDto) {
+        User author = userService.get(userTaskDto.getAuthorId());
+        User manager = userService.get(userTaskDto.getManagerId());
+        User executor = userService.get(userTaskDto.getExecutorId());
+        UserTask userTask = new UserTask(userTaskDto.getTask(), userTaskDto.getDate(), userTaskDto.getExpiry_date(),
+                author, manager, executor, clientService.get(userTaskDto.getClientId()));
+        userTaskService.add(userTask);
+        return new ResponseEntity<>(userTask, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/rest/usertask/{userTaskId}")
+    public ResponseEntity<UserTaskDto> getUserTaskById(@PathVariable("userTaskId") Long userTaskId) {
+        UserTask userTask = userTaskService.getById(userTaskId);
+        if (userTask == null) {
+            userTask = new UserTask();
+        }
+        return new ResponseEntity<>(UserTaskDto.getUserTaskDto( userTask), HttpStatus.OK);
     }
 }

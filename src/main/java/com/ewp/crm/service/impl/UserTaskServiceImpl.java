@@ -24,4 +24,9 @@ public class UserTaskServiceImpl implements UserTaskService {
     public  UserTask add (UserTask userTask){
         return userTaskRepository.saveAndFlush(userTask);
     }
+
+    @Override
+    public UserTask getById(Long userTaskId) {
+        return userTaskRepository.getOne(userTaskId);
+    }
 }

@@ -1,7 +1,11 @@
 var tmpElements ;
+var currentEditElementId;
+var currentUserId;
+var currentUserFullName;
 
 $(document).ready(function () {
-
+    currentUserId = $('input[name=authorId]').val();
+    currentUserFullName = $('input[name=author]').val();
     $('input[type=date][name=date]').val(new Date());
 });
 
@@ -14,9 +18,12 @@ function newTasksCreate() {
     if (day < 10)
         day = "0" + day;
     var today = now.getFullYear() + '-' + month + '-' + day;
-    $('#newUserTask').show();
+    closeActiveForm();
     $('input[type=date][name=date]').val(today);
     $('input[type=date][name=date]').prop('disabled', true);
+    $('#newUserTask').show();
+    $('input[name=authorId]').val(currentUserId);
+    $('input[name=author]').val(currentUserFullName);
 }
 
 function saveNewTasks() {
@@ -24,10 +31,14 @@ function saveNewTasks() {
     data.task = $('input[name=task]').val();
     data.date = $('input[name=date]').val();
     data.expiry_date = $('input[name=expiry_date]').val();
-    data.author_id = $('input[name=author_id]').val();
-    data.manager_id = $('select[name=manager_id]').val();
-    data.executor_id = $('select[name=executor_id]').val();
-    data.client_id = $('input[name=client_id]').val();
+    data.authorId = $('input[name=authorId]').val();
+    data.managerId = $('select[name=managerId]').val();
+    data.executorId = $('select[name=executorId]').val();
+    data.clientId = $('input[name=clientId]').val();
+    data.authorFullName = $('input[name=author]').val();
+    data.managerFullName = $('select[name=managerId] option:selected').text();
+    data.executorFullName = $('select[name=executorId] option:selected').text();
+    data.clientFullName = $('input[name=client]').val();
     let newTask = JSON.stringify(data);
     $.ajax({
         url: "/rest/usertask",
@@ -49,18 +60,18 @@ function saveNewTasks() {
 function editTaskClick(elem,id){
     let el = jQuery(elem);
     $('#newUserTask').hide();
-    if (tmpElements != null){
-        $('#currentEditElement').html(tmpElements);
-        $('#currentEditElement').attr('id', '');
-        tmpElements = null;
-    }
+    closeActiveForm();
+    currentEditElementId = id;
     tmpElements = el.html();
+    setEditFormData(id);
+    el.html('');
     el.attr('id','currentEditElement');
+    el.attr('onclick','');
+    el.off('onclick');
     $('input[name=task_id]').val(id);
-    el.html($('#newUserTask').html());
+    $('#newUserTask>td').appendTo(el);
 
-    //$('#newUserTask').show();
-
+    // el.html($('#newUserTask').html());
 }
 
 $(document).ready(function () {
@@ -104,25 +115,59 @@ function pullAllClientsTable(data) {
 
 function setClientOnTask(id, fname) {
     $('input[name=client]').val(fname);
-    $('input[name=client_id]').val(id);
+    $('input[name=clientId]').val(id);
     $('#listClientsFromSearch').hide();
+}
+
+function closeActiveForm() {
+    if (tmpElements != null) {
+        $('#currentEditElement').attr('onclick','editTaskClick(this,' + currentEditElementId + ')');
+        $('#currentEditElement>td').appendTo($('#newUserTask'));
+        $('#currentEditElement').html(tmpElements);
+        $('#currentEditElement').attr('id', '');
+        tmpElements = null;
+        currentEditElementId = null;
+        $('input[name=task_id]').val('');
+        $('select option').prop('selected', false);
+        $('input').val(null);
+
+    }
 }
 
 $(document).keydown(function(e) {
     if( e.keyCode === 27 ) {
-
         $('#newUserTask').hide();
-        if (tmpElements != null){
-            $('#currentEditElement').html(tmpElements);
-            $('#currentEditElement').attr('id', '');
-            tmpElements = null;
-            $('input[name=task_id]').val('');
-
-        }
-
+        closeActiveForm();
         return false;
     }
 });
+
+function setEditFormData(id){
+    let url = "/rest/usertask/" + id;
+    $.ajax({
+        type: 'GET',
+        contentType: "application/json",
+        url: url,
+        success: function (res) {
+            // pullAllClientsTable(res);
+            $('input[name=client]').val(res.clientFullName);
+            $('input[name=clientId]').val(res.cientid);
+            $('#executorId option[value=' + res.executorId + ']').prop('selected', true)
+            $('#managerId option[value=' + res.managerId + ']').prop('selected', true)
+            $('input[name=author]').val(res.authorFullName);
+            $('input[name=authorId]').val(res.authorId);
+            $('input[name=date]').val(res.date);
+            $('input[name=expiry_date]').val(res.expiry_date);
+            $('input[name=task]').val(res.task);
+            $('input[name=task_id]').val(id);
+
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
+}
 
 
 

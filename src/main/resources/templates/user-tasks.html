@@ -43,14 +43,14 @@
                 <td><input class="form-control" type="date" name="date"/></td>
                 <td><input class="form-control" type="date" name="expiry_date"/></td>
                 <td><input class="form-control" type="text" disabled name="author" th:value="${currentUserName}"/>
-                    <input type="hidden" name="author_id" th:value="${currentUserId}"/></td>
-                <td><select class="form-control" id="manager_id" name="manager_id" size="1">
+                    <input type="hidden" name="authorId" th:value="${currentUserId}"/></td>
+                <td><select class="form-control" id="managerId" name="managerId" size="1">
                     <option></option>
                     <option th:each="user : ${users}" th:value="${user.id}"
                             th:text="${user.fullName}"></option>
                 </select>
                 </td>
-                <td><select class="form-control" id="executor_id" name="executor_id" size="1">
+                <td><select class="form-control" id="executorId" name="executorId" size="1">
                     <option></option>
                     <option th:each="user : ${users}" th:value="${user.id}"
                             th:text="${user.fullName}"></option>
@@ -58,7 +58,7 @@
                 </td>
                 <td>
                     <input class="form-control" type="text" name="client" placeholder="Начните вводить имя .."/>
-                    <input type="hidden" name="client_id" value="-1"/>
+                    <input type="hidden" name="clientId" value="-1"/>
                     <div class="card static-heigth" id="listClientsFromSearch"
                          style="display: none;position: absolute; background-color: white; z-index: 1000">
                         <div class="card-header">
