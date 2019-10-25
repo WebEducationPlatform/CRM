@@ -22,7 +22,7 @@
         <table class="table table-hover table-fixed" id="user-tasks-table" width="0%">
             <thead id="thead-table-user-tasks">
             <tr class="head-table">
-                <th width="6%">#</th>
+                <th >#</th>
                 <th width="22%">Задача</th>
                 <th width="8%">Дата</th>
                 <th width="8%">Срок до</th>
@@ -36,6 +36,7 @@
             <tbody id="table-body">
             <tr id="newUserTask" style="display: none">
                 <td>
+                    <button class="btn btn-danger glyphicon glyphicon-remove" id="deleteUserTaskButton" onclick="deleteCurrentUserTask()" title="Удалить задачу"></button>
                     <button class="btn btn-primary" onclick="saveNewTasks()">Сохранить</button>
                     <input type="hidden" name="task_id"/>
                 </td>
@@ -59,6 +60,7 @@
                 <td>
                     <input class="form-control" type="text" name="client" placeholder="Начните вводить имя .."/>
                     <input type="hidden" name="clientId" value="-1"/>
+
                     <div class="card static-heigth" id="listClientsFromSearch"
                          style="display: none;position: absolute; background-color: white; z-index: 1000">
                         <div class="card-header">
@@ -73,8 +75,8 @@
             <tr style="cursor: pointer; " th:each="task : ${tasklist}"  th:onclick="'editTaskClick(this,'+ ${task.id} +')'">
                 <td th:text="${task.id}"></td>
                 <td th:text="${task.task}"></td>
-                <td th:text="${task.date}"></td>
-                <td th:text="${task.expiry_date}"></td>
+                <td th:text="${#temporals.format(task.date,'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(task.expiry_date,'dd.MM.yyyy')}"></td>
                 <td th:text="${task.author.fullCombinedName}"></td>
                 <td th:text="${task.manager.fullCombinedName}"></td>
                 <td th:text="${task.executor.fullCombinedName}"></td>

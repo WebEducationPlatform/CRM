@@ -11,4 +11,7 @@ public interface UserTaskService {
 
     UserTask getById(Long userTaskId);
 
+    void update(UserTask userTaskFromDb);
+
+    boolean delete(Long id);
 }

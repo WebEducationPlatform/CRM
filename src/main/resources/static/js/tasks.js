@@ -24,10 +24,13 @@ function newTasksCreate() {
     $('#newUserTask').show();
     $('input[name=authorId]').val(currentUserId);
     $('input[name=author]').val(currentUserFullName);
+    $('input[name=task_id]').val(-1);
+    $('#deleteUserTaskButton').hide();
 }
 
 function saveNewTasks() {
     let data = {};
+    data.id = $('input[name=task_id]').val();
     data.task = $('input[name=task]').val();
     data.date = $('input[name=date]').val();
     data.expiry_date = $('input[name=expiry_date]').val();
@@ -40,11 +43,20 @@ function saveNewTasks() {
     data.executorFullName = $('select[name=executorId] option:selected').text();
     data.clientFullName = $('input[name=client]').val();
     let newTask = JSON.stringify(data);
+    let url = '';
+    let type = '';
+    if  ( data.id < 0) {
+        url = '/rest/usertask';
+        type = 'PUT';
+    }else {
+        url = '/rest/usertask/update';
+        type = 'POST';
+    }
     $.ajax({
-        url: "/rest/usertask",
-        data: newTask,
+        url: url,
+        data: newTask ,
         contentType: "application/json",
-        type: 'PUT',
+        type: type,
         dataType: 'JSON',
         success: function (returnObj) {
 
@@ -70,6 +82,7 @@ function editTaskClick(elem,id){
     el.off('onclick');
     $('input[name=task_id]').val(id);
     $('#newUserTask>td').appendTo(el);
+    $('#deleteUserTaskButton').show();
 
     // el.html($('#newUserTask').html());
 }
@@ -127,7 +140,7 @@ function closeActiveForm() {
         $('#currentEditElement').attr('id', '');
         tmpElements = null;
         currentEditElementId = null;
-        $('input[name=task_id]').val('');
+        $('input[name=task_id]').val(-1);
         $('select option').prop('selected', false);
         $('input').val(null);
 
@@ -151,7 +164,7 @@ function setEditFormData(id){
         success: function (res) {
             // pullAllClientsTable(res);
             $('input[name=client]').val(res.clientFullName);
-            $('input[name=clientId]').val(res.cientid);
+            $('input[name=clientId]').val(res.clientId);
             $('#executorId option[value=' + res.executorId + ']').prop('selected', true)
             $('#managerId option[value=' + res.managerId + ']').prop('selected', true)
             $('input[name=author]').val(res.authorFullName);
@@ -169,6 +182,17 @@ function setEditFormData(id){
 
 }
 
-
-
-
+function deleteCurrentUserTask(){
+    if(!confirm("Вы уверены, что хотите удалить запись?")) {return};
+    $.ajax({
+        type: 'POST',
+        contentType: "application/json",
+        url: '/rest/usertask/delete/' + currentEditElementId,
+        success: function (res) {
+            location.reload();
+        },
+        error: function (error) {
+                console.log(error);
+        }
+    });
+}

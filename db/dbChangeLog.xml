@@ -163,7 +163,7 @@
         <rollback>
             CREATE TABLE `vk_tracked_club` (
             `id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `client_id` bigint(20) DEFAULT NULL,
+            `clientId` bigint(20) DEFAULT NULL,
             `group_id` bigint(20) DEFAULT NULL,
             `group_name` varchar(255) DEFAULT NULL,
             `token` varchar(255) DEFAULT NULL,
@@ -218,10 +218,10 @@
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
             CREATE TABLE `feedback_client` (
-            `client_id` bigint(20) DEFAULT NULL,
+            `clientId` bigint(20) DEFAULT NULL,
             `feedback_id` bigint(20) NOT NULL,
             PRIMARY KEY (`feedback_id`),
-            KEY `FK_CLIENT` (`client_id`),
+            KEY `FK_CLIENT` (`clientId`),
             CONSTRAINT `FK_FEEDBACK` FOREIGN KEY (`feedback_id`) REFERENCES `feedback` (`feedback_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         </rollback>
@@ -237,9 +237,9 @@
 
             CREATE TABLE `courses_clients` (
             `course_id` bigint NOT NULL,
-            `client_id` bigint NOT NULL,
+            `clientId` bigint NOT NULL,
             CONSTRAINT FK_COURSE_US FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
-            CONSTRAINT FK_CLIENT FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE )
+            CONSTRAINT FK_CLIENT FOREIGN KEY (clientId) REFERENCES client(clientId) ON DELETE CASCADE )
             ENGINE = INNODB;
 
             CREATE TABLE `courses_mentors` (
@@ -397,4 +397,26 @@
         </rollback>
         <comment>Изменение связей для корректного удаления User'ов</comment>
     </changeSet>
+    <changeSet author="Vladimir Nomokonov" id="945">
+    <sql>
+        CREATE TABLE `user_task` (
+        `id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `expiry_date` date DEFAULT NULL,
+        `task` varchar(255) DEFAULT NULL,
+        `author_user_id` bigint(20) NOT NULL,
+        `client_id` bigint(20) NOT NULL,
+        `executor_user_id` bigint(20) DEFAULT NULL,
+        `date` date DEFAULT NULL,
+        `manager_user_id` bigint(20) NOT NULL,
+        PRIMARY KEY (`id`),
+        KEY `FKc9p1ypd3qjt00qae6cpa5kysg` (`author_user_id`),
+        KEY `FKtobvyt3j6nafimk10ak6i0pqx` (`client_id`),
+        KEY `FKd6nmu1jliu5ijn4lilsq1glo1` (`executor_user_id`),
+        KEY `FKb8e9qq3qw7nu6504w0s7yvk1d` (`manager_user_id`)
+        )
+    </sql>
+    <rollback>
+        DROP TABLE IF EXISTS `user_task`;
+    </rollback>
+    <comment>Table for user Task entity</comment>
 </databaseChangeLog>

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -49,5 +50,33 @@ public class UserTaskRestController {
             userTask = new UserTask();
         }
         return new ResponseEntity<>(UserTaskDto.getUserTaskDto( userTask), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/rest/usertask/update", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public ResponseEntity<UserTaskDto> updateUserTask(@RequestBody UserTaskDto userTaskDto){
+        UserTask userTaskFromDb = userTaskService.getById(userTaskDto.getId());
+        if  ( userTaskFromDb != null) {
+            User manager = userService.get(userTaskDto.getManagerId());
+            User executor = userService.get(userTaskDto.getExecutorId());
+            userTaskFromDb.setTask(userTaskDto.getTask());
+            userTaskFromDb.setClient(clientService.get(userTaskDto.getClientId()));
+            userTaskFromDb.setExpiry_date(userTaskDto.getExpiry_date());
+            userTaskFromDb.setExecutor(executor);
+            userTaskFromDb.setManager(manager);
+            userTaskService.update(userTaskFromDb);
+            return new ResponseEntity<>(UserTaskDto.getUserTaskDto(userTaskFromDb), HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.NOT_MODIFIED);
+    }
+
+    @PostMapping("/rest/usertask/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
+    public HttpStatus deleteStudent(@PathVariable("id") Long id) {
+        if (userTaskService.delete(id)) {
+            return HttpStatus.OK;
+        }else  {
+            return HttpStatus.NOT_FOUND;
+        }
     }
 }
