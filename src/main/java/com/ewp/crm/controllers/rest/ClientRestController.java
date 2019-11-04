@@ -667,8 +667,12 @@ public class ClientRestController {
         return clients;
     }
 
-    @GetMapping("/export_in_excel_or_csv")
+    @GetMapping("/export_clients_in_excel_or_csv")
     public void createFileForBitrix24(@RequestParam("formatFile") String formatFile) {
         fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile);
+    }
+    @GetMapping("/export_deal_in_excel_or_csv")
+    public void createFileForBitrix24Deal(@RequestParam("formatFile") String formatFile){
+        fileName = reportService.fillExcelOrCsvFileDealForBitrix24(formatFile);
     }
 }

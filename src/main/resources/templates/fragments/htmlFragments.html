@@ -86,11 +86,25 @@
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <li><a class="dropdown-item" href="#" onclick="exportForBitrix24('csv')">Список клиентов (*.csv)</a></li>
                             <li><a class="dropdown-item" href="#" onclick="exportForBitrix24('xlsx')">Список клиентов (*.xlsx)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportDealForBitrix24('csv')">Список текущих сделок (*.csv)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportDealForBitrix24('xlsx')">Список текущих сделок (*.xlsx)</a></li>
                             <script>
                                 function exportForBitrix24(formatFile) {
                                     $.ajax({
                                         async: false,
-                                        url: '/rest/client/export_in_excel_or_csv',
+                                        url: '/rest/client/export_clients_in_excel_or_csv',
+                                        method: 'GET',
+                                        data: {formatFile: formatFile},
+                                        success: function (strDir) {
+                                            window.location.replace("/rest/client/getClientsData");
+                                        }
+                                    });
+                                }
+
+                                function exportDealForBitrix24(formatFile) {
+                                    $.ajax({
+                                        async: false,
+                                        url: '/rest/client/export_deal_in_excel_or_csv',
                                         method: 'GET',
                                         data: {formatFile: formatFile},
                                         success: function (strDir) {

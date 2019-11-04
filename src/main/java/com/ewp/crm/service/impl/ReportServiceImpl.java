@@ -1,6 +1,7 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.Comment;
 import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.models.dto.ReportDto;
 import com.ewp.crm.repository.interfaces.ClientRepository;
@@ -832,6 +833,112 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return file;
+    }
+
+    public String fillExcelOrCsvFileDealForBitrix24(String formatFile) {
+        File file = null;
+        Workbook workbook = null;
+        if (formatFile.equals("xlsx")) {
+            file = createFilePath("Deal.xlsx").toFile();
+        }
+        if (formatFile.equals("csv")) {
+            file = createFilePath("Deal.csv").toFile();
+        }
+        List<Status> statusList = statusService.getAllStatusesForStudents();
+        if (!statusList.isEmpty()) {
+            workbook = new XSSFWorkbook();
+            for (Status status : statusList) {
+                Sheet sheet = workbook.createSheet("deal_" + status.getName());
+                Font headerFont = workbook.createFont();
+                headerFont.setBold(true);
+                headerFont.setFontHeightInPoints((short) 12);
+                headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+                CellStyle headerCellStyle = workbook.createCellStyle();
+                headerCellStyle.setFont(headerFont);
+
+                Row headerRow = sheet.createRow(0);
+                headerRow.setRowStyle(headerCellStyle);
+
+                headerRow.createCell(0).setCellValue("Название сделки");
+                headerRow.createCell(1).setCellValue("Компания");
+                headerRow.createCell(2).setCellValue("Контакт");
+                headerRow.createCell(3).setCellValue("Сумма");
+                headerRow.createCell(4).setCellValue("Валюта");
+                headerRow.createCell(5).setCellValue("Источник");
+                headerRow.createCell(6).setCellValue("Стадия сделки");
+                headerRow.createCell(7).setCellValue("Доступен для всех");
+                headerRow.createCell(8).setCellValue("Город");
+                headerRow.createCell(9).setCellValue("Дата следующей оплаты");
+                headerRow.createCell(10).setCellValue("Статус в JM CRM");
+                headerRow.createCell(11).setCellValue("История из JM CRM");
+                headerRow.createCell(12).setCellValue("Коментарии из JM CRM");
+//                headerRow.createCell(13).setCellValue("Тип");
+
+                int rowNum = 1;
+                int colNum;
+                List<Client> studentList = status.getClients();
+                for (Client client : studentList) {
+                    Student student = client.getStudent();
+                    if (student != null) {
+                        colNum = 0;
+                        Row row = sheet.createRow(rowNum++);
+                        String phone = client.getPhoneNumber().isPresent() ? client.getPhoneNumber().get() : "";
+                        String email = client.getEmail().isPresent() ? client.getEmail().get() : "";
+                        row.createCell(colNum).setCellValue(
+                                client.getName() + " " + client.getLastName() + "\n" +
+                                client.getCity() + "\n" +
+                                email + "\n" +
+                                phone + "\n");
+                        row.createCell(colNum + 1).setCellValue(client.getName() + " " + client.getLastName());
+                        row.createCell(colNum + 2).setCellValue(client.getName() + " " + client.getLastName());
+                        row.createCell(colNum + 3).setCellValue(String.valueOf(student.getPrice()));
+                        row.createCell(colNum + 4).setCellValue("RUB");
+                        row.createCell(colNum + 5).setCellValue("JM CRM");
+                        row.createCell(colNum + 6).setCellValue(status.getName());
+                        row.createCell(colNum + 7).setCellValue("да");
+                        row.createCell(colNum + 8).setCellValue(client.getCity());
+                        row.createCell(colNum + 9).setCellValue(student.getNextPaymentDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                        row.createCell(colNum + 10).setCellValue(status.getName());
+                        StringBuilder stringBuilder = new StringBuilder();
+                        List<ClientHistory> clientHistoryList = client.getHistory();
+                        for (ClientHistory clientHistory : clientHistoryList) {
+                            stringBuilder.append(clientHistory.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm:ss")))
+                                    .append(" ")
+                                    .append(clientHistory.getTitle())
+                                    .append("\n");
+                        }
+//                        row.createCell(colNum + 11).setCellValue(stringBuilder.toString());
+
+                        stringBuilder = new StringBuilder();
+                        List<Comment> commentList = client.getComments();
+                        for (Comment comment : commentList) {
+                            stringBuilder.append("Комментарий: ").append(comment.getDateFormat().format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm:ss")))
+                                    .append(" ")
+                                    .append(comment.getUser().getFullName())
+                                    .append("\n")
+                                    .append(comment.getContent())
+                                    .append("\n");
+                        }
+                        row.createCell(colNum + 12).setCellValue(stringBuilder.toString());
+                        row.createCell(colNum + 13).setCellValue("Ежемесячная оплата Java");
+                    }
+                }
+
+            }
+        }
+        if (file != null & workbook != null) {
+            try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                workbook.write(fileOut);
+            } catch (FileNotFoundException e) {
+                logger.error("Can't find file! ", e);
+            } catch (IOException e) {
+                logger.error("Can't fill excel file! ", e);
+            }
+            return file.getName();
+        }else {
+            return null;
+        }
     }
 
     public String fillExcelOrCsvFileForBitrix24(String formatFile) {
