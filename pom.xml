@@ -46,6 +46,7 @@
 		<poi-ooxml.version>4.1.0</poi-ooxml.version>
 		<commons-csv.version>1.7</commons-csv.version>
 		<junit-platform.version>5.3.2</junit-platform.version>
+		<jsonwebtoken.version>0.8.0</jsonwebtoken.version>
 	</properties>
 
 	<dependencies>
@@ -354,6 +355,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- JSON Web Token lib -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>${jsonwebtoken.version}</version>
 		</dependency>
 
 	</dependencies>

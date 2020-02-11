@@ -31,7 +31,6 @@ public class StatusApiRestController {
         }
 
         //TODO Понять откуда сюда приходит запрос
-        System.out.println("Я запрос! Я пришел!");
         Status status = new Status(statusName, 1L);
         statusService.add(status);
 
