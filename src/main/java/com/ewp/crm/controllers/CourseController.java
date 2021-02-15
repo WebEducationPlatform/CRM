@@ -1,9 +1,11 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.Course;
+import com.ewp.crm.models.StudentEducationStage;
 import com.ewp.crm.models.CourseSet;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.CourseService;
+import com.ewp.crm.service.interfaces.StudentEducationStageService;
 import com.ewp.crm.service.interfaces.CourseSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 
+import java.util.*;
+
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'HR', 'MENTOR')")
 @RequestMapping(value = "/courses")
@@ -24,10 +28,12 @@ public class CourseController {
 
     private final CourseService courseService;
     private final CourseSetService courseSetService;
+    private final StudentEducationStageService studentEducationStageService;
 
     @Autowired
-    public CourseController(CourseService courseService, CourseSetService courseSetService) {
+    public CourseController(CourseService courseService, StudentEducationStageService studentEducationStageService, CourseSetService courseSetService) {
         this.courseService = courseService;
+        this.studentEducationStageService = studentEducationStageService;
         this.courseSetService = courseSetService;
     }
 
@@ -35,7 +41,30 @@ public class CourseController {
     @GetMapping()
     public ModelAndView allCourses(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("courses");
-        modelAndView.addObject("courses", courseService.getAll());
+        //Код для вывода уровней обучения шаблонизатором по-порядку
+        List<Course> course = courseService.getAll();
+        Map<Course, LinkedList<StudentEducationStage>> map = new HashMap<>();
+
+        for(Course courseTmp: course) {
+            Set<StudentEducationStage> studentEducationStageSet = courseTmp.getStudentEducationStage();
+            Integer maxLevel = -1;
+            //определение максимального уровня обучения
+            for(StudentEducationStage set: studentEducationStageSet) {
+                if(maxLevel<set.getEducationStageLevel()) {
+                    maxLevel = set.getEducationStageLevel();
+                }
+            }
+            LinkedList<StudentEducationStage> studentEducationStagesList = new LinkedList<>();
+            for(int i = 0; i<=maxLevel; i++) {
+                for(StudentEducationStage set: studentEducationStageSet) {
+                    if(set.getEducationStageLevel()==i) {
+                        studentEducationStagesList.add(set);
+                    }
+                }
+            }
+            map.put(courseTmp, studentEducationStagesList);
+        }
+        modelAndView.addObject("courses", map);
         return modelAndView;
     }
 
@@ -66,7 +95,12 @@ public class CourseController {
     //Обработка формы удаления направления
     @PostMapping(value = "/delete")
     public String deleteCourse(@RequestParam("delete") Long courseId) {
-        courseService.delete(courseId);
+        Course course = courseService.getCourse(courseId);
+        Set<StudentEducationStage> studentEducationStageSet = course.getStudentEducationStage();
+        for (StudentEducationStage setStudentEducationStage : studentEducationStageSet) {
+            studentEducationStageService.delete(setStudentEducationStage.getId());
+        }
+    //    courseService.delete(courseId);
         return "redirect:/courses";
     }
 

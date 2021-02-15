@@ -1,9 +1,7 @@
 package com.ewp.crm.repository.impl;
 
-import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.models.dto.StatusDto;
 import com.ewp.crm.models.dto.all_students_page.ClientDtoForAllStudentsPage;
 import com.ewp.crm.models.dto.all_students_page.SocialNetworkDto;
@@ -16,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -28,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class StudentRepositoryImpl implements StudentRepositoryCustom {
@@ -178,6 +178,50 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void updateStudentEducationStage(StudentEducationStage studentEducationStage, Student student) {
+        Student studentTmp = entityManager.find(Student.class, student.getId());
+        if(studentEducationStage==null) {
+            studentTmp.setStudentEducationStage(studentEducationStage);
+            entityManager.merge(studentTmp);
+            return;
+        }
+        Course course = studentEducationStage.getCourse();
+        studentTmp.setCourse(course);
+        studentTmp.setStudentEducationStage(studentEducationStage);
+        entityManager.merge(studentTmp);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void updateCourse(Course course, Student student) {
+        Student studentTmp = entityManager.find(Student.class, student.getId());
+        studentTmp.setCourse(course);
+        Set<StudentEducationStage> studentEducationStageSet = course.getStudentEducationStage();
+     //Определение минимального уровня обучения и присвоения его студенту
+        StudentEducationStage studentEducationStageTmp = null;
+        Integer stageMinLevel = -1;
+        int i = 0;
+        if(studentEducationStageSet!=null) {
+            for (StudentEducationStage set : studentEducationStageSet) {
+                if (i == 0) {
+                    stageMinLevel = set.getEducationStageLevel();
+                    studentEducationStageTmp = set;
+                    i++;
+                } else if (stageMinLevel > set.getEducationStageLevel()) {
+                    stageMinLevel = set.getEducationStageLevel();
+                    studentEducationStageTmp = set;
+                    i++;
+                } else {
+                    i++;
+                }
+            }
+        }
+        studentTmp.setStudentEducationStage(studentEducationStageTmp);
+        entityManager.merge(studentTmp);
     }
 
     /**

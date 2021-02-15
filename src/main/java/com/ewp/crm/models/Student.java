@@ -101,9 +101,13 @@ public class Student implements Diffable<Student> {
      * Связь с таблицей "Уровень обучения"
      */
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "student_education_id")
     private StudentEducationStage studentEducationStage;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 
     public Student() {
     }
@@ -261,12 +265,21 @@ public class Student implements Diffable<Student> {
         this.notifySlack = notifySlack;
     }
 
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
     @Override
     public String toString() {
         return "Student{" +
                 "id=" + id +
                 ", client=" + client +
-                ", student_education_stage='" + studentEducationStage +
+                ", course= "+ course +
+                ", student_education_stage=" + studentEducationStage +
                 ", trialEndDate=" + trialEndDate +
                 ", nextPaymentDate=" + nextPaymentDate +
                 ", lastPaymentNotification=" + lastPaymentNotification +

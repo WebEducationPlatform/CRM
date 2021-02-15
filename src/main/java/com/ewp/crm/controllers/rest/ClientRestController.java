@@ -685,25 +685,51 @@ public class ClientRestController {
         fileName = reportService.fillExcelOrCsvFileForBitrix24(formatFile);
     }
 
-    //Запись клиента на Направление
-    @PostMapping(value = "/course/add/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
-    public ResponseEntity clientAddCourse(@PathVariable Long id,
-                                          @RequestParam Long courseId) {
-        Course course = courseService.getCourse(courseId);
-        course.setClient(clientService.get(id));
-        courseService.update(course);
-        return new ResponseEntity(HttpStatus.OK);
-    }
+//    //Запись клиента на Направление
+//    @PostMapping(value = "/course/add/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+//    public ResponseEntity clientAddCourse(@PathVariable Long id,
+//                                          @RequestParam Long courseId) {
+//        Course course = courseService.getCourse(courseId);
+//        course.setClient(clientService.get(id));
+//        courseService.update(course);
+//        //Запись студента на минимальный уровень обучения
+//        Client client = clientService.get(id);
+//        Student student = client.getStudent();
+//        if(student!=null) {
+//            StudentEducationStage studentEducationStage = student.getStudentEducationStage();
+//            Set<StudentEducationStage> studentEducationStageSet = course.getStudentEducationStage();
+//            if(studentEducationStage==null && studentEducationStageSet!=null) {
+//                StudentEducationStage studentEducationStageTmp = null;
+//                Integer minLevel = 0;
+//                int i = 0;
+//                for(StudentEducationStage set : studentEducationStageSet) {
+//                    if(i==0) {
+//                        minLevel = set.getEducationStageLevel();
+//                        studentEducationStageTmp = set;
+//                        i++;
+//                    } else if(minLevel>set.getEducationStageLevel()) {
+//                        minLevel = set.getEducationStageLevel();
+//                        studentEducationStageTmp = set;
+//                        i++;
+//                    } else {
+//                        i++;
+//                    }
+//                }
+//                studentService.updateStudentEducationStage(studentEducationStageTmp, student);
+//            }
+//        }
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
-    //Получение Направлений для Клиента
-    @GetMapping(value = "/courses/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
-    public ResponseEntity<List<Course>> studentGetCourseSet(@PathVariable Long clientId) {
-        Client client = clientService.get(clientId);
-        List<Course> list = courseService.getCoursesByClient(client);
-        return ResponseEntity.ok(list);
-    }
+//    //Получение Направлений для Клиента
+//    @GetMapping(value = "/courses/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+//    public ResponseEntity<List<Course>> studentGetCourseSet(@PathVariable Long clientId) {
+//        Client client = clientService.get(clientId);
+//        List<Course> list = courseService.getCoursesByClient(client);
+//        return ResponseEntity.ok(list);
+//    }
 
     @PostMapping(value = "/filtrationForCourseSet", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
@@ -711,4 +737,6 @@ public class ClientRestController {
         List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
         return ResponseEntity.ok(ClientDtoForCourseSetTable.getListDtoClients(clients));
     }
+
+
 }

@@ -133,6 +133,6 @@ public class Notification implements Serializable {
 	}
 
 	public enum Type{
-		COMMENT, SMS, POSTPONE, EDIT_STATUS
+		COMMENT, SMS, POSTPONE, EDIT_STATUS, NEW_USER, ASSIGN_SKYPE
 	}
 }

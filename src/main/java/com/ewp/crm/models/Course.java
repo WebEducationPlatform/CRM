@@ -3,10 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /*
 Направления
@@ -28,6 +25,11 @@ public class Course {
             joinColumns = {@JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
     private Set<Client> clients = new HashSet<>();
+
+//Для создания однонаправленной связи удалить @OneToMany(mappedBy = "course") геттры и сеттеры
+    @OneToMany(mappedBy = "course")
+    @JsonIgnore
+    private Set<Student> student;
 
     @ManyToMany
     @JsonIgnore
@@ -53,21 +55,21 @@ public class Course {
         this.name = name;
     }
 
-    public Course(String name, Set<Client> clients) {
+    public Course(String name, Set<Student> student) {
         this.name = name;
-        this.clients = clients;
+        this.student = student;
     }
 
-    public Course(String name, Set<Client> clients, List<Mentor> mentors) {
+    public Course(String name, Set<Student> student, List<Mentor> mentors) {
         this.name = name;
-        this.clients = clients;
+        this.student = student;
         this.mentors = mentors;
     }
 
-    public Course(String name, Set<Client> clients, List<Mentor> mentors,
+    public Course(String name, Set<Student> student, List<Mentor> mentors,
                   Set<StudentEducationStage> studentEducationStage) {
         this.name = name;
-        this.clients = clients;
+        this.student = student;
         this.mentors = mentors;
         this.studentEducationStage = studentEducationStage;
     }
@@ -85,16 +87,16 @@ public class Course {
         this.name = name;
     }
 
-    public Set<Client> getClients() {
-        return clients;
+    public Set<Student> getStudent() {
+        return student;
     }
 
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
+    public void setStudent(Set<Student> student) {
+        this.student = student;
     }
 
-    public void setClient(Client client) {
-        clients.add(client);
+    public void addStudent(Student newStudent) {
+        student.add(newStudent);
     }
 
     public List<Mentor> getMentors() {
@@ -123,5 +125,18 @@ public class Course {
 
     public void setCourseSets(Set<CourseSet> courseSets) {
         this.courseSets = courseSets;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return name.equals(course.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

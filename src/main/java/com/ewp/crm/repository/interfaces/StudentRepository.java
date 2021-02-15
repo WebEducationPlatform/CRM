@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface StudentRepository extends CommonGenericRepository<Student> {
+public interface StudentRepository extends CommonGenericRepository<Student>, StudentRepositoryCustom{
 
     List<Student> getStudentsByStatusId(Long id);
 

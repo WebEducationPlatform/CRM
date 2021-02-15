@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,28 +36,23 @@ import java.util.function.Supplier;
 public class StudentRestController {
 
     private static Logger logger = LoggerFactory.getLogger(StudentRestController.class);
-
     private final StudentService studentService;
-
     private final ClientService clientService;
-
     private final ClientHistoryService clientHistoryService;
-
     private final StudentStatusService studentStatusService;
-
     private final ProjectPropertiesService projectPropertiesService;
-
     private final StatusService statusService;
-
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
-
     private final CourseSetService courseSetService;
+    private final StudentEducationStageService studentEducationStageService;
+    private final CourseService courseService;
 
     @Autowired
     public StudentRestController(StudentService studentService, ClientService clientService,
                                  ClientHistoryService clientHistoryService, StudentStatusService studentStatusService,
                                  ProjectPropertiesService projectPropertiesService, StatusService statusService,
-                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService, CourseSetService courseSetService) {
+                                 ClientStatusChangingHistoryService clientStatusChangingHistoryService, CourseSetService courseSetService,
+                                 StudentEducationStageService studentEducationStageService, CourseService courseService) {
         this.studentService = studentService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
@@ -65,6 +61,8 @@ public class StudentRestController {
         this.statusService = statusService;
         this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
         this.courseSetService = courseSetService;
+        this.studentEducationStageService = studentEducationStageService;
+        this.courseService = courseService;
     }
 
     @GetMapping("/{id}")
@@ -293,5 +291,60 @@ public class StudentRestController {
             }
         }
         return null;
+    }
+
+    //Запись студента на направление (курс) c минимальным уровнем обучения для курса
+    @PostMapping(value = "/course/add/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity clientAddCourse(@PathVariable Long id,
+                                          @RequestParam Long courseId) {
+        Course course = courseService.getCourse(courseId);
+        Client client = clientService.get(id);
+        Student student = client.getStudent();
+        studentService.updateCourse(course, student);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    //Получение уровня обучения
+    @GetMapping(value = "/studentEducationStage/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity<StudentEducationStage> getStudentEducationStage(@PathVariable Long clientId) {
+        Student student = clientService.getClientByID(clientId).get().getStudent();
+        StudentEducationStage studentEducationStage = student.getStudentEducationStage();
+        if(studentEducationStage!=null) {
+            return ResponseEntity.ok(studentEducationStage);
+        }
+        return null;
+    }
+
+    //Получение направления (курса) для студента
+    @GetMapping(value = "/courses/get/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity<Course> studentGetCourse(@PathVariable Long clientId) {
+        Student student = clientService.getClientByID(clientId).get().getStudent();
+        Course course = student.getCourse();
+        if (course!=null) {
+            return ResponseEntity.ok(course);
+        }
+        return null;
+    }
+
+    //Обновление уровня обучения, метод вернет badRequest если студент уже назначен на курс и передан уровень обучения иного курса
+    @PostMapping(value = "/studentEducationStage/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+    public ResponseEntity<StudentEducationStage> updateStudentEducationStage(@RequestParam (value = "clientId") Long clientId,
+                                                                  @RequestParam (name = "studentEducationStageId") Long studentEducationStageId) {
+        Client client = clientService.getClientByID(clientId).get();
+        Student student = client.getStudent();
+        Course studentCourse = student.getCourse();
+        StudentEducationStage studentEducationStage = studentEducationStageService.getStudentEducationStage(studentEducationStageId);
+        if(studentEducationStage==null) {
+            return (ResponseEntity<StudentEducationStage>) ResponseEntity.notFound();
+        }
+        if(studentCourse==null || (studentCourse!=null && studentCourse.equals(studentEducationStage.getCourse()))) {
+            studentService.updateStudentEducationStage(studentEducationStage, student);
+            return ResponseEntity.ok(studentEducationStage);
+        }
+        return (ResponseEntity<StudentEducationStage>) ResponseEntity.badRequest();
     }
 }

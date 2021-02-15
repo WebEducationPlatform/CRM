@@ -1,9 +1,7 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.Client;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.models.dto.all_students_page.StudentDto;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
@@ -24,17 +22,14 @@ import java.util.Optional;
 public class StudentServiceImpl extends CommonServiceImpl<Student> implements StudentService {
 
     private final StudentRepository studentRepository;
-    private final StudentRepositoryCustom studentRepositoryCustom;
     private final ProjectPropertiesService projectPropertiesService;
 
     private static Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
-                              StudentRepositoryCustom studentRepositoryCustom,
                               ProjectPropertiesService projectPropertiesService) {
         this.studentRepository = studentRepository;
-        this.studentRepositoryCustom = studentRepositoryCustom;
         this.projectPropertiesService = projectPropertiesService;
     }
 
@@ -67,7 +62,7 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Override
     public List<Student> getStudentsWithoutSocialProfileByType(List<SocialNetworkType> excludeSocialProfiles) {
-        return studentRepositoryCustom.getStudentsWithoutSocialProfileByType(excludeSocialProfiles);
+        return studentRepository.getStudentsWithoutSocialProfileByType(excludeSocialProfiles);
     }
 
     @Override
@@ -77,17 +72,17 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Override
     public List<Student> getStudentsWithTodayNotificationsEnabled() {
-        return studentRepositoryCustom.getStudentsWithTodayNotificationsEnabled();
+        return studentRepository.getStudentsWithTodayNotificationsEnabled();
     }
 
     @Override
     public List<Student> getStudentsWithTodayTrialNotificationsEnabled() {
-        return studentRepositoryCustom.getStudentsWithTodayTrialNotificationsEnabled();
+        return studentRepository.getStudentsWithTodayTrialNotificationsEnabled();
     }
 
     @Override
     public void detach(Student student) {
-        studentRepositoryCustom.detach(student);
+        studentRepository.detach(student);
     }
 
     @Override
@@ -102,7 +97,7 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Override
     public void resetColors() {
-        studentRepositoryCustom.resetColors();
+        studentRepository.resetColors();
     }
 
     @Override
@@ -112,8 +107,17 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Override
     public List<StudentDto> getStudentDtoForAllStudentsPage() {
-        return studentRepositoryCustom.getStudentDtoForAllStudentsPage();
+        return studentRepository.getStudentDtoForAllStudentsPage();
     }
 
+    @Override
+    public void updateStudentEducationStage(StudentEducationStage studentEducationStage, Student student) {
+        studentRepository.updateStudentEducationStage(studentEducationStage, student);
+    }
+
+    @Override
+    public void updateCourse(Course course, Student student) {
+        studentRepository.updateCourse(course, student);
+    }
 
 }
