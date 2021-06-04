@@ -33,7 +33,7 @@
 		<jquery.version>3.2.1</jquery.version>
 		<bootstrap.version>3.3.7</bootstrap.version>
 		<jquery-ui.version>1.12.1</jquery-ui.version>
-		<httpclient.version>4.5.5</httpclient.version>
+		<httpclient.version>4.5.13</httpclient.version>
 		<android-json.version>0.0.20131108.vaadin1</android-json.version>
 		<apache.commons.io.version>2.4</apache.commons.io.version>
 		<project.youtube.version>v3-rev182-1.22.0</project.youtube.version>
