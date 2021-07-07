@@ -61,6 +61,8 @@ public class StudentRestController {
 
     private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
 
+
+
     @Autowired
     public StudentRestController(StudentService studentService, ClientService clientService,
                                  ClientHistoryService clientHistoryService, StudentStatusService studentStatusService,
@@ -258,5 +260,13 @@ public class StudentRestController {
         clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT).ifPresent(client::addHistory);
         studentService.update(current);
         clientService.updateClient(client);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity getStudentDtoForPageOfAll() {
+        if (studentService.getStudentDtoForAllStudentsPage() == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(studentService.getStudentDtoForAllStudentsPage());
     }
 }
