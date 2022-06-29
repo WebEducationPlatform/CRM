@@ -29,7 +29,7 @@
 		<!--<mysql-connector-java.version>5.1.39</mysql-connector-java.version>-->
 		<mysql-connector-java.version>5.1.46</mysql-connector-java.version>
 		<spring-integration-mail.version>4.3.14.RELEASE</spring-integration-mail.version>
-		<commons-email.version>1.4</commons-email.version>
+		<commons-email.version>1.5</commons-email.version>
 		<jquery.version>3.2.1</jquery.version>
 		<bootstrap.version>3.3.7</bootstrap.version>
 		<jquery-ui.version>1.12.1</jquery-ui.version>
